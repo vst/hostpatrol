@@ -1,27 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | This module provides project metadata information definitions.
-module Hebele.Meta where
+module Lhp.Meta where
 
 import qualified Data.Text as T
 import Data.Version (Version, showVersion)
-import qualified Paths_haskell_template_hebele as Paths
+import qualified Paths_lhp as Paths
 
 
 -- | Application name.
 --
 -- >>> name
--- "haskell-template-hebele"
+-- "lhp"
 name :: T.Text
-name = "haskell-template-hebele"
+name = "lhp"
 
 
 -- | Application title.
 --
 -- >>> title
--- "Haskell Project Template"
+-- "Lazy Hacker's Linux Host Patrol"
 title :: T.Text
-title = "Haskell Project Template"
+title = "Lazy Hacker's Linux Host Patrol"
 
 
 -- | Application version.
