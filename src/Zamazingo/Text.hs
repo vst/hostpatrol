@@ -3,7 +3,10 @@
 -- | This module provides auxiliary definitions for textual values.
 module Zamazingo.Text where
 
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TLE
 
 
 -- $setup
@@ -38,3 +41,10 @@ sanitize = T.unwords . T.words
 nonempty :: T.Text -> Maybe T.Text
 nonempty "" = Nothing
 nonempty x = Just x
+
+
+-- | Attempts to convert a given lazy bytestring to strict text.
+--
+-- May throw encoding error, hence the @unsafe@.
+unsafeTextFromBL :: BL.ByteString -> T.Text
+unsafeTextFromBL = TL.toStrict . TLE.decodeUtf8

@@ -24,10 +24,14 @@ library:
   dependencies:
     - aeson
     - autodocodec
+    - bytestring
+    - mtl
     - optparse-applicative
+    - path
     - scientific
     - text
     - time
+    - typed-process
 
 executables:
   lhp:
