@@ -22,8 +22,12 @@ library:
     - -Werror
     - -Wunused-packages
   dependencies:
+    - aeson
+    - autodocodec
     - optparse-applicative
+    - scientific
     - text
+    - time
 
 executables:
   lhp:
