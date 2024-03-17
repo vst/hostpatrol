@@ -23,8 +23,10 @@ library:
     - -Wunused-packages
   dependencies:
     - aeson
+    - aeson-combinators
     - autodocodec
     - bytestring
+    - file-embed
     - mtl
     - optparse-applicative
     - path

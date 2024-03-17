@@ -33,6 +33,7 @@
         - DerivingVia
         - FlexibleContexts
         - OverloadedStrings
+        - TemplateHaskell
 
 ################
 # CUSTOM RULES #
