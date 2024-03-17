@@ -29,7 +29,12 @@
 - extensions:
     - default: false # All extension are banned by default.
     - name:
+        - DeriveGeneric
+        - DerivingVia
+        - FlexibleContexts
         - OverloadedStrings
+        - TemplateHaskell
+        - TypeApplications
 
 ################
 # CUSTOM RULES #

@@ -1,15 +1,24 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- | This module provides top-level definitions for the CLI program.
 module Lhp.Cli where
 
-import Control.Applicative ((<**>), (<|>))
+import qualified Autodocodec.Schema as ADC.Schema
+import Control.Applicative ((<**>))
 import Control.Monad (join)
+import Control.Monad.Except (runExceptT)
+import qualified Control.Monad.Parallel as MP
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy.Char8 as BLC
 import qualified Data.Text as T
-import qualified Data.Text.IO as TIO
 import qualified Lhp.Meta as Meta
+import Lhp.Remote (compileReport)
+import Lhp.Types (Report)
+import Options.Applicative ((<|>))
 import qualified Options.Applicative as OA
 import System.Exit (ExitCode (..))
+import System.IO (hPutStrLn, stderr)
 
 
 -- * Entrypoint
@@ -34,51 +43,55 @@ cli =
 -- | Option parser for top-level commands.
 optProgram :: OA.Parser (IO ExitCode)
 optProgram =
-  commandGreet
-    <|> commandFarewell
+  commandCompile
+    <|> commandSchema
 
 
 -- * Commands
 
 
--- ** greet
+-- ** compile
 
 
--- | Definition for @greet@ CLI command.
-commandGreet :: OA.Parser (IO ExitCode)
-commandGreet = OA.hsubparser (OA.command "greet" (OA.info parser infomod) <> OA.metavar "greet")
+-- | Definition for @compile@ CLI command.
+commandCompile :: OA.Parser (IO ExitCode)
+commandCompile = OA.hsubparser (OA.command "compile" (OA.info parser infomod) <> OA.metavar "compile")
   where
-    infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Greet user." <> OA.footer "This command prints a greeting message to the console."
+    infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Compile remote host information." <> OA.footer "This command fetches and compiles remote host information."
     parser =
-      doGreet
-        <$> OA.strOption (OA.short 'n' <> OA.long "name" <> OA.value "World" <> OA.showDefault <> OA.help "Whom to greet.")
+      doCompile
+        <$> OA.many (OA.strOption (OA.short 'h' <> OA.long "host" <> OA.help "Remote host (in SSH destination format)."))
+        <*> OA.switch (OA.short 's' <> OA.long "stream" <> OA.help "Streaming results.")
 
 
--- | @greet@ CLI command program.
-doGreet :: T.Text -> IO ExitCode
-doGreet n = do
-  TIO.putStrLn ("Hello " <> n <> "!")
+-- | @compile@ CLI command program.
+doCompile :: [T.Text] -> Bool -> IO ExitCode
+doCompile hosts False = do
+  res <- runExceptT (MP.mapM compileReport hosts)
+  case res of
+    Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
+    Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
+doCompile hosts True = do
+  mapM_ go hosts
   pure ExitSuccess
-
-
--- ** farewell
-
-
--- | Definition for @farewell@ CLI command.
-commandFarewell :: OA.Parser (IO ExitCode)
-commandFarewell = OA.hsubparser (OA.command "farewell" (OA.info parser infomod) <> OA.metavar "farewell")
   where
-    infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Say farewell to user." <> OA.footer "This command prints a farewell message to the console."
-    parser =
-      doFarewell
-        <$> OA.strOption (OA.short 'n' <> OA.long "name" <> OA.value "World" <> OA.showDefault <> OA.help "Whom to say farewell to.")
+    go h = do
+      hPutStrLn stderr ("Patrolling " <> T.unpack h)
+      res <- runExceptT (compileReport h)
+      case res of
+        Left err -> BLC.hPutStrLn stderr (Aeson.encode err)
+        Right sr -> BLC.putStrLn (Aeson.encode sr)
 
 
--- | @farewell@ CLI command program.
-doFarewell :: T.Text -> IO ExitCode
-doFarewell n = do
-  TIO.putStrLn ("Thanks for all the fish, " <> n <> "!")
-  pure ExitSuccess
+-- ** schema
+
+
+-- | Definition for @schema@ CLI command.
+commandSchema :: OA.Parser (IO ExitCode)
+commandSchema = OA.hsubparser (OA.command "schema" (OA.info parser infomod) <> OA.metavar "schema")
+  where
+    infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Produce JSON schema for report." <> OA.footer "This command produces JSON schema for report data type."
+    parser = pure (BLC.putStrLn (Aeson.encode (ADC.Schema.jsonSchemaViaCodec @Report)) >> pure ExitSuccess)
 
 
 -- * Helpers

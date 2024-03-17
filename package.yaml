@@ -22,8 +22,20 @@ library:
     - -Werror
     - -Wunused-packages
   dependencies:
+    - aeson
+    - aeson-combinators
+    - autodocodec
+    - autodocodec-schema
+    - bytestring
+    - file-embed
+    - monad-parallel
+    - mtl
     - optparse-applicative
+    - path
+    - scientific
     - text
+    - time
+    - typed-process
 
 executables:
   lhp:
