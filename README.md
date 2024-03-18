@@ -10,7 +10,7 @@ The codebase comes with a Nix shell. You can use `direnv` for conveience:
 direnv allow
 ```
 
-Big, long build command for the impatient:
+Big, long format, lint, build and test command for the impatient:
 
 ```sh
 hpack &&
@@ -23,6 +23,12 @@ hpack &&
     cabal run -O0 lhp -- --version &&
     cabal v1-test &&
     cabal haddock -O0
+```
+
+For testing and building:
+
+```sh
+dev-test-build
 ```
 
 <!-- REFERENCES -->
