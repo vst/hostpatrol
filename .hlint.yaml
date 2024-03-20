@@ -33,6 +33,7 @@
         - DerivingVia
         - FlexibleContexts
         - OverloadedStrings
+        - RecordWildCards
         - TemplateHaskell
         - TypeApplications
 

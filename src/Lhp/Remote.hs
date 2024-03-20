@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | This module provides definitions to retrieve and parse remote
@@ -30,16 +31,16 @@ import qualified Zamazingo.Text as Z.Text
 compileReport
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m Types.Report
-compileReport h = do
-  kvs <- (++) <$> _fetchHostInfo h <*> _fetchHostCloudInfo h
+compileReport h@Types.Host {..} = do
+  kvs <- (++) <$> _fetchHostInfo _hostName <*> _fetchHostCloudInfo _hostName
   Types.Report h
-    <$> _mkCloud h kvs
-    <*> _mkHardware h kvs
-    <*> _mkKernel h kvs
-    <*> _mkDistribution h kvs
-    <*> _fetchHostDockerContainers h
+    <$> _mkCloud _hostName kvs
+    <*> _mkHardware _hostName kvs
+    <*> _mkKernel _hostName kvs
+    <*> _mkDistribution _hostName kvs
+    <*> _fetchHostDockerContainers _hostName
 
 
 -- * Errors
