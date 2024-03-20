@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 
 -- | This module provides top-level definitions for the CLI program.
@@ -12,9 +13,11 @@ import qualified Control.Monad.Parallel as MP
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import qualified Data.Text as T
+import qualified Lhp.Config as Config
 import qualified Lhp.Meta as Meta
 import Lhp.Remote (compileReport)
 import Lhp.Types (Report)
+import qualified Lhp.Types as Types
 import Options.Applicative ((<|>))
 import qualified Options.Applicative as OA
 import System.Exit (ExitCode (..))
@@ -60,27 +63,32 @@ commandCompile = OA.hsubparser (OA.command "compile" (OA.info parser infomod) <>
     infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Compile remote host information." <> OA.footer "This command fetches and compiles remote host information."
     parser =
       doCompile
-        <$> OA.many (OA.strOption (OA.short 'h' <> OA.long "host" <> OA.help "Remote host (in SSH destination format)."))
+        <$> OA.optional (OA.strOption (OA.short 'c' <> OA.long "config" <> OA.action "file" <> OA.help "Path to the configuration file."))
+        <*> OA.many (OA.strOption (OA.short 'h' <> OA.long "host" <> OA.help "Remote host (in SSH destination format)."))
         <*> OA.switch (OA.short 's' <> OA.long "stream" <> OA.help "Streaming results.")
 
 
 -- | @compile@ CLI command program.
-doCompile :: [T.Text] -> Bool -> IO ExitCode
-doCompile hosts False = do
-  res <- runExceptT (MP.mapM compileReport hosts)
-  case res of
-    Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
-    Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
-doCompile hosts True = do
-  mapM_ go hosts
-  pure ExitSuccess
-  where
-    go h = do
-      hPutStrLn stderr ("Patrolling " <> T.unpack h)
-      res <- runExceptT (compileReport h)
+doCompile :: Maybe FilePath -> [T.Text] -> Bool -> IO ExitCode
+doCompile cpath dests stream = do
+  config <- maybe (pure (Config.Config [])) Config.readConfigFile cpath
+  let hosts = Config._configHosts config <> fmap (\d -> Types.Host {Types._hostName = d, Types._hostUrl = Nothing, Types._hostTags = []}) dests
+  case stream of
+    False -> do
+      res <- runExceptT (MP.mapM compileReport hosts)
       case res of
-        Left err -> BLC.hPutStrLn stderr (Aeson.encode err)
-        Right sr -> BLC.putStrLn (Aeson.encode sr)
+        Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
+        Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
+    True -> do
+      mapM_ go hosts
+      pure ExitSuccess
+      where
+        go h@Types.Host {..} = do
+          hPutStrLn stderr ("Patrolling " <> T.unpack _hostName)
+          res <- runExceptT (compileReport h)
+          case res of
+            Left err -> BLC.hPutStrLn stderr (Aeson.encode err)
+            Right sr -> BLC.putStrLn (Aeson.encode sr)
 
 
 -- ** schema

@@ -1,0 +1,11 @@
+hosts:
+  - name: somehost
+    url: https://internal.documentation/hosts/somehost
+    tags:
+      - oranges
+      - strawberries
+  - name: otherhost
+    url: https://internal.documentation/hosts/otherhost
+    tags:
+      - apples
+      - strawberries

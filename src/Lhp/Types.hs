@@ -14,12 +14,37 @@ import qualified Data.Time as Time
 import GHC.Generics (Generic)
 
 
+-- * Host
+
+
+-- | Data definition for host descriptor.
+data Host = Host
+  { _hostName :: !T.Text
+  , _hostUrl :: !(Maybe T.Text)
+  , _hostTags :: ![T.Text]
+  }
+  deriving (Eq, Generic, Show)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Host)
+
+
+instance ADC.HasCodec Host where
+  codec =
+    _codec ADC.<?> "Host Descriptor"
+    where
+      _codec =
+        ADC.object "Host" $
+          Host
+            <$> ADC.requiredField "name" "Name of the host." ADC..= _hostName
+            <*> ADC.optionalField "url" "URL to external host information." ADC..= _hostUrl
+            <*> ADC.optionalFieldWithDefault "tags" [] "Arbitrary tags for the host." ADC..= _hostTags
+
+
 -- * Report
 
 
 -- | Data definition for host patrol report.
 data Report = Report
-  { _reportHost :: !T.Text
+  { _reportHost :: !Host
   , _reportCloud :: !Cloud
   , _reportHardware :: !Hardware
   , _reportKernel :: !Kernel
@@ -37,7 +62,7 @@ instance ADC.HasCodec Report where
       _codec =
         ADC.object "Report" $
           Report
-            <$> ADC.requiredField "host" "Name of the host." ADC..= _reportHost
+            <$> ADC.requiredField "host" "Host descriptor." ADC..= _reportHost
             <*> ADC.requiredField "cloud" "Cloud information." ADC..= _reportCloud
             <*> ADC.requiredField "hardware" "Hardware information." ADC..= _reportHardware
             <*> ADC.requiredField "kernel" "Kernel information." ADC..= _reportKernel
