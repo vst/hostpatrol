@@ -3,6 +3,7 @@ const nextConfig = {
   basePath: '/lhp',
   output: 'export',
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
