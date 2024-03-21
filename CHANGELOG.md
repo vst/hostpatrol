@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.3](https://github.com/vst/lhp/compare/v0.0.2...v0.0.3) (2024-03-21)
+
+
+### Features
+
+* allow patrolling hosts as specified in a configuration file ([ab73ccb](https://github.com/vst/lhp/commit/ab73ccb879667088053c64f5e29841b26aad543f))
+* **ui:** add rudimentary website with report UI ([953d88a](https://github.com/vst/lhp/commit/953d88a7c4c96da68a45006b0f62434bc0827526))
+
+
+### Bug Fixes
+
+* **website:** fix GitHub action to publish website ([8fe5ff9](https://github.com/vst/lhp/commit/8fe5ff9473974533fb2f52587e0e713ea659c3ba))
+
 ## [0.0.2](https://github.com/vst/lhp/compare/v0.0.1...v0.0.2) (2024-03-19)
 
 
