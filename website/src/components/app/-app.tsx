@@ -148,7 +148,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
                 </div>
               </TableCell>
               <TableCell>{host.kernel.machine}</TableCell>
-              <TableCell>{host.distribution.Description}</TableCell>
+              <TableCell>{host.distribution.description}</TableCell>
               <TableCell>{host.cloud.name}</TableCell>
               <TableCell>{host.hardware.cpuCount}</TableCell>
               <TableCell>{host.hardware.ramTotal}</TableCell>
@@ -178,7 +178,7 @@ export function HostDetails({ host }: { host: LhpData }) {
     { key: 'Distribution Version ID', value: host.distribution.id },
     { key: 'Distribution Version', value: host.distribution.version },
     { key: 'Distribution Version Code', value: host.distribution.codename },
-    { key: 'Distribution Full Name', value: host.distribution.Description },
+    { key: 'Distribution Full Name', value: host.distribution.description },
     { key: 'Cloud', value: host.cloud.name },
     { key: 'Type', value: host.cloud.hostType },
     { key: 'Region', value: host.cloud.hostRegion },

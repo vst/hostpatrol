@@ -1,4 +1,5 @@
+*.md
 dist-newstyle/
 dist/
 nix/
-*.md
+website/
