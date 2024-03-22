@@ -193,7 +193,7 @@ instance ADC.HasCodec Distribution where
             <*> ADC.requiredField "version" "Distribution version (cat /etc/os-release | grep 'VERSION=')." ADC..= _distributionVersion
             <*> ADC.requiredField "release" "Distribution release (cat /etc/os-release | grep 'VERSION_ID=')." ADC..= _distributionRelease
             <*> ADC.requiredField "codename" "Distribution codename (cat /etc/os-release | grep 'VERSION_CODENAME=')." ADC..= _distributionCodename
-            <*> ADC.requiredField "Description" "Distribution description (cat /etc/os-release | grep 'PRETTY_NAME=')." ADC..= _distributionDescription
+            <*> ADC.requiredField "description" "Distribution description (cat /etc/os-release | grep 'PRETTY_NAME=')." ADC..= _distributionDescription
 
 
 -- * Docker Container Information

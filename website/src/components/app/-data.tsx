@@ -28,7 +28,7 @@ export interface LhpData {
     [k: string]: unknown;
   };
   distribution: {
-    Description: string;
+    description: string;
     codename: null | string;
     id: string;
     name: string;
