@@ -36,7 +36,7 @@ _check_command curl
 # PROCEDURE #
 #############
 
-if curl --silent --fail --max-time 3 http://169.254.169.254/latest/meta-data/ami-id >/dev/null; then
+if curl --silent --fail --max-time 2 http://169.254.169.254/latest/dynamic/instance-identity/document >/dev/null; then
     _print_var "LHP_CLOUD_NAME" "AWS"
     _print_var "LHP_CLOUD_ID" "$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
     _print_var "LHP_CLOUD_TYPE" "$(curl -s http://169.254.169.254/latest/meta-data/instance-type)"
@@ -46,14 +46,14 @@ if curl --silent --fail --max-time 3 http://169.254.169.254/latest/meta-data/ami
     _print_var "LHP_CLOUD_LOCAL_ADDRESS" "$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
     _print_var "LHP_CLOUD_PUBLIC_HOSTNAME" "$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)"
     _print_var "LHP_CLOUD_PUBLIC_ADDRESS" "$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4)"
-elif curl --silent --fail --max-time 3 http://169.254.169.254/metadata/v1/ >/dev/null; then
+elif curl --silent --fail --max-time 2 http://169.254.169.254/metadata/v1/ >/dev/null; then
     _print_var "LHP_CLOUD_NAME" "DO"
     _print_var "LHP_CLOUD_ID" "$(curl -s http://169.254.169.254/metadata/v1/id)"
     _print_var "LHP_CLOUD_REGION" "$(curl -s http://169.254.169.254/metadata/v1/region)"
     _print_var "LHP_CLOUD_LOCAL_ADDRESS" "$(curl -s http://169.254.169.254/metadata/v1/interfaces/private/0/ipv4/address)"
     _print_var "LHP_CLOUD_PUBLIC_ADDRESS" "$(curl -s http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/address)"
     _print_var "LHP_CLOUD_RESERVED_ADDRESS" "$(curl -s http://169.254.169.254/metadata/v1/reserved_ip/ipv4/ip_address)"
-elif curl --silent --fail --max-time 3 http://169.254.169.254/latest/meta-data/network-config >/dev/null; then
+elif curl --silent --fail --max-time 2 http://169.254.169.254/latest/meta-data/network-config >/dev/null; then
     _print_var "LHP_CLOUD_NAME" "HETZNER"
     _print_var "LHP_CLOUD_ID" "$(curl -s http://169.254.169.254/latest/meta-data/instance-id)"
     _print_var "LHP_CLOUD_REGION" "$(curl -s http://169.254.169.254/latest/meta-data/region)"
