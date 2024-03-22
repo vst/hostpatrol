@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.4](https://github.com/vst/lhp/compare/v0.0.3...v0.0.4) (2024-03-22)
+
+
+### Bug Fixes
+
+* fix serialized field name for `Distribution#description` ([c85c06f](https://github.com/vst/lhp/commit/c85c06f15488406fe1181047742a3cd0a1f03fe8))
+* revisit cloud.sh ([5574d8a](https://github.com/vst/lhp/commit/5574d8a2ba684885e96a01db1789fc2772344b48))
+
 ## [0.0.3](https://github.com/vst/lhp/compare/v0.0.2...v0.0.3) (2024-03-21)
 
 
