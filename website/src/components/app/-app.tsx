@@ -1,7 +1,9 @@
 import { Card, CardBody, CardHeader } from '@nextui-org/card';
+import { Chip } from '@nextui-org/chip';
 import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/listbox';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useState } from 'react';
 import { LhpData } from './-data';
@@ -54,17 +56,17 @@ export function Sidebar({ data, onHostSelect, onTabulateRequest, onFlushRequest 
           <ListboxItem key={host.host.name} onPress={() => onHostSelect(host)}>
             <div className="flex items-center space-x-2">
               <Image
-                src={`https://cdn.simpleicons.org/${host.distribution.id}`}
-                width="16"
-                height="16"
-                alt={`logo ${host.distribution.id}`}
-                unoptimized
-              />
-              <Image
                 src={`https://cdn.simpleicons.org/${cloudIcon(host.cloud.name)}`}
                 width="16"
                 height="16"
                 alt={`logo ${host.cloud.name}`}
+                unoptimized
+              />
+              <Image
+                src={`https://cdn.simpleicons.org/${host.distribution.id}`}
+                width="16"
+                height="16"
+                alt={`logo ${host.distribution.id}`}
                 unoptimized
               />
               <span>{host.host.name}</span>
@@ -107,9 +109,9 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
       >
         <TableHeader>
           <TableColumn key="hostname">Hostname</TableColumn>
-          <TableColumn key="arch">Architecture</TableColumn>
-          <TableColumn key="distro">Distribution</TableColumn>
           <TableColumn key="distro">Cloud</TableColumn>
+          <TableColumn key="distro">Distribution</TableColumn>
+          <TableColumn key="arch">Arch</TableColumn>
           <TableColumn key="cpu" align="end">
             CPU
           </TableColumn>
@@ -122,6 +124,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           <TableColumn key="disk" align="center">
             Docker
           </TableColumn>
+          <TableColumn key="tags">Tags</TableColumn>
         </TableHeader>
         <TableBody items={hosts}>
           {(host) => (
@@ -129,27 +132,35 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
               <TableCell>
                 <div className="flex items-center space-x-2">
                   <Image
-                    src={`https://cdn.simpleicons.org/${host.distribution.id}`}
-                    width="24"
-                    height="24"
-                    alt={`logo ${host.distribution.id}`}
-                    unoptimized
-                  />
-                  <Image
                     src={`https://cdn.simpleicons.org/${cloudIcon(host.cloud.name)}`}
                     width="24"
                     height="24"
                     alt={`logo ${host.cloud.name}`}
                     unoptimized
                   />
+                  <Image
+                    src={`https://cdn.simpleicons.org/${host.distribution.id}`}
+                    width="24"
+                    height="24"
+                    alt={`logo ${host.distribution.id}`}
+                    unoptimized
+                  />
                   <span className="cursor-pointer" onClick={() => onHostSelect(host)}>
                     {host.host.name}
                   </span>
+                  {host.host.url && (
+                    <Link href={host.host.url} target="_blank">
+                      🔗
+                    </Link>
+                  )}
                 </div>
               </TableCell>
-              <TableCell>{host.kernel.machine}</TableCell>
+              <TableCell>
+                {host.cloud.name}
+                {host.cloud.hostRegion && <span className="text-xs text-gray-400"> {host.cloud.hostRegion}</span>}
+              </TableCell>
               <TableCell>{host.distribution.description}</TableCell>
-              <TableCell>{host.cloud.name}</TableCell>
+              <TableCell>{host.kernel.machine}</TableCell>
               <TableCell>{host.hardware.cpuCount}</TableCell>
               <TableCell>{host.hardware.ramTotal}</TableCell>
               <TableCell>{host.hardware.diskRoot}</TableCell>
@@ -157,6 +168,13 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
                 {host.dockerContainers == null
                   ? '❌'
                   : `${host.dockerContainers.filter((x) => x.running).length} / ${host.dockerContainers.length}`}
+              </TableCell>
+              <TableCell className="space-x-1">
+                {(host.host.tags || []).map((x) => (
+                  <Chip size="sm" color="primary" variant="flat" radius="sm">
+                    {x}
+                  </Chip>
+                ))}
               </TableCell>
             </TableRow>
           )}
