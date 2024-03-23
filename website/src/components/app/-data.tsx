@@ -52,9 +52,7 @@ export interface LhpData {
   dockerContainers:
     | null
     | {
-        created: {
-          [k: string]: unknown;
-        };
+        created: string;
         id: string;
         image: string;
         name: string;
