@@ -110,7 +110,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
       >
         <TableHeader>
           <TableColumn key="hostname">Hostname</TableColumn>
-          <TableColumn key="distro">Cloud</TableColumn>
+          <TableColumn key="cloud">Cloud</TableColumn>
           <TableColumn key="distro">Distribution</TableColumn>
           <TableColumn key="arch">Arch</TableColumn>
           <TableColumn key="cpu" align="end">
@@ -122,7 +122,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           <TableColumn key="disk" align="end">
             Disk
           </TableColumn>
-          <TableColumn key="disk" align="center">
+          <TableColumn key="docker" align="center">
             Docker
           </TableColumn>
           <TableColumn key="tags">Tags</TableColumn>
@@ -172,7 +172,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
               </TableCell>
               <TableCell className="space-x-1">
                 {(host.host.tags || []).map((x) => (
-                  <Chip size="sm" color="primary" variant="flat" radius="sm">
+                  <Chip key={x} size="sm" color="primary" variant="flat" radius="sm">
                     {x}
                   </Chip>
                 ))}
@@ -200,7 +200,7 @@ export function HostDetails({ host }: { host: LhpData }) {
 
         <div className="space-x-1">
           {(host.host.tags || []).map((x) => (
-            <Chip size="sm" color="primary" variant="flat" radius="sm">
+            <Chip key={x} size="sm" color="primary" variant="flat" radius="sm">
               {x}
             </Chip>
           ))}

@@ -16,7 +16,13 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <Navbar maxWidth="full" height="3rem"  isBordered={true} onMenuOpenChange={setIsMenuOpen} classNames={{base: "z-50 bg-gray-200"}}>
+    <Navbar
+      maxWidth="full"
+      height="3rem"
+      isBordered={true}
+      onMenuOpenChange={setIsMenuOpen}
+      classNames={{ base: 'z-50 bg-gray-200' }}
+    >
       <NavbarBrand>
         <p className="font-mono text-2xl font-bold tracking-widest text-inherit">lhp</p>
       </NavbarBrand>
