@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.5](https://github.com/vst/lhp/compare/v0.0.4...v0.0.5) (2024-03-24)
+
+
+### Features
+
+* **website:** improve host details ([1499f1c](https://github.com/vst/lhp/commit/1499f1cab3eaf0851f8fe012248cbd5ae61dd900))
+* **website:** improve hosts tabulation ([e037086](https://github.com/vst/lhp/commit/e0370869c881a1c02c750a616f856cb4b1521749))
+
+
+### Bug Fixes
+
+* use RecordWildCards when building the report components ([a7e9502](https://github.com/vst/lhp/commit/a7e9502ceb5181148e9ba3315dc91fcc46d1e2c9))
+* **website:** fix JSX keys ([e8a5214](https://github.com/vst/lhp/commit/e8a521410cbe9a2ae1500b2c2007a608cc7783d9))
+* **website:** make sure that report data is parsed (validated) correctly ([d82f614](https://github.com/vst/lhp/commit/d82f6144019609921bff36c542efe4da24292c12))
+
 ## [0.0.4](https://github.com/vst/lhp/compare/v0.0.3...v0.0.4) (2024-03-22)
 
 
