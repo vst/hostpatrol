@@ -35,12 +35,13 @@ compileReport
   -> m Types.Report
 compileReport h@Types.Host {..} = do
   kvs <- (++) <$> _fetchHostInfo _hostName <*> _fetchHostCloudInfo _hostName
-  Types.Report h
-    <$> _mkCloud _hostName kvs
-    <*> _mkHardware _hostName kvs
-    <*> _mkKernel _hostName kvs
-    <*> _mkDistribution _hostName kvs
-    <*> _fetchHostDockerContainers _hostName
+  let _reportHost = h
+  _reportCloud <- _mkCloud _hostName kvs
+  _reportHardware <- _mkHardware _hostName kvs
+  _reportKernel <- _mkKernel _hostName kvs
+  _reportDistribution <- _mkDistribution _hostName kvs
+  _reportDockerContainers <- _fetchHostDockerContainers _hostName
+  pure Types.Report {..}
 
 
 -- * Errors
@@ -110,18 +111,18 @@ _mkCloud
   -> [(T.Text, T.Text)]
   -> m Types.Cloud
 _mkCloud h kvs =
-  _toParseError h $
-    Types.Cloud
-      <$> (fromMaybe "UNKNOWN" <$> _findParse pure "LHP_CLOUD_NAME" kvs)
-      <*> _findParse pure "LHP_CLOUD_ID" kvs
-      <*> _findParse pure "LHP_CLOUD_TYPE" kvs
-      <*> _findParse pure "LHP_CLOUD_REGION" kvs
-      <*> _findParse pure "LHP_CLOUD_AVAILABILITY_ZONE" kvs
-      <*> _findParse pure "LHP_CLOUD_LOCAL_HOSTNAME" kvs
-      <*> _findParse pure "LHP_CLOUD_LOCAL_ADDRESS" kvs
-      <*> _findParse pure "LHP_CLOUD_PUBLIC_HOSTNAME" kvs
-      <*> _findParse pure "LHP_CLOUD_PUBLIC_ADDRESS" kvs
-      <*> _findParse pure "LHP_CLOUD_RESERVED_ADDRESS" kvs
+  _toParseError h $ do
+    _cloudName <- fromMaybe "UNKNOWN" <$> _findParse pure "LHP_CLOUD_NAME" kvs
+    _cloudHostId <- _findParse pure "LHP_CLOUD_ID" kvs
+    _cloudHostType <- _findParse pure "LHP_CLOUD_TYPE" kvs
+    _cloudHostRegion <- _findParse pure "LHP_CLOUD_REGION" kvs
+    _cloudHostAvailabilityZone <- _findParse pure "LHP_CLOUD_AVAILABILITY_ZONE" kvs
+    _cloudHostLocalHostname <- _findParse pure "LHP_CLOUD_LOCAL_HOSTNAME" kvs
+    _cloudHostLocalAddress <- _findParse pure "LHP_CLOUD_LOCAL_ADDRESS" kvs
+    _cloudHostRemoteHostname <- _findParse pure "LHP_CLOUD_PUBLIC_HOSTNAME" kvs
+    _cloudHostRemoteAddress <- _findParse pure "LHP_CLOUD_PUBLIC_ADDRESS" kvs
+    _cloudHostReservedAddress <- _findParse pure "LHP_CLOUD_RESERVED_ADDRESS" kvs
+    pure Types.Cloud {..}
 
 
 -- | Smart constructor for remote host rudimentary hardware
@@ -132,11 +133,11 @@ _mkHardware
   -> [(T.Text, T.Text)]
   -> m Types.Hardware
 _mkHardware h kvs =
-  _toParseError h $
-    Types.Hardware
-      <$> _getParse _parseRead "LHP_HW_CPU" kvs
-      <*> _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "LHP_HW_RAM" kvs
-      <*> _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "LHP_HW_DISK" kvs
+  _toParseError h $ do
+    _hardwareCpuCount <- _getParse _parseRead "LHP_HW_CPU" kvs
+    _hardwareRamTotal <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "LHP_HW_RAM" kvs
+    _hardwareDiskRoot <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "LHP_HW_DISK" kvs
+    pure Types.Hardware {..}
 
 
 -- | Smart constructor for remote host kernel information.
@@ -146,14 +147,14 @@ _mkKernel
   -> [(T.Text, T.Text)]
   -> m Types.Kernel
 _mkKernel h kvs =
-  _toParseError h $
-    Types.Kernel
-      <$> _getParse pure "LHP_KERNEL_NAME" kvs
-      <*> _getParse pure "LHP_KERNEL_NODE" kvs
-      <*> _getParse pure "LHP_KERNEL_RELEASE" kvs
-      <*> _getParse pure "LHP_KERNEL_VERSION" kvs
-      <*> _getParse pure "LHP_KERNEL_MACHINE" kvs
-      <*> _getParse pure "LHP_KERNEL_OS" kvs
+  _toParseError h $ do
+    _kernelNode <- _getParse pure "LHP_KERNEL_NODE" kvs
+    _kernelName <- _getParse pure "LHP_KERNEL_NAME" kvs
+    _kernelRelease <- _getParse pure "LHP_KERNEL_RELEASE" kvs
+    _kernelVersion <- _getParse pure "LHP_KERNEL_VERSION" kvs
+    _kernelMachine <- _getParse pure "LHP_KERNEL_MACHINE" kvs
+    _kernelOs <- _getParse pure "LHP_KERNEL_OS" kvs
+    pure Types.Kernel {..}
 
 
 -- | Smart constructor for remote host distribution information.
@@ -163,14 +164,14 @@ _mkDistribution
   -> [(T.Text, T.Text)]
   -> m Types.Distribution
 _mkDistribution h kvs =
-  _toParseError h $
-    Types.Distribution
-      <$> _getParse pure "LHP_DISTRO_ID" kvs
-      <*> _getParse pure "LHP_DISTRO_NAME" kvs
-      <*> _getParse pure "LHP_DISTRO_VERSION" kvs
-      <*> _getParse pure "LHP_DISTRO_VERSION_ID" kvs
-      <*> _findParse pure "LHP_DISTRO_VERSION_CODENAME" kvs
-      <*> _getParse pure "LHP_DISTRO_PRETTY_NAME" kvs
+  _toParseError h $ do
+    _distributionId <- _getParse pure "LHP_DISTRO_ID" kvs
+    _distributionName <- _getParse pure "LHP_DISTRO_NAME" kvs
+    _distributionVersion <- _getParse pure "LHP_DISTRO_VERSION" kvs
+    _distributionRelease <- _getParse pure "LHP_DISTRO_VERSION_ID" kvs
+    _distributionCodename <- _findParse pure "LHP_DISTRO_VERSION_CODENAME" kvs
+    _distributionDescription <- _getParse pure "LHP_DISTRO_PRETTY_NAME" kvs
+    pure Types.Distribution {..}
 
 
 -- | Attempts to parse a list of key/value tuples formatted in the
