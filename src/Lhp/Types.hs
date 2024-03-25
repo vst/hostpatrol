@@ -50,6 +50,7 @@ data Report = Report
   , _reportKernel :: !Kernel
   , _reportDistribution :: !Distribution
   , _reportDockerContainers :: !(Maybe [DockerContainer])
+  , _reportSshAuthorizedKeys :: ![T.Text]
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
@@ -68,6 +69,7 @@ instance ADC.HasCodec Report where
             <*> ADC.requiredField "kernel" "Kernel information." ADC..= _reportKernel
             <*> ADC.requiredField "distribution" "Distribution information." ADC..= _reportDistribution
             <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _reportDockerContainers
+            <*> ADC.requiredField "sshAuthorizedKeys" "List of SSH authorized keys found on host." ADC..= _reportSshAuthorizedKeys
 
 
 -- * Cloud Information
