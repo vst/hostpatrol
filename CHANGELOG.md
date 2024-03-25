@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.6](https://github.com/vst/lhp/compare/v0.0.5...v0.0.6) (2024-03-25)
+
+
+### Features
+
+* report authorized SSH keys found on host ([9f204ec](https://github.com/vst/lhp/commit/9f204ec7d1809c901cb6e55bc4af6ed8dd66e9fa))
+* **website:** list authorized SSH keys on host details component ([8cba4d2](https://github.com/vst/lhp/commit/8cba4d214dce375dd80a10389166d4707a5122e9))
+
 ## [0.0.5](https://github.com/vst/lhp/compare/v0.0.4...v0.0.5) (2024-03-24)
 
 
