@@ -41,6 +41,7 @@ compileReport h@Types.Host {..} = do
   _reportKernel <- _mkKernel _hostName kvs
   _reportDistribution <- _mkDistribution _hostName kvs
   _reportDockerContainers <- _fetchHostDockerContainers _hostName
+  _reportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName
   pure Types.Report {..}
 
 
@@ -102,6 +103,19 @@ _fetchHostDockerContainers h =
       case ACD.eitherDecode (ACD.list _jsonDecoderDockerContainer) b of
         Left err -> throwError (LhpErrorParse h ("Error while parsing containers information: " <> T.pack err))
         Right sv -> pure sv
+
+
+-- | Attempts to find and return all SSH authorized keys on the remote
+-- host.
+_fetchHostSshAuthorizedKeys
+  :: MonadIO m
+  => MonadError LhpError m
+  => Z.Ssh.Destination
+  -> m [T.Text]
+_fetchHostSshAuthorizedKeys h =
+  filter (not . T.null . T.strip) . T.lines . Z.Text.unsafeTextFromBL <$> prog
+  where
+    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
 
 
 -- | Smart constructor for remote host cloud information.

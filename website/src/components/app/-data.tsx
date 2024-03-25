@@ -120,8 +120,13 @@ export const LHP_PATROL_REPORT_SCHEMA = {
       required: ['os', 'machine', 'version', 'release', 'name', 'node'],
       type: 'object',
     },
+    sshAuthorizedKeys: {
+      $comment: 'List of SSH authorized keys found on host.',
+      items: { type: 'string' },
+      type: 'array',
+    },
   },
-  required: ['dockerContainers', 'distribution', 'kernel', 'hardware', 'cloud', 'host'],
+  required: ['sshAuthorizedKeys', 'dockerContainers', 'distribution', 'kernel', 'hardware', 'cloud', 'host'],
   type: 'object',
 } as const satisfies JSONSchema;
 

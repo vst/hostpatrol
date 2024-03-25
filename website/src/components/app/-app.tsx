@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useState } from 'react';
+import { toast } from 'react-toastify';
 import { LhpData } from './-data';
 import { KVBox } from './-ui';
 
@@ -125,6 +126,9 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           <TableColumn key="docker" align="center">
             Docker
           </TableColumn>
+          <TableColumn key="sshkeys" align="end">
+            SSH Keys
+          </TableColumn>
           <TableColumn key="tags">Tags</TableColumn>
         </TableHeader>
         <TableBody items={hosts}>
@@ -170,6 +174,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
                   ? '❌'
                   : `${host.dockerContainers.filter((x) => x.running).length} / ${host.dockerContainers.length}`}
               </TableCell>
+              <TableCell>{host.sshAuthorizedKeys.length}</TableCell>
               <TableCell className="space-x-1">
                 {(host.host.tags || []).map((x) => (
                   <Chip key={x} size="sm" color="primary" variant="flat" radius="sm">
@@ -186,6 +191,8 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
 }
 
 export function HostDetails({ host }: { host: LhpData }) {
+  const sshkeys = host.sshAuthorizedKeys.map((x) => [x, ...x.split(' ')]);
+
   return (
     <div>
       <h1 className="flex flex-row justify-between border-b border-gray-200 bg-white p-4 text-xl font-bold">
@@ -249,6 +256,32 @@ export function HostDetails({ host }: { host: LhpData }) {
             { key: 'Operating System', value: host.kernel.os },
           ]}
         />
+      </div>
+
+      <div className="p-4">
+        <Card radius="sm" shadow="sm">
+          <CardHeader className="text-lg font-bold">Authorized SSH Keys</CardHeader>
+
+          <CardBody>
+            <Listbox
+              items={sshkeys}
+              emptyContent={<span className="text-orange-400">No authorized SSH keys are found. Sounds weird?</span>}
+            >
+              {([sshkey, sshkeyType, _sshkeyContent, ...sshkeyComment]) => (
+                <ListboxItem
+                  key={sshkey}
+                  description={sshkey}
+                  onPress={() => {
+                    navigator.clipboard.writeText(sshkey);
+                    toast('SSH Key is copied to clipboard.');
+                  }}
+                >
+                  {`${sshkeyType} ${sshkeyComment.join(' ') || '<NO COMMENT>'}`}
+                </ListboxItem>
+              )}
+            </Listbox>
+          </CardBody>
+        </Card>
       </div>
 
       <div className="p-4">
