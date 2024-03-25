@@ -1,5 +1,8 @@
 import { AppMain } from '@/components/app';
 import Header from '@/components/header';
+import { ToastContainer } from 'react-toastify';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Home() {
   return (
@@ -9,6 +12,8 @@ export default function Home() {
       <div className="flex w-full flex-grow">
         <AppMain />
       </div>
+
+      <ToastContainer autoClose={2000} />
     </main>
   );
 }
