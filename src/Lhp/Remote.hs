@@ -17,6 +17,7 @@ import qualified Data.List as List
 import Data.Maybe (fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
+import Lhp.Types (Report (_reportSystemdServices))
 import qualified Lhp.Types as Types
 import Text.Read (readEither)
 import qualified Zamazingo.Ssh as Z.Ssh
@@ -42,6 +43,8 @@ compileReport h@Types.Host {..} = do
   _reportDistribution <- _mkDistribution _hostName kvs
   _reportDockerContainers <- _fetchHostDockerContainers _hostName
   _reportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName
+  _reportSystemdServices <- _fetchHostSystemdServices _hostName
+  _reportSystemdTimers <- _fetchHostSystemdTimers _hostName
   pure Types.Report {..}
 
 
@@ -113,9 +116,35 @@ _fetchHostSshAuthorizedKeys
   => Z.Ssh.Destination
   -> m [T.Text]
 _fetchHostSshAuthorizedKeys h =
-  filter (not . T.null . T.strip) . T.lines . Z.Text.unsafeTextFromBL <$> prog
+  filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
     prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
+
+
+-- | Attempts to find and return all systemd services on the remote
+-- host.
+_fetchHostSystemdServices
+  :: MonadIO m
+  => MonadError LhpError m
+  => Z.Ssh.Destination
+  -> m [T.Text]
+_fetchHostSystemdServices h =
+  filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
+  where
+    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/systemd-services.sh") ["bash"])
+
+
+-- | Attempts to find and return all systemd timers on the remote
+-- host.
+_fetchHostSystemdTimers
+  :: MonadIO m
+  => MonadError LhpError m
+  => Z.Ssh.Destination
+  -> m [T.Text]
+_fetchHostSystemdTimers h =
+  filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
+  where
+    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/systemd-timers.sh") ["bash"])
 
 
 -- | Smart constructor for remote host cloud information.
