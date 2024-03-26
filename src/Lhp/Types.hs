@@ -51,6 +51,8 @@ data Report = Report
   , _reportDistribution :: !Distribution
   , _reportDockerContainers :: !(Maybe [DockerContainer])
   , _reportSshAuthorizedKeys :: ![T.Text]
+  , _reportSystemdServices :: ![T.Text]
+  , _reportSystemdTimers :: ![T.Text]
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
@@ -70,6 +72,8 @@ instance ADC.HasCodec Report where
             <*> ADC.requiredField "distribution" "Distribution information." ADC..= _reportDistribution
             <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _reportDockerContainers
             <*> ADC.requiredField "sshAuthorizedKeys" "List of SSH authorized keys found on host." ADC..= _reportSshAuthorizedKeys
+            <*> ADC.requiredField "systemdServices" "List of systemd services found on host." ADC..= _reportSystemdServices
+            <*> ADC.requiredField "systemdTimers" "List of systemd timers found on host." ADC..= _reportSystemdTimers
 
 
 -- * Cloud Information
