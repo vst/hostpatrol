@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.7](https://github.com/vst/lhp/compare/v0.0.6...v0.0.7) (2024-03-26)
+
+
+### Features
+
+* report enabled systemd services and timers found on host ([8b38703](https://github.com/vst/lhp/commit/8b3870386af74c5314ebbe922ff6e56845d0b14d))
+* **website:** list enabled systemd services and timers found on host ([ea980cd](https://github.com/vst/lhp/commit/ea980cd0eb5ec231c854c7c24cffdbd7ea034629))
+
 ## [0.0.6](https://github.com/vst/lhp/compare/v0.0.5...v0.0.6) (2024-03-25)
 
 
