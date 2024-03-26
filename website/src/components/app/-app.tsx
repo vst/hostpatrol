@@ -129,6 +129,9 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           <TableColumn key="sshkeys" align="end">
             SSH Keys
           </TableColumn>
+          <TableColumn key="systemd" align="end">
+            Systemd
+          </TableColumn>
           <TableColumn key="tags">Tags</TableColumn>
         </TableHeader>
         <TableBody items={hosts}>
@@ -175,6 +178,9 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
                   : `${host.dockerContainers.filter((x) => x.running).length} / ${host.dockerContainers.length}`}
               </TableCell>
               <TableCell>{host.sshAuthorizedKeys.length}</TableCell>
+              <TableCell>
+                {host.systemdServices.length} / {host.systemdTimers.length}
+              </TableCell>
               <TableCell className="space-x-1">
                 {(host.host.tags || []).map((x) => (
                   <Chip key={x} size="sm" color="primary" variant="flat" radius="sm">
@@ -318,6 +324,12 @@ export function HostDetails({ host }: { host: LhpData }) {
             )}
           </CardBody>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-2">
+        <KVBox title="Systemd Services" kvs={host.systemdServices.map((x) => ({ key: x, value: '✅' }))} />
+
+        <KVBox title="Systemd Timers" kvs={host.systemdTimers.map((x) => ({ key: x, value: '✅' }))} />
       </div>
     </div>
   );

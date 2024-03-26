@@ -125,8 +125,20 @@ export const LHP_PATROL_REPORT_SCHEMA = {
       items: { type: 'string' },
       type: 'array',
     },
+    systemdServices: { $comment: 'List of systemd services found on host.', items: { type: 'string' }, type: 'array' },
+    systemdTimers: { $comment: 'List of systemd timers found on host.', items: { type: 'string' }, type: 'array' },
   },
-  required: ['sshAuthorizedKeys', 'dockerContainers', 'distribution', 'kernel', 'hardware', 'cloud', 'host'],
+  required: [
+    'systemdTimers',
+    'systemdServices',
+    'sshAuthorizedKeys',
+    'dockerContainers',
+    'distribution',
+    'kernel',
+    'hardware',
+    'cloud',
+    'host',
+  ],
   type: 'object',
 } as const satisfies JSONSchema;
 
