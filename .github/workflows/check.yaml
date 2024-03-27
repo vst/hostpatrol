@@ -20,6 +20,10 @@ jobs:
       - name: "Use magic Nix cache"
         uses: "DeterminateSystems/magic-nix-cache-action@v3"
 
-      - name: "Check"
+      - name: "Check Application"
         run: |
           nix-shell --run "dev-test-build"
+
+      - name: "Check Website"
+        run: |
+          nix-shell --run "cd website && npm install && npm run check"
