@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "format": "prettier --write \"src/**/*.{ts,tsx,md,mdx}\""
+    "format-check": "prettier --check \"src/**/*.{ts,tsx,md,mdx}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,md,mdx}\"",
+    "check": "npm run format-check && npm run lint && npm run build"
   },
   "dependencies": {
     "@nextui-org/react": "^2.2.10",
