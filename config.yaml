@@ -1,6 +1,9 @@
 hosts:
-  - name: somehost
+  - ## Name of the host (required)
+    name: somehost
+    ## External URL for the host (optional)
     url: https://internal.documentation/hosts/somehost
+    ## List of tags for the host (optional)
     tags:
       - oranges
       - strawberries
