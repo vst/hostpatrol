@@ -1,11 +1,12 @@
 import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { Chip } from '@nextui-org/chip';
 import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/listbox';
+import { Radio, RadioGroup, Select, SelectItem, Selection, Slider } from '@nextui-org/react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { LhpData } from './-data';
 import { KVBox } from './-ui';
@@ -100,8 +101,281 @@ export function cloudIcon(x: string) {
 }
 
 export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHostSelect: (host: LhpData) => void }) {
+  const [filters, setFilters] = useState<Record<string, (hosts: LhpData) => boolean>>({});
+  const [filteredHosts, setFilteredHosts] = useState<LhpData[]>(hosts);
+
+  useEffect(() => {
+    setFilteredHosts(hosts.filter((host) => Object.values(filters).reduce((acc, f) => acc && f(host), true)));
+  }, [filters, hosts]);
+
   return (
     <div className="bg-white p-4">
+      <div className="mb-2 grid grid-cols-5 gap-2">
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Hosts"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({ ...filters, hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.host.name) });
+            }}
+          >
+            {hosts.map((host) => (
+              <SelectItem key={host.host.name}>{host.host.name}</SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Clouds"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({ ...filters, clouds: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.cloud.name) });
+            }}
+          >
+            {hosts
+              .map((h) => h.cloud.name)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Region"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                region: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.cloud.hostRegion || '<unknown>'),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.cloud.hostRegion || '<unknown>')
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Distributions"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                distros: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.distribution.id),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.distribution.id)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Architectures"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                archs: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.kernel.machine),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.kernel.machine)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="col-span-5 rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Authorized SSH Keys"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-full"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                sshkeys:
+                  x === 'all' || x.size === 0
+                    ? () => true
+                    : (h) => h.sshAuthorizedKeys.reduce((acc, t) => acc || x.has(t), false),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.sshAuthorizedKeys || [])
+              .reduce((acc, tags) => [...acc, ...tags], [])
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n} title={n}>
+                  {n}
+                </SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Slider
+            label="CPU Count"
+            size="sm"
+            showOutline
+            step={1}
+            minValue={Math.min(...hosts.map((x) => x.hardware.cpuCount))}
+            maxValue={Math.max(...hosts.map((x) => x.hardware.cpuCount))}
+            defaultValue={[
+              Math.min(...hosts.map((x) => x.hardware.cpuCount)),
+              Math.max(...hosts.map((x) => x.hardware.cpuCount)),
+            ]}
+            className="max-w-md"
+            onChange={(x) => {
+              if (Array.isArray(x)) {
+                const [mi, ma] = x;
+                setFilters({
+                  ...filters,
+                  cpu: (h) => mi <= h.hardware.cpuCount && h.hardware.cpuCount <= ma,
+                });
+              }
+            }}
+          />
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Slider
+            label="Total RAM"
+            size="sm"
+            showOutline
+            step={0.5}
+            minValue={0}
+            maxValue={Math.ceil(Math.max(...hosts.map((x) => x.hardware.ramTotal)))}
+            defaultValue={[0, Math.ceil(Math.max(...hosts.map((x) => x.hardware.ramTotal)))]}
+            className="max-w-md"
+            onChange={(x) => {
+              if (Array.isArray(x)) {
+                const [mi, ma] = x;
+                setFilters({
+                  ...filters,
+                  ram: (h) => mi <= h.hardware.ramTotal && h.hardware.ramTotal <= ma,
+                });
+              }
+            }}
+          />
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Slider
+            label="Root Disk Size"
+            size="sm"
+            showOutline
+            step={10}
+            minValue={0}
+            maxValue={Math.ceil(Math.max(...hosts.map((x) => x.hardware.diskRoot)))}
+            defaultValue={[0, Math.ceil(Math.max(...hosts.map((x) => x.hardware.diskRoot)))]}
+            className="max-w-md"
+            onChange={(x) => {
+              if (Array.isArray(x)) {
+                const [mi, ma] = x;
+                setFilters({
+                  ...filters,
+                  disk: (h) => mi <= h.hardware.diskRoot && h.hardware.diskRoot <= ma,
+                });
+              }
+            }}
+          />
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <RadioGroup
+            label="Has Docker?"
+            orientation="horizontal"
+            onValueChange={(x) => {
+              setFilters({
+                ...filters,
+                docker:
+                  x === 'yes'
+                    ? (h) => h.dockerContainers != null
+                    : x === 'no'
+                      ? (h) => h.dockerContainers == null
+                      : () => true,
+              });
+            }}
+          >
+            <Radio value="all">All</Radio>
+            <Radio value="yes">Yes</Radio>
+            <Radio value="no">No</Radio>
+          </RadioGroup>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Tags"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                tags:
+                  x === 'all' || x.size === 0
+                    ? () => true
+                    : (h) => (h.host.tags || []).reduce((acc, t) => acc || x.has(t), false),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.host.tags || [])
+              .reduce((acc, tags) => [...acc, ...tags], [])
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+      </div>
+
       <Table
         aria-label="Table of Hosts"
         removeWrapper
@@ -134,7 +408,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           </TableColumn>
           <TableColumn key="tags">Tags</TableColumn>
         </TableHeader>
-        <TableBody items={hosts}>
+        <TableBody items={filteredHosts}>
           {(host) => (
             <TableRow key={host.host.name}>
               <TableCell>
