@@ -1,7 +1,7 @@
 import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { Chip } from '@nextui-org/chip';
 import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/listbox';
-import { Select, SelectItem, Selection } from '@nextui-org/react';
+import { Radio, RadioGroup, Select, SelectItem, Selection, Slider } from '@nextui-org/react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -111,11 +111,11 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
   return (
     <div className="bg-white p-4">
       <div className="mb-2 grid grid-cols-5 gap-2">
-        <div>
+        <div className="rounded-lg bg-gray-100 p-2">
           <Select
-            label="Host"
-            placeholder="Select hosts"
+            label="Hosts"
             selectionMode="multiple"
+            variant="underlined"
             className="max-w-xs"
             onSelectionChange={(x: Selection) => {
               setFilters({ ...filters, hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.host.name) });
@@ -127,14 +127,14 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           </Select>
         </div>
 
-        <div>
+        <div className="rounded-lg bg-gray-100 p-2">
           <Select
-            label="Cloud"
-            placeholder="Select clouds"
+            label="Clouds"
             selectionMode="multiple"
+            variant="underlined"
             className="max-w-xs"
             onSelectionChange={(x: Selection) => {
-              setFilters({ ...filters, hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.cloud.name) });
+              setFilters({ ...filters, clouds: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.cloud.name) });
             }}
           >
             {hosts
@@ -149,16 +149,41 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           </Select>
         </div>
 
-        <div>
+        <div className="rounded-lg bg-gray-100 p-2">
           <Select
-            label="Distributions"
-            placeholder="Select distributions"
+            label="Region"
             selectionMode="multiple"
+            variant="underlined"
             className="max-w-xs"
             onSelectionChange={(x: Selection) => {
               setFilters({
                 ...filters,
-                hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.distribution.id),
+                region: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.cloud.hostRegion || '<unknown>'),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.cloud.hostRegion || '<unknown>')
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Distributions"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                distros: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.distribution.id),
               });
             }}
           >
@@ -174,16 +199,16 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           </Select>
         </div>
 
-        <div>
+        <div className="rounded-lg bg-gray-100 p-2">
           <Select
             label="Architectures"
-            placeholder="Select architectures"
             selectionMode="multiple"
+            variant="underlined"
             className="max-w-xs"
             onSelectionChange={(x: Selection) => {
               setFilters({
                 ...filters,
-                hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.kernel.machine),
+                archs: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.kernel.machine),
               });
             }}
           >
@@ -199,16 +224,138 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           </Select>
         </div>
 
-        <div>
+        <div className="col-span-5 rounded-lg bg-gray-100 p-2">
+          <Select
+            label="Authorized SSH Keys"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-full"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                sshkeys:
+                  x === 'all' || x.size === 0
+                    ? () => true
+                    : (h) => h.sshAuthorizedKeys.reduce((acc, t) => acc || x.has(t), false),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.sshAuthorizedKeys || [])
+              .reduce((acc, tags) => [...acc, ...tags], [])
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n} title={n}>
+                  {n}
+                </SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Slider
+            label="CPU Count"
+            size="sm"
+            showOutline
+            step={1}
+            minValue={Math.min(...hosts.map((x) => x.hardware.cpuCount))}
+            maxValue={Math.max(...hosts.map((x) => x.hardware.cpuCount))}
+            defaultValue={[
+              Math.min(...hosts.map((x) => x.hardware.cpuCount)),
+              Math.max(...hosts.map((x) => x.hardware.cpuCount)),
+            ]}
+            className="max-w-md"
+            onChange={(x) => {
+              if (Array.isArray(x)) {
+                const [mi, ma] = x;
+                setFilters({
+                  ...filters,
+                  cpu: (h) => mi <= h.hardware.cpuCount && h.hardware.cpuCount <= ma,
+                });
+              }
+            }}
+          />
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Slider
+            label="Total RAM"
+            size="sm"
+            showOutline
+            step={0.5}
+            minValue={0}
+            maxValue={Math.ceil(Math.max(...hosts.map((x) => x.hardware.ramTotal)))}
+            defaultValue={[0, Math.ceil(Math.max(...hosts.map((x) => x.hardware.ramTotal)))]}
+            className="max-w-md"
+            onChange={(x) => {
+              if (Array.isArray(x)) {
+                const [mi, ma] = x;
+                setFilters({
+                  ...filters,
+                  ram: (h) => mi <= h.hardware.ramTotal && h.hardware.ramTotal <= ma,
+                });
+              }
+            }}
+          />
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Slider
+            label="Root Disk Size"
+            size="sm"
+            showOutline
+            step={10}
+            minValue={0}
+            maxValue={Math.ceil(Math.max(...hosts.map((x) => x.hardware.diskRoot)))}
+            defaultValue={[0, Math.ceil(Math.max(...hosts.map((x) => x.hardware.diskRoot)))]}
+            className="max-w-md"
+            onChange={(x) => {
+              if (Array.isArray(x)) {
+                const [mi, ma] = x;
+                setFilters({
+                  ...filters,
+                  disk: (h) => mi <= h.hardware.diskRoot && h.hardware.diskRoot <= ma,
+                });
+              }
+            }}
+          />
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <RadioGroup
+            label="Has Docker?"
+            orientation="horizontal"
+            onValueChange={(x) => {
+              setFilters({
+                ...filters,
+                docker:
+                  x === 'yes'
+                    ? (h) => h.dockerContainers != null
+                    : x === 'no'
+                      ? (h) => h.dockerContainers == null
+                      : () => true,
+              });
+            }}
+          >
+            <Radio value="all">All</Radio>
+            <Radio value="yes">Yes</Radio>
+            <Radio value="no">No</Radio>
+          </RadioGroup>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
           <Select
             label="Tags"
-            placeholder="Select tags"
             selectionMode="multiple"
+            variant="underlined"
             className="max-w-xs"
             onSelectionChange={(x: Selection) => {
               setFilters({
                 ...filters,
-                hosts:
+                tags:
                   x === 'all' || x.size === 0
                     ? () => true
                     : (h) => (h.host.tags || []).reduce((acc, t) => acc || x.has(t), false),
