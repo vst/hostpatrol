@@ -1,11 +1,12 @@
 import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { Chip } from '@nextui-org/chip';
 import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/listbox';
+import { Select, SelectItem, Selection } from '@nextui-org/react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { LhpData } from './-data';
 import { KVBox } from './-ui';
@@ -100,8 +101,134 @@ export function cloudIcon(x: string) {
 }
 
 export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHostSelect: (host: LhpData) => void }) {
+  const [filters, setFilters] = useState<Record<string, (hosts: LhpData) => boolean>>({});
+  const [filteredHosts, setFilteredHosts] = useState<LhpData[]>(hosts);
+
+  useEffect(() => {
+    setFilteredHosts(hosts.filter((host) => Object.values(filters).reduce((acc, f) => acc && f(host), true)));
+  }, [filters, hosts]);
+
   return (
     <div className="bg-white p-4">
+      <div className="mb-2 grid grid-cols-5 gap-2">
+        <div>
+          <Select
+            label="Host"
+            placeholder="Select hosts"
+            selectionMode="multiple"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({ ...filters, hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.host.name) });
+            }}
+          >
+            {hosts.map((host) => (
+              <SelectItem key={host.host.name}>{host.host.name}</SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        <div>
+          <Select
+            label="Cloud"
+            placeholder="Select clouds"
+            selectionMode="multiple"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({ ...filters, hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.cloud.name) });
+            }}
+          >
+            {hosts
+              .map((h) => h.cloud.name)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div>
+          <Select
+            label="Distributions"
+            placeholder="Select distributions"
+            selectionMode="multiple"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.distribution.id),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.distribution.id)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div>
+          <Select
+            label="Architectures"
+            placeholder="Select architectures"
+            selectionMode="multiple"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                hosts: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.kernel.machine),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.kernel.machine)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div>
+          <Select
+            label="Tags"
+            placeholder="Select tags"
+            selectionMode="multiple"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({
+                ...filters,
+                hosts:
+                  x === 'all' || x.size === 0
+                    ? () => true
+                    : (h) => (h.host.tags || []).reduce((acc, t) => acc || x.has(t), false),
+              });
+            }}
+          >
+            {hosts
+              .map((h) => h.host.tags || [])
+              .reduce((acc, tags) => [...acc, ...tags], [])
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((n) => (
+                <SelectItem key={n}>{n}</SelectItem>
+              ))}
+          </Select>
+        </div>
+      </div>
+
       <Table
         aria-label="Table of Hosts"
         removeWrapper
@@ -134,7 +261,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
           </TableColumn>
           <TableColumn key="tags">Tags</TableColumn>
         </TableHeader>
-        <TableBody items={hosts}>
+        <TableBody items={filteredHosts}>
           {(host) => (
             <TableRow key={host.host.name}>
               <TableCell>
