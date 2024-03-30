@@ -8,17 +8,17 @@ import Link from 'next/link';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
-import { LhpData } from './-data';
+import { LhpHostReport, LhpPatrolReport } from './-data';
 import { KVBox } from './-ui';
 
-export function App({ data, onFlushRequest }: { data: LhpData[]; onFlushRequest: () => void }) {
-  const [host, setHost] = useState<Maybe<LhpData>>(Nothing);
+export function App({ data, onFlushRequest }: { data: LhpPatrolReport; onFlushRequest: () => void }) {
+  const [host, setHost] = useState<Maybe<LhpHostReport>>(Nothing);
 
   return (
     <div className="flex flex-1">
       <div className="z-10 w-[300px] shadow-md">
         <Sidebar
-          data={data}
+          data={data.hosts}
           onHostSelect={(x) => setHost(Just(x))}
           onFlushRequest={onFlushRequest}
           onTabulateRequest={() => {
@@ -29,7 +29,7 @@ export function App({ data, onFlushRequest }: { data: LhpData[]; onFlushRequest:
 
       <div className="w-full">
         {host.caseOf({
-          Nothing: () => <TabulateHosts hosts={data} onHostSelect={(x) => setHost(Just(x))} />,
+          Nothing: () => <TabulateHosts hosts={data.hosts} onHostSelect={(x) => setHost(Just(x))} />,
           Just: (x) => <HostDetails host={x} />,
         })}
       </div>
@@ -38,8 +38,8 @@ export function App({ data, onFlushRequest }: { data: LhpData[]; onFlushRequest:
 }
 
 export interface SidebarProps {
-  data: LhpData[];
-  onHostSelect: (host: LhpData) => void;
+  data: LhpHostReport[];
+  onHostSelect: (host: LhpHostReport) => void;
   onFlushRequest: () => void;
   onTabulateRequest: () => void;
 }
@@ -100,9 +100,15 @@ export function cloudIcon(x: string) {
   }
 }
 
-export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHostSelect: (host: LhpData) => void }) {
-  const [filters, setFilters] = useState<Record<string, (hosts: LhpData) => boolean>>({});
-  const [filteredHosts, setFilteredHosts] = useState<LhpData[]>(hosts);
+export function TabulateHosts({
+  hosts,
+  onHostSelect,
+}: {
+  hosts: LhpHostReport[];
+  onHostSelect: (host: LhpHostReport) => void;
+}) {
+  const [filters, setFilters] = useState<Record<string, (host: LhpHostReport) => boolean>>({});
+  const [filteredHosts, setFilteredHosts] = useState<LhpHostReport[]>(hosts);
 
   useEffect(() => {
     setFilteredHosts(hosts.filter((host) => Object.values(filters).reduce((acc, f) => acc && f(host), true)));
@@ -236,20 +242,20 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
                 sshkeys:
                   x === 'all' || x.size === 0
                     ? () => true
-                    : (h) => h.sshAuthorizedKeys.reduce((acc, t) => acc || x.has(t), false),
+                    : (h) => h.authorizedSshKeys.reduce((acc, t) => acc || x.has(t.fingerprint), false),
               });
             }}
           >
             {hosts
-              .map((h) => h.sshAuthorizedKeys || [])
+              .map((h) => h.authorizedSshKeys || [])
               .reduce((acc, tags) => [...acc, ...tags], [])
               .sort()
               .filter(function (el, i, a) {
                 return i === a.indexOf(el);
               })
               .map((n) => (
-                <SelectItem key={n} title={n}>
-                  {n}
+                <SelectItem key={n.fingerprint} title={n.data}>
+                  {n.data}
                 </SelectItem>
               ))}
           </Select>
@@ -451,7 +457,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
                   ? '❌'
                   : `${host.dockerContainers.filter((x) => x.running).length} / ${host.dockerContainers.length}`}
               </TableCell>
-              <TableCell>{host.sshAuthorizedKeys.length}</TableCell>
+              <TableCell>{host.authorizedSshKeys.length}</TableCell>
               <TableCell>
                 {host.systemdServices.length} / {host.systemdTimers.length}
               </TableCell>
@@ -470,9 +476,7 @@ export function TabulateHosts({ hosts, onHostSelect }: { hosts: LhpData[]; onHos
   );
 }
 
-export function HostDetails({ host }: { host: LhpData }) {
-  const sshkeys = host.sshAuthorizedKeys.map((x) => [x, ...x.split(' ')]);
-
+export function HostDetails({ host }: { host: LhpHostReport }) {
   return (
     <div>
       <h1 className="flex flex-row justify-between border-b border-gray-200 bg-white p-4 text-xl font-bold">
@@ -544,19 +548,19 @@ export function HostDetails({ host }: { host: LhpData }) {
 
           <CardBody>
             <Listbox
-              items={sshkeys}
+              items={host.authorizedSshKeys}
               emptyContent={<span className="text-orange-400">No authorized SSH keys are found. Sounds weird?</span>}
             >
-              {([sshkey, sshkeyType, _sshkeyContent, ...sshkeyComment]) => (
+              {({ length, type, fingerprint, data, comment }) => (
                 <ListboxItem
-                  key={sshkey}
-                  description={sshkey}
+                  key={data}
+                  description={data}
                   onPress={() => {
-                    navigator.clipboard.writeText(sshkey);
+                    navigator.clipboard.writeText(data);
                     toast('SSH Key is copied to clipboard.');
                   }}
                 >
-                  {`${sshkeyType} ${sshkeyComment.join(' ') || '<NO COMMENT>'}`}
+                  {`${type} (${length}) - ${fingerprint} - ${comment || ''}`}
                 </ListboxItem>
               )}
             </Listbox>
