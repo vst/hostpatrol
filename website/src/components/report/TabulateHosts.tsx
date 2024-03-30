@@ -158,10 +158,13 @@ export function TabulateHosts({
               .reduce((acc, tags) => [...acc, ...tags], [])
               .sort()
               .filter(function (el, i, a) {
-                return i === a.indexOf(el);
+                return i === a.map((x) => x.fingerprint).indexOf(el.fingerprint);
               })
               .map((n) => (
-                <SelectItem key={n.fingerprint} title={n.data}>
+                <SelectItem
+                  key={n.fingerprint}
+                  title={`${n.type} ${n.length} ${n.fingerprint} - ${n.comment || 'no comment'}`}
+                >
                   {n.data}
                 </SelectItem>
               ))}
