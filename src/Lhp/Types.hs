@@ -19,8 +19,9 @@ import GHC.Generics (Generic)
 
 
 -- | Data definition for host patrol report.
-newtype Report = Report
-  { _reportHosts :: [HostReport]
+data Report = Report
+  { _reportHosts :: ![HostReport]
+  , _reportKnownSshKeys :: ![SshPublicKey]
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
@@ -34,6 +35,7 @@ instance ADC.HasCodec Report where
         ADC.object "Report" $
           Report
             <$> ADC.requiredField "hosts" "List of host reports." ADC..= _reportHosts
+            <*> ADC.requiredField "knownSshKeys" "List of known SSH public keys." ADC..= _reportKnownSshKeys
 
 
 -- * Host
@@ -72,7 +74,7 @@ data HostReport = HostReport
   , _hostReportKernel :: !Kernel
   , _hostReportDistribution :: !Distribution
   , _hostReportDockerContainers :: !(Maybe [DockerContainer])
-  , _hostReportSshAuthorizedKeys :: ![SshPublicKey]
+  , _hostReportAuthorizedSshKeys :: ![SshPublicKey]
   , _hostReportSystemdServices :: ![T.Text]
   , _hostReportSystemdTimers :: ![T.Text]
   }
@@ -93,7 +95,7 @@ instance ADC.HasCodec HostReport where
             <*> ADC.requiredField "kernel" "Kernel information." ADC..= _hostReportKernel
             <*> ADC.requiredField "distribution" "Distribution information." ADC..= _hostReportDistribution
             <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _hostReportDockerContainers
-            <*> ADC.requiredField "sshAuthorizedKeys" "List of SSH authorized keys found on host." ADC..= _hostReportSshAuthorizedKeys
+            <*> ADC.requiredField "authorizedSshKeys" "List of authorized SSH public keys found on host." ADC..= _hostReportAuthorizedSshKeys
             <*> ADC.requiredField "systemdServices" "List of systemd services found on host." ADC..= _hostReportSystemdServices
             <*> ADC.requiredField "systemdTimers" "List of systemd timers found on host." ADC..= _hostReportSystemdTimers
 

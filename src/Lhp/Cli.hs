@@ -69,7 +69,7 @@ commandCompile = OA.hsubparser (OA.command "compile" (OA.info parser infomod) <>
 -- | @compile@ CLI command program.
 doCompile :: Maybe FilePath -> [T.Text] -> Bool -> IO ExitCode
 doCompile cpath dests par = do
-  baseConfig <- maybe (pure (Config.Config [])) Config.readConfigFile cpath
+  baseConfig <- maybe (pure (Config.Config [] [])) Config.readConfigFile cpath
   let config =
         baseConfig
           { Config._configHosts = Config._configHosts baseConfig <> fmap _mkHost dests

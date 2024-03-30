@@ -8,14 +8,16 @@ module Lhp.Config where
 
 import qualified Autodocodec as ADC
 import qualified Data.Aeson as Aeson
+import qualified Data.Text as T
 import qualified Data.Yaml as Yaml
 import GHC.Generics (Generic)
 import qualified Lhp.Types as Types
 
 
 -- | Data definition for application configuration.
-newtype Config = Config
-  { _configHosts :: [Types.Host]
+data Config = Config
+  { _configHosts :: ![Types.Host]
+  , _configKnownSshKeys :: ![T.Text]
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Config)
@@ -29,6 +31,7 @@ instance ADC.HasCodec Config where
         ADC.object "Config" $
           Config
             <$> ADC.optionalFieldWithDefault "hosts" [] "List of hosts." ADC..= _configHosts
+            <*> ADC.optionalFieldWithDefault "knownSshKeys" [] "List of hosts." ADC..= _configKnownSshKeys
 
 
 -- | Attempts to read a configuration file and return 'Config'.

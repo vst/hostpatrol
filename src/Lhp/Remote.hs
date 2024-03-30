@@ -43,6 +43,7 @@ compileReport
   -> m Types.Report
 compileReport par Config.Config {..} = do
   _reportHosts <- reporter _configHosts
+  _reportKnownSshKeys <- mapM parseSshPublicKey _configKnownSshKeys
   pure Types.Report {..}
   where
     reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
@@ -69,7 +70,7 @@ compileHostReport h@Types.Host {..} = do
   _hostReportKernel <- _mkKernel _hostName kvs
   _hostReportDistribution <- _mkDistribution _hostName kvs
   _hostReportDockerContainers <- _fetchHostDockerContainers _hostName
-  _hostReportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName >>= mapM parseSshPublicKey
+  _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys _hostName >>= mapM parseSshPublicKey
   _hostReportSystemdServices <- _fetchHostSystemdServices _hostName
   _hostReportSystemdTimers <- _fetchHostSystemdTimers _hostName
   pure Types.HostReport {..}
@@ -139,12 +140,12 @@ _fetchHostDockerContainers h =
 
 -- | Attempts to find and return all SSH authorized keys on the remote
 -- host.
-_fetchHostSshAuthorizedKeys
+_fetchHostAuthorizedSshKeys
   :: MonadIO m
   => MonadError LhpError m
   => Z.Ssh.Destination
   -> m [T.Text]
-_fetchHostSshAuthorizedKeys h =
+_fetchHostAuthorizedSshKeys h =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
     prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
