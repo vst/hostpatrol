@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 
 -- | This module provides top-level definitions for the CLI program.
@@ -9,7 +8,6 @@ import qualified Autodocodec.Schema as ADC.Schema
 import Control.Applicative ((<**>))
 import Control.Monad (join)
 import Control.Monad.Except (runExceptT)
-import qualified Control.Monad.Parallel as MP
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import qualified Data.Text as T
@@ -21,7 +19,7 @@ import qualified Lhp.Types as Types
 import Options.Applicative ((<|>))
 import qualified Options.Applicative as OA
 import System.Exit (ExitCode (..))
-import System.IO (hPutStrLn, stderr)
+import System.IO (stderr)
 
 
 -- * Entrypoint
@@ -65,30 +63,23 @@ commandCompile = OA.hsubparser (OA.command "compile" (OA.info parser infomod) <>
       doCompile
         <$> OA.optional (OA.strOption (OA.short 'c' <> OA.long "config" <> OA.action "file" <> OA.help "Path to the configuration file."))
         <*> OA.many (OA.strOption (OA.short 'h' <> OA.long "host" <> OA.help "Remote host (in SSH destination format)."))
-        <*> OA.switch (OA.short 's' <> OA.long "stream" <> OA.help "Streaming results.")
+        <*> OA.switch (OA.short 'p' <> OA.long "parallel" <> OA.help "Hit remote hosts in parallel.")
 
 
 -- | @compile@ CLI command program.
 doCompile :: Maybe FilePath -> [T.Text] -> Bool -> IO ExitCode
-doCompile cpath dests stream = do
-  config <- maybe (pure (Config.Config [])) Config.readConfigFile cpath
-  let hosts = Config._configHosts config <> fmap (\d -> Types.Host {Types._hostName = d, Types._hostUrl = Nothing, Types._hostTags = []}) dests
-  case stream of
-    False -> do
-      res <- runExceptT (MP.mapM compileReport hosts)
-      case res of
-        Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
-        Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
-    True -> do
-      mapM_ go hosts
-      pure ExitSuccess
-      where
-        go h@Types.Host {..} = do
-          hPutStrLn stderr ("Patrolling " <> T.unpack _hostName)
-          res <- runExceptT (compileReport h)
-          case res of
-            Left err -> BLC.hPutStrLn stderr (Aeson.encode err)
-            Right sr -> BLC.putStrLn (Aeson.encode sr)
+doCompile cpath dests par = do
+  baseConfig <- maybe (pure (Config.Config [])) Config.readConfigFile cpath
+  let config =
+        baseConfig
+          { Config._configHosts = Config._configHosts baseConfig <> fmap _mkHost dests
+          }
+  res <- runExceptT (compileReport par config)
+  case res of
+    Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
+    Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
+  where
+    _mkHost d = Types.Host {Types._hostName = d, Types._hostUrl = Nothing, Types._hostTags = []}
 
 
 -- ** schema

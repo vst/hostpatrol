@@ -15,6 +15,27 @@ import qualified Data.Time as Time
 import GHC.Generics (Generic)
 
 
+-- * Report
+
+
+-- | Data definition for host patrol report.
+newtype Report = Report
+  { _reportHosts :: [HostReport]
+  }
+  deriving (Eq, Generic, Show)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
+
+
+instance ADC.HasCodec Report where
+  codec =
+    _codec ADC.<?> "Host Patrol Report"
+    where
+      _codec =
+        ADC.object "Report" $
+          Report
+            <$> ADC.requiredField "hosts" "List of host reports." ADC..= _reportHosts
+
+
 -- * Host
 
 
@@ -40,41 +61,41 @@ instance ADC.HasCodec Host where
             <*> ADC.optionalFieldWithDefault "tags" [] "Arbitrary tags for the host." ADC..= _hostTags
 
 
--- * Report
+-- * Host Report
 
 
 -- | Data definition for host patrol report.
-data Report = Report
-  { _reportHost :: !Host
-  , _reportCloud :: !Cloud
-  , _reportHardware :: !Hardware
-  , _reportKernel :: !Kernel
-  , _reportDistribution :: !Distribution
-  , _reportDockerContainers :: !(Maybe [DockerContainer])
-  , _reportSshAuthorizedKeys :: ![SshPublicKey]
-  , _reportSystemdServices :: ![T.Text]
-  , _reportSystemdTimers :: ![T.Text]
+data HostReport = HostReport
+  { _hostReportHost :: !Host
+  , _hostReportCloud :: !Cloud
+  , _hostReportHardware :: !Hardware
+  , _hostReportKernel :: !Kernel
+  , _hostReportDistribution :: !Distribution
+  , _hostReportDockerContainers :: !(Maybe [DockerContainer])
+  , _hostReportSshAuthorizedKeys :: ![SshPublicKey]
+  , _hostReportSystemdServices :: ![T.Text]
+  , _hostReportSystemdTimers :: ![T.Text]
   }
   deriving (Eq, Generic, Show)
-  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec HostReport)
 
 
-instance ADC.HasCodec Report where
+instance ADC.HasCodec HostReport where
   codec =
     _codec ADC.<?> "Host Patrol Report"
     where
       _codec =
         ADC.object "Report" $
-          Report
-            <$> ADC.requiredField "host" "Host descriptor." ADC..= _reportHost
-            <*> ADC.requiredField "cloud" "Cloud information." ADC..= _reportCloud
-            <*> ADC.requiredField "hardware" "Hardware information." ADC..= _reportHardware
-            <*> ADC.requiredField "kernel" "Kernel information." ADC..= _reportKernel
-            <*> ADC.requiredField "distribution" "Distribution information." ADC..= _reportDistribution
-            <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _reportDockerContainers
-            <*> ADC.requiredField "sshAuthorizedKeys" "List of SSH authorized keys found on host." ADC..= _reportSshAuthorizedKeys
-            <*> ADC.requiredField "systemdServices" "List of systemd services found on host." ADC..= _reportSystemdServices
-            <*> ADC.requiredField "systemdTimers" "List of systemd timers found on host." ADC..= _reportSystemdTimers
+          HostReport
+            <$> ADC.requiredField "host" "Host descriptor." ADC..= _hostReportHost
+            <*> ADC.requiredField "cloud" "Cloud information." ADC..= _hostReportCloud
+            <*> ADC.requiredField "hardware" "Hardware information." ADC..= _hostReportHardware
+            <*> ADC.requiredField "kernel" "Kernel information." ADC..= _hostReportKernel
+            <*> ADC.requiredField "distribution" "Distribution information." ADC..= _hostReportDistribution
+            <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _hostReportDockerContainers
+            <*> ADC.requiredField "sshAuthorizedKeys" "List of SSH authorized keys found on host." ADC..= _hostReportSshAuthorizedKeys
+            <*> ADC.requiredField "systemdServices" "List of systemd services found on host." ADC..= _hostReportSystemdServices
+            <*> ADC.requiredField "systemdTimers" "List of systemd timers found on host." ADC..= _hostReportSystemdTimers
 
 
 -- * Cloud Information

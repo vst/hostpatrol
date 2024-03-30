@@ -8,18 +8,22 @@
 module Lhp.Remote where
 
 import Control.Monad.Except (ExceptT, MonadError (..), runExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import qualified Control.Monad.Parallel as MP
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Combinators.Decode as ACD
+import Data.Bool (bool)
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Lazy.Char8 as BLC
 import Data.FileEmbed (embedStringFile)
 import qualified Data.List as List
-import Data.Maybe (fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
-import Lhp.Types (Report (_reportSystemdServices))
+import qualified Lhp.Config as Config
 import qualified Lhp.Types as Types
 import System.Exit (ExitCode (..))
+import System.IO (hPutStrLn, stderr)
 import qualified System.Process.Typed as TP
 import Text.Read (readEither)
 import qualified Zamazingo.Ssh as Z.Ssh
@@ -29,25 +33,46 @@ import qualified Zamazingo.Text as Z.Text
 -- * Report
 
 
+-- | Attempts to compile host patrol report for a given configuration.
+compileReport
+  :: MonadError LhpError m
+  => MP.MonadParallel m
+  => MonadIO m
+  => Bool
+  -> Config.Config
+  -> m Types.Report
+compileReport par Config.Config {..} = do
+  _reportHosts <- reporter _configHosts
+  pure Types.Report {..}
+  where
+    reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
+    go h@Types.Host {..} = do
+      liftIO (hPutStrLn stderr ("Patrolling " <> T.unpack _hostName))
+      res <- runExceptT (compileHostReport h)
+      case res of
+        Left err -> liftIO (BLC.hPutStrLn stderr (Aeson.encode err) >> pure Nothing)
+        Right sr -> pure (Just sr)
+
+
 -- | Attempts to retrieve remote host information and produce a host
 -- report.
-compileReport
+compileHostReport
   :: MonadIO m
   => MonadError LhpError m
   => Types.Host
-  -> m Types.Report
-compileReport h@Types.Host {..} = do
+  -> m Types.HostReport
+compileHostReport h@Types.Host {..} = do
   kvs <- (++) <$> _fetchHostInfo _hostName <*> _fetchHostCloudInfo _hostName
-  let _reportHost = h
-  _reportCloud <- _mkCloud _hostName kvs
-  _reportHardware <- _mkHardware _hostName kvs
-  _reportKernel <- _mkKernel _hostName kvs
-  _reportDistribution <- _mkDistribution _hostName kvs
-  _reportDockerContainers <- _fetchHostDockerContainers _hostName
-  _reportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName >>= mapM parseSshPublicKey
-  _reportSystemdServices <- _fetchHostSystemdServices _hostName
-  _reportSystemdTimers <- _fetchHostSystemdTimers _hostName
-  pure Types.Report {..}
+  let _hostReportHost = h
+  _hostReportCloud <- _mkCloud _hostName kvs
+  _hostReportHardware <- _mkHardware _hostName kvs
+  _hostReportKernel <- _mkKernel _hostName kvs
+  _hostReportDistribution <- _mkDistribution _hostName kvs
+  _hostReportDockerContainers <- _fetchHostDockerContainers _hostName
+  _hostReportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName >>= mapM parseSshPublicKey
+  _hostReportSystemdServices <- _fetchHostSystemdServices _hostName
+  _hostReportSystemdTimers <- _fetchHostSystemdTimers _hostName
+  pure Types.HostReport {..}
 
 
 -- * Errors
