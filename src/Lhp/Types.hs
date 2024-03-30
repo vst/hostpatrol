@@ -8,6 +8,7 @@ module Lhp.Types where
 
 import qualified Autodocodec as ADC
 import qualified Data.Aeson as Aeson
+import Data.Int (Int32)
 import Data.Scientific (Scientific)
 import qualified Data.Text as T
 import qualified Data.Time as Time
@@ -120,7 +121,7 @@ instance ADC.HasCodec Cloud where
 
 -- | Data definition for host's rudimentary hardware information.
 data Hardware = Hardware
-  { _hardwareCpuCount :: !Int
+  { _hardwareCpuCount :: !Int32 -- :)
   , _hardwareRamTotal :: !Scientific
   , _hardwareDiskRoot :: !Scientific
   }
