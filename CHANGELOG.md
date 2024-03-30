@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.8](https://github.com/vst/lhp/compare/v0.0.7...v0.0.8) (2024-03-30)
+
+
+### Features
+
+* add known SSH public keys ([0641141](https://github.com/vst/lhp/commit/06411411657fb85a5994c63646257c489695adf8))
+* enrich SSH public key data definition ([cbceb86](https://github.com/vst/lhp/commit/cbceb8696613099af60b212f17a4a653080c7656))
+* **website:** add more filters to hosts tabulation ([bb8b828](https://github.com/vst/lhp/commit/bb8b828ad7d2a7e395271d502bb9c41a68185f3d))
+* **website:** add rudimentary filters to hosts tabulation ([286745f](https://github.com/vst/lhp/commit/286745f74b6a151f7ffadbcab049846194f8a3d0))
+
+
+### Bug Fixes
+
+* change the type of CPU count ([6093b8b](https://github.com/vst/lhp/commit/6093b8bd8e046e9fce2d3e400bcb7cb53627d0c2))
+* fix how authorized SSH public keys are streamed from host ([fa9f719](https://github.com/vst/lhp/commit/fa9f719c49a1e30f95e9a386df98fee6ab7ef591))
+
 ## [0.0.7](https://github.com/vst/lhp/compare/v0.0.6...v0.0.7) (2024-03-26)
 
 
