@@ -74,12 +74,14 @@ You can pass hosts via CLI arguments:
 lhp compile --host my-host-1 --host my-host-2 > /tmp/lhp-report.json
 ```
 
-This command connects to hosts in parallel. If any of the hosts cause
-an error, entire operation will fail. To ignore failed hosts, you can
-use `--stream` mode:
+This command connects to hosts sequentially and ignores problematic
+hosts in the output.
+
+To use parallel mode, use `--parallel` flag. In this case, if any of
+the hosts cause an error, entire operation will fail:
 
 ```sh
-lhp compile --stream --host my-host-1 --host my-host-2 | jq --slurp . > /tmp/lhp-report.json
+lhp compile --parallel --host my-host-1 --host my-host-2 > /tmp/lhp-report.json
 ```
 
 Alternatively, you can use a configuration file which has additional
@@ -89,6 +91,14 @@ follows:
 
 ```yaml
 ## config.yaml
+## List of known SSH public keys to be added to the report.
+##
+## These can be then used by external programs of lhp Web UI to
+## highlight if a host has an unknown authorized SSH public key.
+knownSshKeys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKq9bpy0IIfDnlgaTCQk0YhKyKFqInRjoqeIPlBuiFwS testing
+
+## List of hosts to patrol
 hosts:
   - ## Name of the host (required)
     name: somehost
@@ -112,10 +122,10 @@ individually on the command-line:
 lhp compile --config config.yaml > /tmp/lhp-report.json
 ```
 
-..., or:
+..., or mix with `--host` option:
 
 ```sh
-lhp compile --stream --config config.yaml | jq --slurp . > /tmp/lhp-report.json
+lhp compile --config config.yaml --host a-host --host b-host > /tmp/lhp-report.json
 ```
 
 Users can process/analyse the JSON output themselves or use [Website]

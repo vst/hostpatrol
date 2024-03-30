@@ -8,17 +8,23 @@
 module Lhp.Remote where
 
 import Control.Monad.Except (ExceptT, MonadError (..), runExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (MonadIO (liftIO))
+import qualified Control.Monad.Parallel as MP
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Combinators.Decode as ACD
+import Data.Bool (bool)
 import qualified Data.ByteString.Lazy as BL
+import qualified Data.ByteString.Lazy.Char8 as BLC
 import Data.FileEmbed (embedStringFile)
 import qualified Data.List as List
-import Data.Maybe (fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
-import Lhp.Types (Report (_reportSystemdServices))
+import qualified Lhp.Config as Config
 import qualified Lhp.Types as Types
+import System.Exit (ExitCode (..))
+import System.IO (hPutStrLn, stderr)
+import qualified System.Process.Typed as TP
 import Text.Read (readEither)
 import qualified Zamazingo.Ssh as Z.Ssh
 import qualified Zamazingo.Text as Z.Text
@@ -27,25 +33,47 @@ import qualified Zamazingo.Text as Z.Text
 -- * Report
 
 
+-- | Attempts to compile host patrol report for a given configuration.
+compileReport
+  :: MonadError LhpError m
+  => MP.MonadParallel m
+  => MonadIO m
+  => Bool
+  -> Config.Config
+  -> m Types.Report
+compileReport par Config.Config {..} = do
+  _reportHosts <- reporter _configHosts
+  _reportKnownSshKeys <- mapM parseSshPublicKey _configKnownSshKeys
+  pure Types.Report {..}
+  where
+    reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
+    go h@Types.Host {..} = do
+      liftIO (hPutStrLn stderr ("Patrolling " <> T.unpack _hostName))
+      res <- runExceptT (compileHostReport h)
+      case res of
+        Left err -> liftIO (BLC.hPutStrLn stderr (Aeson.encode err) >> pure Nothing)
+        Right sr -> pure (Just sr)
+
+
 -- | Attempts to retrieve remote host information and produce a host
 -- report.
-compileReport
+compileHostReport
   :: MonadIO m
   => MonadError LhpError m
   => Types.Host
-  -> m Types.Report
-compileReport h@Types.Host {..} = do
+  -> m Types.HostReport
+compileHostReport h@Types.Host {..} = do
   kvs <- (++) <$> _fetchHostInfo _hostName <*> _fetchHostCloudInfo _hostName
-  let _reportHost = h
-  _reportCloud <- _mkCloud _hostName kvs
-  _reportHardware <- _mkHardware _hostName kvs
-  _reportKernel <- _mkKernel _hostName kvs
-  _reportDistribution <- _mkDistribution _hostName kvs
-  _reportDockerContainers <- _fetchHostDockerContainers _hostName
-  _reportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName
-  _reportSystemdServices <- _fetchHostSystemdServices _hostName
-  _reportSystemdTimers <- _fetchHostSystemdTimers _hostName
-  pure Types.Report {..}
+  let _hostReportHost = h
+  _hostReportCloud <- _mkCloud _hostName kvs
+  _hostReportHardware <- _mkHardware _hostName kvs
+  _hostReportKernel <- _mkKernel _hostName kvs
+  _hostReportDistribution <- _mkDistribution _hostName kvs
+  _hostReportDockerContainers <- _fetchHostDockerContainers _hostName
+  _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys _hostName >>= mapM parseSshPublicKey
+  _hostReportSystemdServices <- _fetchHostSystemdServices _hostName
+  _hostReportSystemdTimers <- _fetchHostSystemdTimers _hostName
+  pure Types.HostReport {..}
 
 
 -- * Errors
@@ -56,12 +84,14 @@ compileReport h@Types.Host {..} = do
 data LhpError
   = LhpErrorSsh Z.Ssh.Destination Z.Ssh.SshError
   | LhpErrorParse Z.Ssh.Destination T.Text
+  | LhpErrorUnknown T.Text
   deriving (Eq, Show)
 
 
 instance Aeson.ToJSON LhpError where
   toJSON (LhpErrorSsh h err) = Aeson.object [("type", "ssh"), "host" Aeson..= h, "error" Aeson..= err]
   toJSON (LhpErrorParse h err) = Aeson.object [("type", "parse"), "host" Aeson..= h, "error" Aeson..= err]
+  toJSON (LhpErrorUnknown err) = Aeson.object [("type", "unknown"), "error" Aeson..= err]
 
 
 -- * Internal
@@ -110,12 +140,12 @@ _fetchHostDockerContainers h =
 
 -- | Attempts to find and return all SSH authorized keys on the remote
 -- host.
-_fetchHostSshAuthorizedKeys
+_fetchHostAuthorizedSshKeys
   :: MonadIO m
   => MonadError LhpError m
   => Z.Ssh.Destination
   -> m [T.Text]
-_fetchHostSshAuthorizedKeys h =
+_fetchHostAuthorizedSshKeys h =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
     prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
@@ -354,3 +384,39 @@ _toSshError
   -> m a
 _toSshError h =
   _modifyError (LhpErrorSsh h)
+
+
+-- | Creates 'Types.SshPublicKey' from given 'T.Text' using ssh-keygen.
+--
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "no comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+parseSshPublicKey
+  :: MonadError LhpError m
+  => MonadIO m
+  => T.Text
+  -> m Types.SshPublicKey
+parseSshPublicKey s = do
+  (ec, out, err) <- TP.readProcess process
+  case ec of
+    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err)
+    ExitSuccess -> case T.words (Z.Text.unsafeTextFromBL out) of
+      (l : fp : r) ->
+        pure $
+          Types.SshPublicKey
+            { _sshPublicKeyData = s
+            , _sshPublicKeyType = T.init . T.tail $ List.last r
+            , _sshPublicKeyLength = read (T.unpack l)
+            , _sshPublicKeyComment = T.unwords (filter (not . T.null) (List.init r))
+            , _sshPublicKeyFingerprint = fp
+            }
+      _ -> throwUnknown "Could not parse ssh-keygen output."
+  where
+    throwUnknown = throwError . LhpErrorUnknown
+    stdin = TP.byteStringInput (Z.Text.blFromText s)
+    process = TP.setStdin stdin (TP.proc "ssh-keygen" ["-E", "md5", "-l", "-f", "-"])

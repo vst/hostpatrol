@@ -1,3 +1,11 @@
+## List of known SSH public keys to be added to the report.
+##
+## These can be then used by external programs of lhp Web UI to
+## highlight if a host has an unknown authorized SSH public key.
+knownSshKeys:
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKq9bpy0IIfDnlgaTCQk0YhKyKFqInRjoqeIPlBuiFwS testing
+
+## List of hosts to patrol
 hosts:
   - ## Name of the host (required)
     name: somehost

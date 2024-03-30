@@ -18,7 +18,7 @@ find \
     2>/dev/null |
     sort -u |
     xargs -I{} cat {} |
-    xargs -L1 echo |
+    xargs -I{} echo {} |
     grep -vE "^#" |
     sort -u |
     tr -s ' '

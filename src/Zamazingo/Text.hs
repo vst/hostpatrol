@@ -48,3 +48,8 @@ nonempty x = Just x
 -- May throw encoding error, hence the @unsafe@.
 unsafeTextFromBL :: BL.ByteString -> T.Text
 unsafeTextFromBL = TL.toStrict . TLE.decodeUtf8
+
+
+-- | Converts a given strict text to lazy bytestring.
+blFromText :: T.Text -> BL.ByteString
+blFromText = TLE.encodeUtf8 . TL.fromStrict

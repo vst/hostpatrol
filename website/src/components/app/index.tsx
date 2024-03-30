@@ -3,11 +3,11 @@
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
 import { App } from './-app';
-import { DataLoader, LhpData, deleteData, loadData } from './-data';
+import { DataLoader, LhpPatrolReport, deleteData, loadData } from './-data';
 import { BigSpinner } from './-ui';
 
 export function AppMain() {
-  const [data, setAppData] = useState<Maybe<Maybe<LhpData[]>>>(Nothing);
+  const [data, setAppData] = useState<Maybe<Maybe<LhpPatrolReport>>>(Nothing);
 
   useEffect(() => {
     loadData().caseOf({
