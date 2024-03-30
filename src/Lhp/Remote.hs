@@ -19,6 +19,8 @@ import qualified Data.Scientific as S
 import qualified Data.Text as T
 import Lhp.Types (Report (_reportSystemdServices))
 import qualified Lhp.Types as Types
+import System.Exit (ExitCode (..))
+import qualified System.Process.Typed as TP
 import Text.Read (readEither)
 import qualified Zamazingo.Ssh as Z.Ssh
 import qualified Zamazingo.Text as Z.Text
@@ -42,7 +44,7 @@ compileReport h@Types.Host {..} = do
   _reportKernel <- _mkKernel _hostName kvs
   _reportDistribution <- _mkDistribution _hostName kvs
   _reportDockerContainers <- _fetchHostDockerContainers _hostName
-  _reportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName
+  _reportSshAuthorizedKeys <- _fetchHostSshAuthorizedKeys _hostName >>= mapM parseSshPublicKey
   _reportSystemdServices <- _fetchHostSystemdServices _hostName
   _reportSystemdTimers <- _fetchHostSystemdTimers _hostName
   pure Types.Report {..}
@@ -56,12 +58,14 @@ compileReport h@Types.Host {..} = do
 data LhpError
   = LhpErrorSsh Z.Ssh.Destination Z.Ssh.SshError
   | LhpErrorParse Z.Ssh.Destination T.Text
+  | LhpErrorUnknown T.Text
   deriving (Eq, Show)
 
 
 instance Aeson.ToJSON LhpError where
   toJSON (LhpErrorSsh h err) = Aeson.object [("type", "ssh"), "host" Aeson..= h, "error" Aeson..= err]
   toJSON (LhpErrorParse h err) = Aeson.object [("type", "parse"), "host" Aeson..= h, "error" Aeson..= err]
+  toJSON (LhpErrorUnknown err) = Aeson.object [("type", "unknown"), "error" Aeson..= err]
 
 
 -- * Internal
@@ -354,3 +358,39 @@ _toSshError
   -> m a
 _toSshError h =
   _modifyError (LhpErrorSsh h)
+
+
+-- | Creates 'Types.SshPublicKey' from given 'T.Text' using ssh-keygen.
+--
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "no comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+parseSshPublicKey
+  :: MonadError LhpError m
+  => MonadIO m
+  => T.Text
+  -> m Types.SshPublicKey
+parseSshPublicKey s = do
+  (ec, out, err) <- TP.readProcess process
+  case ec of
+    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err)
+    ExitSuccess -> case T.words (Z.Text.unsafeTextFromBL out) of
+      (l : fp : r) ->
+        pure $
+          Types.SshPublicKey
+            { _sshPublicKeyData = s
+            , _sshPublicKeyType = T.init . T.tail $ List.last r
+            , _sshPublicKeyLength = read (T.unpack l)
+            , _sshPublicKeyComment = T.unwords (filter (not . T.null) (List.init r))
+            , _sshPublicKeyFingerprint = fp
+            }
+      _ -> throwUnknown "Could not parse ssh-keygen output."
+  where
+    throwUnknown = throwError . LhpErrorUnknown
+    stdin = TP.byteStringInput (Z.Text.blFromText s)
+    process = TP.setStdin stdin (TP.proc "ssh-keygen" ["-E", "md5", "-l", "-f", "-"])

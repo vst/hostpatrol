@@ -51,7 +51,7 @@ data Report = Report
   , _reportKernel :: !Kernel
   , _reportDistribution :: !Distribution
   , _reportDockerContainers :: !(Maybe [DockerContainer])
-  , _reportSshAuthorizedKeys :: ![T.Text]
+  , _reportSshAuthorizedKeys :: ![SshPublicKey]
   , _reportSystemdServices :: ![T.Text]
   , _reportSystemdTimers :: ![T.Text]
   }
@@ -230,3 +230,32 @@ instance ADC.HasCodec DockerContainer where
             <*> ADC.requiredField "image" "Image the container is created from." ADC..= _dockerContainerImage
             <*> ADC.requiredField "created" "Date/time when the container is created at." ADC..= _dockerContainerCreated
             <*> ADC.requiredField "running" "Indicates if the container is running." ADC..= _dockerContainerRunning
+
+
+-- * SSH Public Key Information
+
+
+-- | Data definition for SSH public key information.
+data SshPublicKey = SshPublicKey
+  { _sshPublicKeyData :: !T.Text
+  , _sshPublicKeyType :: !T.Text
+  , _sshPublicKeyLength :: !Int32
+  , _sshPublicKeyComment :: !T.Text
+  , _sshPublicKeyFingerprint :: !T.Text
+  }
+  deriving (Eq, Generic, Show)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec SshPublicKey)
+
+
+instance ADC.HasCodec SshPublicKey where
+  codec =
+    _codec ADC.<?> "SSH Public Key Information"
+    where
+      _codec =
+        ADC.object "SshPublicKey" $
+          SshPublicKey
+            <$> ADC.requiredField "data" "Original information." ADC..= _sshPublicKeyData
+            <*> ADC.requiredField "type" "Type of the public key." ADC..= _sshPublicKeyType
+            <*> ADC.requiredField "length" "Length of the public key." ADC..= _sshPublicKeyLength
+            <*> ADC.requiredField "comment" "Comment on the public key." ADC..= _sshPublicKeyComment
+            <*> ADC.requiredField "fingerprint" "Fingerprint of the public key." ADC..= _sshPublicKeyFingerprint
