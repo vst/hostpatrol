@@ -1,19 +1,18 @@
-import { AppMain } from '@/components/app';
-import Header from '@/components/header';
-import { ToastContainer } from 'react-toastify';
+import Link from 'next/link';
 
-import 'react-toastify/dist/ReactToastify.css';
-
-export default function Home() {
+export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start">
-      <Header />
-
-      <div className="flex w-full flex-grow">
-        <AppMain />
+    <div className="flex w-full flex-col items-center justify-center">
+      <div>
+        <p>Landing page is coming soon...</p>
+        <p>
+          Check{' '}
+          <Link href="/report" className="font-bold text-blue-500">
+            report
+          </Link>{' '}
+          page.
+        </p>
       </div>
-
-      <ToastContainer autoClose={2000} />
-    </main>
+    </div>
   );
 }

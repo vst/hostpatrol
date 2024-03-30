@@ -1,5 +1,8 @@
+import Header from '@/components/header';
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -18,7 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`bg-gray-50 ${font.className}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main className="flex min-h-screen flex-col items-center justify-start">
+            <Header />
+            <div className="flex w-full flex-grow">{children}</div>
+            <ToastContainer autoClose={2000} />
+          </main>
+        </Providers>
       </body>
     </html>
   );
