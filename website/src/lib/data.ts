@@ -211,6 +211,7 @@ export type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType exten
   : never;
 
 export type LhpHostReport = ArrayElement<LhpPatrolReport['hosts']>;
+export type SshPublicKey = ArrayElement<LhpHostReport['authorizedSshKeys']>;
 
 const AJV = new Ajv();
 
@@ -250,4 +251,46 @@ export function saveData(x: LhpPatrolReport): void {
 
 export function deleteData(): void {
   localStorage.removeItem(_LOCAL_STORAGE_KEY_DATA);
+}
+
+export type SshKeysTable = Record<string, SshKeysTableRecord>;
+
+export interface SshKeysTableRecord {
+  key: SshPublicKey;
+  seenHosts: Set<LhpHostReport>;
+  seenComments: Set<string>;
+  isKnown: boolean;
+  knownComment: string;
+}
+
+export function buildSshKeysTable(data: LhpPatrolReport): SshKeysTable {
+  // Initialize the return value:
+  const keys: SshKeysTable = {};
+
+  // Lookup table for known SSH public key comments by their fingerprint:
+  const knownComments: Record<string, string> = data.knownSshKeys.reduce(
+    (acc, x) => ({ ...acc, [x.fingerprint]: x.comment || '<NO-COMMENT>' }),
+    {}
+  );
+
+  // Iterate over all SSH public keys for all hosts and populate our registry:
+  for (const host of data.hosts) {
+    for (const key of host.authorizedSshKeys) {
+      if (key.fingerprint in keys) {
+        keys[key.fingerprint].seenComments.add(key.comment);
+        keys[key.fingerprint].seenHosts.add(host);
+      } else {
+        keys[key.fingerprint] = {
+          key: key,
+          seenHosts: new Set([host]),
+          seenComments: new Set([key.comment]),
+          isKnown: key.fingerprint in knownComments,
+          knownComment: knownComments[key.fingerprint],
+        };
+      }
+    }
+  }
+
+  // Done, return with the lookup table:
+  return keys;
 }

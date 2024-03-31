@@ -1,14 +1,15 @@
-import { LhpHostReport, LhpPatrolReport } from '@/lib/data';
+import { LhpHostReport, LhpPatrolReport, buildSshKeysTable } from '@/lib/data';
 import { Tab, Tabs } from '@nextui-org/react';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
 import { ShowHostDetails } from './ShowHostDetails';
 import { Sidebar } from './Sidebar';
 import { TabulateHosts } from './TabulateHosts';
+import { TabulateSshKeys } from './TabulateSshKeys';
 
 export function App({ data, onFlushRequest }: { data: LhpPatrolReport; onFlushRequest: () => void }) {
   const [host, setHost] = useState<Maybe<LhpHostReport>>(Nothing);
-  type TabKey = 'overview' | 'tabulate-hosts' | 'show-host-details' | 'flush';
+  type TabKey = 'overview' | 'tabulate-hosts' | 'show-host-details' | 'ssh-keys' | 'flush';
   const [tab, setTab] = useState<TabKey>('overview');
 
   useEffect(() => {
@@ -45,6 +46,10 @@ export function App({ data, onFlushRequest }: { data: LhpPatrolReport; onFlushRe
 
         <Tab key="show-host-details" title="🔬 Host Details" className="py-0">
           <TabShowHostDetails data={data} host={host} setHost={setHost} />
+        </Tab>
+
+        <Tab key="ssh-keys" title="🛂 SSH Keys" className="py-0">
+          <TabSshKeys data={data} />
         </Tab>
 
         <Tab key="flush" title="❌ Flush Data" className="py-0"></Tab>
@@ -90,4 +95,8 @@ export function TabShowHostDetails({
       </div>
     </div>
   );
+}
+
+export function TabSshKeys({ data }: { data: LhpPatrolReport }) {
+  return <TabulateSshKeys records={Object.values(buildSshKeysTable(data))} />;
 }
