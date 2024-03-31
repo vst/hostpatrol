@@ -69,6 +69,8 @@ instance ADC.HasCodec Host where
 -- | Data definition for host patrol report.
 data HostReport = HostReport
   { _hostReportHost :: !Host
+  , _hostReportHostname :: !T.Text
+  , _hostReportTimezone :: !T.Text
   , _hostReportCloud :: !Cloud
   , _hostReportHardware :: !Hardware
   , _hostReportKernel :: !Kernel
@@ -90,6 +92,8 @@ instance ADC.HasCodec HostReport where
         ADC.object "Report" $
           HostReport
             <$> ADC.requiredField "host" "Host descriptor." ADC..= _hostReportHost
+            <*> ADC.requiredField "hostname" "Hostname of the host." ADC..= _hostReportHostname
+            <*> ADC.requiredField "timezone" "Timezone of the host." ADC..= _hostReportTimezone
             <*> ADC.requiredField "cloud" "Cloud information." ADC..= _hostReportCloud
             <*> ADC.requiredField "hardware" "Hardware information." ADC..= _hostReportHardware
             <*> ADC.requiredField "kernel" "Kernel information." ADC..= _hostReportKernel

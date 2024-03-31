@@ -53,6 +53,8 @@ _check_file /etc/os-release
 # PROCEDURE #
 #############
 
+_print_var "LHP_GENERAL_HOSTNAME" "$(hostname)"
+_print_var "LHP_GENERAL_TIMEZONE" "$(timedatectl | grep "Time zone" | cut -f 2- -d ":" | xargs)"
 _print_var "LHP_HW_CPU" "$(nproc)"
 _print_var "LHP_HW_RAM" "$(grep -oP 'MemTotal:\s+\K\d+' /proc/meminfo)"
 _print_var "LHP_HW_DISK" "$(df -k --output=size / | tail -n +2 | grep -o '[[:digit:]]*')"

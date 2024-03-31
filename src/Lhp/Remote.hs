@@ -21,6 +21,7 @@ import Data.Maybe (catMaybes, fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
 import qualified Lhp.Config as Config
+import Lhp.Types (HostReport (_hostReportTimezone))
 import qualified Lhp.Types as Types
 import System.Exit (ExitCode (..))
 import System.IO (hPutStrLn, stderr)
@@ -65,6 +66,8 @@ compileHostReport
 compileHostReport h@Types.Host {..} = do
   kvs <- (++) <$> _fetchHostInfo _hostName <*> _fetchHostCloudInfo _hostName
   let _hostReportHost = h
+  _hostReportHostname <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_HOSTNAME" kvs
+  _hostReportTimezone <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_TIMEZONE" kvs
   _hostReportCloud <- _mkCloud _hostName kvs
   _hostReportHardware <- _mkHardware _hostName kvs
   _hostReportKernel <- _mkKernel _hostName kvs
