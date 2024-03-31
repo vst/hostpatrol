@@ -42,6 +42,28 @@ export function TabulateHosts({
 
         <div className="rounded-lg bg-gray-100 p-2">
           <Select
+            label="Timezones"
+            selectionMode="multiple"
+            variant="underlined"
+            className="max-w-xs"
+            onSelectionChange={(x: Selection) => {
+              setFilters({ ...filters, timezone: x === 'all' || x.size === 0 ? () => true : (h) => x.has(h.timezone) });
+            }}
+          >
+            {hosts
+              .map((host) => host.timezone)
+              .sort()
+              .filter(function (el, i, a) {
+                return i === a.indexOf(el);
+              })
+              .map((t) => (
+                <SelectItem key={t}>{t}</SelectItem>
+              ))}
+          </Select>
+        </div>
+
+        <div className="rounded-lg bg-gray-100 p-2">
+          <Select
             label="Clouds"
             selectionMode="multiple"
             variant="underlined"
@@ -137,7 +159,7 @@ export function TabulateHosts({
           </Select>
         </div>
 
-        <div className="col-span-5 rounded-lg bg-gray-100 p-2">
+        <div className="col-span-4 rounded-lg bg-gray-100 p-2">
           <Select
             label="Authorized SSH Keys"
             selectionMode="multiple"
@@ -300,7 +322,9 @@ export function TabulateHosts({
         showSelectionCheckboxes={false}
       >
         <TableHeader>
+          <TableColumn key="name">Name</TableColumn>
           <TableColumn key="hostname">Hostname</TableColumn>
+          <TableColumn key="timezone">Timezone</TableColumn>
           <TableColumn key="cloud">Cloud</TableColumn>
           <TableColumn key="distro">Distribution</TableColumn>
           <TableColumn key="arch">Arch</TableColumn>
@@ -353,6 +377,8 @@ export function TabulateHosts({
                   )}
                 </div>
               </TableCell>
+              <TableCell>{host.hostname}</TableCell>
+              <TableCell>{host.timezone.split(' ', 1)[0] || 'UNKNOWN'}</TableCell>
               <TableCell>
                 {host.cloud.name}
                 {host.cloud.hostRegion && <span className="text-xs text-gray-400"> {host.cloud.hostRegion}</span>}

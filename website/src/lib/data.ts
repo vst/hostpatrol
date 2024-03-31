@@ -144,6 +144,7 @@ export const LHP_PATROL_REPORT_SCHEMA = {
             required: ['name'],
             type: 'object',
           },
+          hostname: { $comment: 'Hostname of the host.', type: 'string' },
           kernel: {
             $comment: 'Kernel information.\nKernel Information\nKernel',
             properties: {
@@ -167,6 +168,7 @@ export const LHP_PATROL_REPORT_SCHEMA = {
             items: { type: 'string' },
             type: 'array',
           },
+          timezone: { $comment: 'Timezone of the host.', type: 'string' },
         },
         required: [
           'systemdTimers',
@@ -177,6 +179,8 @@ export const LHP_PATROL_REPORT_SCHEMA = {
           'kernel',
           'hardware',
           'cloud',
+          'timezone',
+          'hostname',
           'host',
         ],
         type: 'object',
