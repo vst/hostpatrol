@@ -9,7 +9,7 @@ import { KVBox } from '../helpers';
 export function ShowHostDetails({ host }: { host: LhpHostReport }) {
   return (
     <div className="space-y-4 px-4 py-4">
-      <h1 className="flex flex-row justify-between text-xl font-bold">
+      <h1 className="flex flex-row items-center justify-between text-xl font-bold">
         <div className="space-x-2">
           <span>{host.host.name}</span>
           {host.host.url && (
@@ -19,12 +19,18 @@ export function ShowHostDetails({ host }: { host: LhpHostReport }) {
           )}
         </div>
 
-        <div className="space-x-1">
-          {(host.host.tags || []).map((x) => (
-            <Chip key={x} size="sm" color="primary" variant="flat" radius="sm">
-              {x}
-            </Chip>
-          ))}
+        <div className="align-items flex flex-row items-center space-x-4">
+          <div className="text-xs font-medium text-gray-500">
+            {host.hostname} on {host.timezone}
+          </div>
+
+          <div className="space-x-1 pb-1">
+            {(host.host.tags || []).map((x) => (
+              <Chip key={x} size="sm" color="primary" variant="flat" radius="sm">
+                {x}
+              </Chip>
+            ))}
+          </div>
         </div>
       </h1>
 
