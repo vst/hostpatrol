@@ -1,12 +1,8 @@
-import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
-import { Divider } from '@nextui-org/divider';
 import Ajv from 'ajv';
 import type { JSONSchema } from 'json-schema-to-ts';
 import { FromSchema } from 'json-schema-to-ts';
 import { Either, Left, Right } from 'purify-ts/Either';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
-import { ChangeEvent, useState } from 'react';
-import { Centered } from './-ui';
 
 export const LHP_PATROL_REPORT_SCHEMA = {
   $comment: 'Host Patrol Report\nReport',
@@ -215,6 +211,7 @@ export type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType exten
   : never;
 
 export type LhpHostReport = ArrayElement<LhpPatrolReport['hosts']>;
+export type SshPublicKey = ArrayElement<LhpHostReport['authorizedSshKeys']>;
 
 const AJV = new Ajv();
 
@@ -256,47 +253,44 @@ export function deleteData(): void {
   localStorage.removeItem(_LOCAL_STORAGE_KEY_DATA);
 }
 
-export function DataLoader({ onLoadData }: { onLoadData: (x: LhpPatrolReport) => void }) {
-  const [error, setError] = useState<string>();
+export type SshKeysTable = Record<string, SshKeysTableRecord>;
 
-  const changeHandler = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setError(undefined);
+export interface SshKeysTableRecord {
+  key: SshPublicKey;
+  seenHosts: Set<LhpHostReport>;
+  seenComments: Set<string>;
+  isKnown: boolean;
+  knownComment: string;
+}
 
-    const files = (e.target as HTMLInputElement).files;
+export function buildSshKeysTable(data: LhpPatrolReport): SshKeysTable {
+  // Initialize the return value:
+  const keys: SshKeysTable = {};
 
-    if (files == null || files.length === 0) {
-      return;
-    }
-
-    const fr = new FileReader();
-    fr.onloadend = () =>
-      parseData(fr.result as string).caseOf({
-        Left: setError,
-        Right(data) {
-          saveData(data);
-          onLoadData(data);
-        },
-      });
-    fr.readAsText(files[0]);
-  };
-
-  return (
-    <Centered>
-      <Card radius="sm" shadow="sm" fullWidth={true} classNames={{ base: 'max-w-xl' }}>
-        <CardHeader className="text-lg font-bold">Load Data</CardHeader>
-
-        <Divider />
-
-        <CardBody>
-          <input type="file" id="image" accept=".JSON" onChange={changeHandler} />
-        </CardBody>
-
-        {error && (
-          <CardFooter className="bg-red-500 text-white">
-            <p>{error}</p>
-          </CardFooter>
-        )}
-      </Card>
-    </Centered>
+  // Lookup table for known SSH public key comments by their fingerprint:
+  const knownComments: Record<string, string> = data.knownSshKeys.reduce(
+    (acc, x) => ({ ...acc, [x.fingerprint]: x.comment || '<NO-COMMENT>' }),
+    {}
   );
+
+  // Iterate over all SSH public keys for all hosts and populate our registry:
+  for (const host of data.hosts) {
+    for (const key of host.authorizedSshKeys) {
+      if (key.fingerprint in keys) {
+        keys[key.fingerprint].seenComments.add(key.comment);
+        keys[key.fingerprint].seenHosts.add(host);
+      } else {
+        keys[key.fingerprint] = {
+          key: key,
+          seenHosts: new Set([host]),
+          seenComments: new Set([key.comment]),
+          isKnown: key.fingerprint in knownComments,
+          knownComment: knownComments[key.fingerprint],
+        };
+      }
+    }
+  }
+
+  // Done, return with the lookup table:
+  return keys;
 }

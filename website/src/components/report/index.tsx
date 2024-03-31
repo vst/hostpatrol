@@ -1,12 +1,13 @@
 'use client';
 
+import { LhpPatrolReport, deleteData, loadData } from '@/lib/data';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
-import { App } from './-app';
-import { DataLoader, LhpPatrolReport, deleteData, loadData } from './-data';
-import { BigSpinner } from './-ui';
+import { BigSpinner } from '../helpers';
+import { App } from './App';
+import { DataLoader } from './DataLoader';
 
-export function AppMain() {
+export function Report() {
   const [data, setAppData] = useState<Maybe<Maybe<LhpPatrolReport>>>(Nothing);
 
   useEffect(() => {

@@ -1,6 +1,5 @@
 'use client';
 
-import { Link } from '@nextui-org/link';
 import {
   Navbar,
   NavbarBrand,
@@ -10,6 +9,7 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from '@nextui-org/navbar';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export default function Header() {
@@ -27,22 +27,47 @@ export default function Header() {
         <p className="font-mono text-2xl font-bold tracking-widest text-inherit">lhp</p>
       </NavbarBrand>
 
-      <NavbarContent className="hidden gap-4 text-sm sm:flex" justify="center">
+      <NavbarContent className="hidden md:flex" justify="center">
         <NavbarItem>Lazy Hacker&apos;s Linux Host Patrol</NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
+        <NavbarItem className="hidden sm:flex">
+          <Link href="/" className="w-full">
+            Home
+          </Link>
+        </NavbarItem>
+
+        <NavbarItem className="hidden sm:flex">
+          <Link href="/report" className="w-full">
+            Report
+          </Link>
+        </NavbarItem>
+
+        <NavbarItem className="hidden sm:flex">
           <Link href="https://github.com/vst/lhp" className="w-full">
             GitHub
           </Link>
         </NavbarItem>
+
         <NavbarMenuToggle aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="sm:hidden" />
       </NavbarContent>
 
       <NavbarMenu>
         <NavbarMenuItem>
-          <Link href="https://github.com/vst/lhp" className="w-full" size="lg">
+          <Link href="/" className="w-full">
+            Home
+          </Link>
+        </NavbarMenuItem>
+
+        <NavbarMenuItem>
+          <Link href="/report" className="w-full">
+            Report
+          </Link>
+        </NavbarMenuItem>
+
+        <NavbarMenuItem>
+          <Link href="https://github.com/vst/lhp" className="w-full">
             GitHub
           </Link>
         </NavbarMenuItem>
