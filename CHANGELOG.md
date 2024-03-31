@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.9](https://github.com/vst/lhp/compare/v0.0.8...v0.0.9) (2024-03-31)
+
+
+### Features
+
+* add hostname and timezone to report output ([4491850](https://github.com/vst/lhp/commit/4491850cb1be458e16d4511c38417b2e8a107515))
+* **website:** add report to its own page, make room for landing page ([109d778](https://github.com/vst/lhp/commit/109d7788ee9a8547548939741a470a8e9f495ff6))
+* **website:** add SSH Keys tab to report ([81f9cef](https://github.com/vst/lhp/commit/81f9cefb3f17db522851b284cdd015d48b842ff0))
+* **website:** adopt host's hostname and timezone ([2859ac3](https://github.com/vst/lhp/commit/2859ac35ce47846e57614b920130c00d31d51b0d))
+* **website:** split report into tabs, refactor report module ([9719020](https://github.com/vst/lhp/commit/9719020030389ae40c03dbdc4f4dbc5c97722af9))
+
+
+### Bug Fixes
+
+* **website:** revisit the authorized SSH keys filter on hosts tabulation ([82b6b9e](https://github.com/vst/lhp/commit/82b6b9e3cbf5097b19d4be5c75bb8b1b1e937417))
+
 ## [0.0.8](https://github.com/vst/lhp/compare/v0.0.7...v0.0.8) (2024-03-30)
 
 
