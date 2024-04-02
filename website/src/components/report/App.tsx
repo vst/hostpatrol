@@ -4,6 +4,7 @@ import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
 import { ShowHostDetails } from './ShowHostDetails';
 import { Sidebar } from './Sidebar';
+import { TabOverview } from './TabOverview';
 import { TabulateHosts } from './TabulateHosts';
 import { TabulateSshKeys } from './TabulateSshKeys';
 
@@ -37,29 +38,22 @@ export function App({ data, onFlushRequest }: { data: LhpPatrolReport; onFlushRe
         }}
       >
         <Tab key="overview" title="🏖️ Overview" className="py-0">
-          <TabOverview />
+          <TabOverview data={data} />
         </Tab>
-
+        1
         <Tab key="tabulate-hosts" title="🗒️ Tabulate Hosts" className="py-0">
           <TabTabulateHosts data={data} setHost={setHost} />
         </Tab>
-
         <Tab key="show-host-details" title="🔬 Host Details" className="py-0">
           <TabShowHostDetails data={data} host={host} setHost={setHost} />
         </Tab>
-
         <Tab key="ssh-keys" title="🛂 SSH Keys" className="py-0">
           <TabSshKeys data={data} />
         </Tab>
-
         <Tab key="flush" title="❌ Flush Data" className="py-0"></Tab>
       </Tabs>
     </div>
   );
-}
-
-export function TabOverview() {
-  return <div>Overview is coming soon...</div>;
 }
 
 export function TabTabulateHosts({
