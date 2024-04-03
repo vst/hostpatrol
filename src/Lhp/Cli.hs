@@ -11,6 +11,7 @@ import Control.Monad.Except (runExceptT)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
 import qualified Lhp.Config as Config
 import qualified Lhp.Meta as Meta
 import Lhp.Remote (compileReport)
@@ -46,6 +47,7 @@ optProgram :: OA.Parser (IO ExitCode)
 optProgram =
   commandCompile
     <|> commandSchema
+    <|> commandVersion
 
 
 -- * Commands
@@ -91,6 +93,24 @@ commandSchema = OA.hsubparser (OA.command "schema" (OA.info parser infomod) <> O
   where
     infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Produce JSON schema for report." <> OA.footer "This command produces JSON schema for report data type."
     parser = pure (BLC.putStrLn (Aeson.encode (ADC.Schema.jsonSchemaViaCodec @Report)) >> pure ExitSuccess)
+
+
+-- ** version
+
+
+-- | Definition for @version@ CLI command.
+commandVersion :: OA.Parser (IO ExitCode)
+commandVersion = OA.hsubparser (OA.command "version" (OA.info parser infomod) <> OA.metavar "version")
+  where
+    infomod = OA.fullDesc <> infoModHeader <> OA.progDesc "Show version and build information." <> OA.footer "This command shows version and build information."
+    parser =
+      doVersion
+        <$> OA.switch (OA.short 'j' <> OA.long "json" <> OA.help "Format output in JSON.")
+    doVersion json = do
+      if json
+        then BLC.putStrLn (Aeson.encode Meta.buildInfo)
+        else TIO.putStrLn (Meta.prettyBuildInfo Meta.buildInfo)
+      pure ExitSuccess
 
 
 -- * Helpers
