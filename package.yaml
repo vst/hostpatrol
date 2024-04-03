@@ -24,11 +24,14 @@ library:
     - autodocodec-schema
     - bytestring
     - file-embed
+    - githash
     - monad-parallel
     - mtl
     - optparse-applicative
     - path
     - scientific
+    - string-interpolate
+    - template-haskell
     - text
     - time
     - typed-process

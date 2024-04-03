@@ -33,6 +33,7 @@
         - DerivingVia
         - FlexibleContexts
         - OverloadedStrings
+        - QuasiQuotes
         - RecordWildCards
         - TemplateHaskell
         - TypeApplications

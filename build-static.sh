@@ -39,6 +39,9 @@ cabal freeze
 ## Run the Docker container:
 docker run -i --detach -v "$(pwd):/app" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}" /bin/bash
 
+## Whitelist codebase directory for Git queries:
+docker exec "${CONTAINER_NAME}" git config --global --add safe.directory /app
+
 ## Update cabal database:
 docker exec "${CONTAINER_NAME}" cabal update
 
