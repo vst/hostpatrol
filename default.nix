@@ -77,7 +77,7 @@ let
     hpack
     fourmolu --mode check app/ src/ test/
     prettier --check .
-    find . -iname "*.nix" -not -path "*/nix/sources.nix" -print0 | xargs --null nixpkgs-fmt --check
+    find . -iname "*.nix" -not -path "*/nix/sources.nix" -and -not -path "*/website/node_modules/*.nix" -print0 | xargs --null nixpkgs-fmt --check
     hlint app/ src/ test/
     cabal build -O0
     cabal run -O0 lhp -- --version

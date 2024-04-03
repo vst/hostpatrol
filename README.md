@@ -153,7 +153,7 @@ hpack &&
     direnv reload &&
     fourmolu -i app/ src/ test/ &&
     prettier --write . &&
-    find . -iname "*.nix" -not -path "*/nix/sources.nix" -print0 | xargs --null nixpkgs-fmt &&
+    find . -iname "*.nix" -not -path "*/nix/sources.nix" -and -not -path "*/website/node_modules/*.nix" -print0 | xargs --null nixpkgs-fmt &&
     hlint app/ src/ test/ &&
     cabal build -O0 &&
     cabal run -O0 lhp -- --version &&
