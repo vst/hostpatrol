@@ -64,7 +64,7 @@ compileHostReport
   => Types.Host
   -> m Types.HostReport
 compileHostReport h@Types.Host {..} = do
-  kvs <- (++) <$> _fetchHostInfo _hostName <*> _fetchHostCloudInfo _hostName
+  kvs <- (++) <$> _fetchHostInfo h <*> _fetchHostCloudInfo h
   let _hostReportHost = h
   _hostReportHostname <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_HOSTNAME" kvs
   _hostReportTimezone <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_TIMEZONE" kvs
@@ -72,10 +72,10 @@ compileHostReport h@Types.Host {..} = do
   _hostReportHardware <- _mkHardware _hostName kvs
   _hostReportKernel <- _mkKernel _hostName kvs
   _hostReportDistribution <- _mkDistribution _hostName kvs
-  _hostReportDockerContainers <- _fetchHostDockerContainers _hostName
-  _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys _hostName >>= mapM parseSshPublicKey
-  _hostReportSystemdServices <- _fetchHostSystemdServices _hostName
-  _hostReportSystemdTimers <- _fetchHostSystemdTimers _hostName
+  _hostReportDockerContainers <- _fetchHostDockerContainers h
+  _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys h >>= mapM parseSshPublicKey
+  _hostReportSystemdServices <- _fetchHostSystemdServices h
+  _hostReportSystemdTimers <- _fetchHostSystemdTimers h
   pure Types.HostReport {..}
 
 
@@ -100,15 +100,20 @@ instance Aeson.ToJSON LhpError where
 -- * Internal
 
 
+getHostSshConfig :: Types.Host -> Z.Ssh.SshConfig
+getHostSshConfig Types.Host {..} =
+  fromMaybe Z.Ssh.SshConfig {_sshConfigDestination = _hostName, _sshConfigOptions = []} _hostSsh
+
+
 -- | Attempts to retrieve remote host information and return it as a
 -- list of key/value tuples.
 _fetchHostInfo
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m [(T.Text, T.Text)]
-_fetchHostInfo h =
-  parseKVs <$> _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/info.sh") ["bash"])
+_fetchHostInfo h@Types.Host {..} =
+  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/info.sh") ["bash"])
 
 
 -- | Attempts to retrieve remote host cloud information and return it
@@ -116,10 +121,10 @@ _fetchHostInfo h =
 _fetchHostCloudInfo
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m [(T.Text, T.Text)]
-_fetchHostCloudInfo h =
-  parseKVs <$> _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/cloud.sh") ["bash"])
+_fetchHostCloudInfo h@Types.Host {..} =
+  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/cloud.sh") ["bash"])
 
 
 -- | Attempts to retrieve remote host docker containers information and return it.
@@ -129,15 +134,15 @@ _fetchHostCloudInfo h =
 _fetchHostDockerContainers
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m (Maybe [Types.DockerContainer])
-_fetchHostDockerContainers h =
+_fetchHostDockerContainers h@Types.Host {..} =
   (Just <$> (prog >>= _parseDockerContainers)) `catchError` const (pure Nothing)
   where
-    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/docker-containers.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/docker-containers.sh") ["bash"])
     _parseDockerContainers b =
       case ACD.eitherDecode (ACD.list _jsonDecoderDockerContainer) b of
-        Left err -> throwError (LhpErrorParse h ("Error while parsing containers information: " <> T.pack err))
+        Left err -> throwError (LhpErrorParse _hostName ("Error while parsing containers information: " <> T.pack err))
         Right sv -> pure sv
 
 
@@ -146,12 +151,12 @@ _fetchHostDockerContainers h =
 _fetchHostAuthorizedSshKeys
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m [T.Text]
-_fetchHostAuthorizedSshKeys h =
+_fetchHostAuthorizedSshKeys h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
 
 
 -- | Attempts to find and return all systemd services on the remote
@@ -159,12 +164,12 @@ _fetchHostAuthorizedSshKeys h =
 _fetchHostSystemdServices
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m [T.Text]
-_fetchHostSystemdServices h =
+_fetchHostSystemdServices h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/systemd-services.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/systemd-services.sh") ["bash"])
 
 
 -- | Attempts to find and return all systemd timers on the remote
@@ -172,12 +177,12 @@ _fetchHostSystemdServices h =
 _fetchHostSystemdTimers
   :: MonadIO m
   => MonadError LhpError m
-  => Z.Ssh.Destination
+  => Types.Host
   -> m [T.Text]
-_fetchHostSystemdTimers h =
+_fetchHostSystemdTimers h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError h (Z.Ssh.runScript h $(embedStringFile "src/scripts/systemd-timers.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/systemd-timers.sh") ["bash"])
 
 
 -- | Smart constructor for remote host cloud information.

@@ -138,6 +138,15 @@ export const LHP_PATROL_REPORT_SCHEMA = {
             $comment: 'Host descriptor.\nHost Descriptor\nHost',
             properties: {
               name: { $comment: 'Name of the host.', type: 'string' },
+              ssh: {
+                $comment: 'SSH configuration.\nSSH Configuration\nSshConfig',
+                properties: {
+                  destination: { $comment: 'SSH destination.', type: 'string' },
+                  options: { $comment: 'SSH options.', items: { type: 'string' }, type: 'array' },
+                },
+                required: ['destination'],
+                type: 'object',
+              },
               tags: { $comment: 'Arbitrary tags for the host.', items: { type: 'string' }, type: 'array' },
               url: { $comment: 'URL to external host information.', type: 'string' },
             },
