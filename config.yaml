@@ -9,6 +9,12 @@ knownSshKeys:
 hosts:
   - ## Name of the host (required)
     name: somehost
+    ## SSH configuration (optional)
+    ssh:
+      ## SSH destination (required)
+      destination: root@10.10.10.10
+      ## SSH options (optional)
+      options: ["-i", "/keys/hebele.pri"]
     ## External URL for the host (optional)
     url: https://internal.documentation/hosts/somehost
     ## List of tags for the host (optional)

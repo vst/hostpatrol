@@ -86,8 +86,8 @@ lhp compile --parallel --host my-host-1 --host my-host-2 > /tmp/lhp-report.json
 
 Alternatively, you can use a configuration file which has additional
 benefit of attaching static information to your hosts such as external
-documentation URL and/or tags. The configuration file looks like as
-follows:
+documentation URL and/or tags, and using SSH configuration instead of
+plain host name. The configuration file looks like as follows:
 
 ```yaml
 ## config.yaml
@@ -102,6 +102,12 @@ knownSshKeys:
 hosts:
   - ## Name of the host (required)
     name: somehost
+    ## SSH configuration (optional)
+    ssh:
+      ## SSH destination (required)
+      destination: root@10.10.10.10
+      ## SSH options (optional)
+      options: ["-i", "/keys/hebele.pri"]
     ## External URL for the host (optional)
     url: https://internal.documentation/hosts/somehost
     ## List of tags for the host (optional)
