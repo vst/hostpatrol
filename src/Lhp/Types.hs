@@ -13,6 +13,7 @@ import Data.Scientific (Scientific)
 import qualified Data.Text as T
 import qualified Data.Time as Time
 import GHC.Generics (Generic)
+import Zamazingo.Ssh (SshConfig)
 
 
 -- * Report
@@ -44,6 +45,7 @@ instance ADC.HasCodec Report where
 -- | Data definition for host descriptor.
 data Host = Host
   { _hostName :: !T.Text
+  , _hostSsh :: !(Maybe SshConfig)
   , _hostUrl :: !(Maybe T.Text)
   , _hostTags :: ![T.Text]
   }
@@ -59,6 +61,7 @@ instance ADC.HasCodec Host where
         ADC.object "Host" $
           Host
             <$> ADC.requiredField "name" "Name of the host." ADC..= _hostName
+            <*> ADC.optionalField "ssh" "SSH configuration." ADC..= _hostSsh
             <*> ADC.optionalField "url" "URL to external host information." ADC..= _hostUrl
             <*> ADC.optionalFieldWithDefault "tags" [] "Arbitrary tags for the host." ADC..= _hostTags
 

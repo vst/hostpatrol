@@ -81,7 +81,7 @@ doCompile cpath dests par = do
     Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
     Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
   where
-    _mkHost d = Types.Host {Types._hostName = d, Types._hostUrl = Nothing, Types._hostTags = []}
+    _mkHost d = Types.Host {Types._hostName = d, Types._hostSsh = Nothing, Types._hostUrl = Nothing, Types._hostTags = []}
 
 
 -- ** schema
