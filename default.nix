@@ -111,6 +111,7 @@ let
       pkgs.nil
       pkgs.nixpkgs-fmt
       pkgs.nodePackages.prettier
+      pkgs.nodejs_20
       pkgs.upx
 
       ## Our custom scripts:
