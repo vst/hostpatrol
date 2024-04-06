@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.10](https://github.com/vst/lhp/compare/v0.0.9...v0.0.10) (2024-04-06)
+
+
+### Features
+
+* add script to build static and compressed binary for executable ([dc4cce5](https://github.com/vst/lhp/commit/dc4cce5c9b7e9b57ccf92151af520d2501822759))
+* add version/build information command ([386ce83](https://github.com/vst/lhp/commit/386ce835ea46b9682b5c538a69d3e3da4049eb9a))
+* allow optional SSH configuration via configuration file ([15ed034](https://github.com/vst/lhp/commit/15ed0344d67b342729e8c70f6707067caaf771f9))
+* automate builds for static executable release artifact ([252c1fe](https://github.com/vst/lhp/commit/252c1fec033aa84f30451cc63d559f6a57087ad1))
+* **website:** add clipboard functionality to SSH keys tabulation ([14d5f8b](https://github.com/vst/lhp/commit/14d5f8bccddfcc420a0a63d7d348a597c8dd0492))
+* **website:** implement rudimentary overview page for report ([4ef95fe](https://github.com/vst/lhp/commit/4ef95fe0e408e52dca212f6da2045ffb471c9a1a))
+
 ## [0.0.9](https://github.com/vst/lhp/compare/v0.0.8...v0.0.9) (2024-03-31)
 
 
