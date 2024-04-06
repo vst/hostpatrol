@@ -100,6 +100,10 @@ instance Aeson.ToJSON LhpError where
 -- * Internal
 
 
+-- | Builds 'Z.Ssh.SshConfig' value from 'Types.Host'.
+--
+-- If the host does not have an SSH configuration, it will default to
+-- an SSH configuration with the host name as the destination.
 getHostSshConfig :: Types.Host -> Z.Ssh.SshConfig
 getHostSshConfig Types.Host {..} =
   fromMaybe Z.Ssh.SshConfig {_sshConfigDestination = _hostName, _sshConfigOptions = []} _hostSsh
