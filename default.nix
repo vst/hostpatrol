@@ -129,6 +129,9 @@ let
     binPaths = [
       pkgs.bashInteractive ## Added for bash-based CLI option completions
     ];
+    nativeBuildInputs = [
+      pkgs.openssh ## Required by the application tests
+    ];
   };
 
   ############
