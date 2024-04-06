@@ -111,6 +111,7 @@ let
       pkgs.nil
       pkgs.nixpkgs-fmt
       pkgs.nodePackages.prettier
+      pkgs.nodejs_20
       pkgs.upx
 
       ## Our custom scripts:
@@ -127,6 +128,9 @@ let
     drv = thisHaskell.${thisHaskellPackages.main.name};
     binPaths = [
       pkgs.bashInteractive ## Added for bash-based CLI option completions
+    ];
+    nativeBuildInputs = [
+      pkgs.openssh ## Required by the application tests
     ];
   };
 

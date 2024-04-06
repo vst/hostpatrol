@@ -3,6 +3,7 @@ import { Chip } from '@nextui-org/chip';
 import { Radio, RadioGroup, Select, SelectItem, Selection } from '@nextui-org/react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 export function TabulateSshKeys({ records }: { records: SshKeysTableRecord[] }) {
   const [filters, setFilters] = useState<Record<string, (record: SshKeysTableRecord) => boolean>>({});
@@ -135,13 +136,7 @@ export function TabulateSshKeys({ records }: { records: SshKeysTableRecord[] }) 
         </div>
       </div>
 
-      <Table
-        aria-label="Table of SSH Keys"
-        removeWrapper
-        selectionMode="multiple"
-        color="secondary"
-        showSelectionCheckboxes={false}
-      >
+      <Table aria-label="Table of SSH Keys" removeWrapper color="secondary" showSelectionCheckboxes={false}>
         <TableHeader>
           <TableColumn key="type">Type</TableColumn>
           <TableColumn key="length">Length</TableColumn>
@@ -164,7 +159,30 @@ export function TabulateSshKeys({ records }: { records: SshKeysTableRecord[] }) 
                   <Chip color="danger">UNKNOWN</Chip>
                 )}
               </TableCell>
-              <TableCell>{record.key.fingerprint}</TableCell>
+              <TableCell>
+                {record.key.fingerprint}
+                <div>
+                  <span
+                    className="mr-2 cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(record.key.fingerprint);
+                      toast('Fingerprint is copied to clipboard.');
+                    }}
+                  >
+                    (copy fingerprint)
+                  </span>
+
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(record.key.data);
+                      toast('Fingerprint is copied to clipboard.');
+                    }}
+                  >
+                    (copy key)
+                  </span>
+                </div>
+              </TableCell>
               <TableCell>{record.seenHosts.size}</TableCell>
               <TableCell>
                 {Array.from(record.seenHosts).map((h) => (
