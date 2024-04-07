@@ -21,6 +21,8 @@ jobs:
       - name: "Checkout Codebase"
         if: "${{ steps.release.outputs.release_created }}"
         uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 0
 
       - name: "Install nix"
         if: "${{ steps.release.outputs.release_created }}"
