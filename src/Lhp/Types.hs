@@ -49,6 +49,7 @@ data Host = Host
   , _hostId :: !(Maybe T.Text)
   , _hostUrl :: !(Maybe T.Text)
   , _hostTags :: ![T.Text]
+  , _hostData :: !Aeson.Value
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Host)
@@ -66,6 +67,7 @@ instance ADC.HasCodec Host where
             <*> ADC.optionalField "id" "External identifier of the host." ADC..= _hostId
             <*> ADC.optionalField "url" "URL to external host information." ADC..= _hostUrl
             <*> ADC.optionalFieldWithDefault "tags" [] "Arbitrary tags for the host." ADC..= _hostTags
+            <*> ADC.optionalFieldWithDefault "data" Aeson.Null "Arbitrary data for the host." ADC..= _hostData
 
 
 -- * Host Report

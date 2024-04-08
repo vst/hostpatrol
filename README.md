@@ -116,6 +116,10 @@ hosts:
     tags:
       - oranges
       - strawberries
+    ## Arbitrary JSON data for the host (optional)
+    data:
+      owner: Client-1
+      cost: 50
   - name: otherhost
     url: https://internal.documentation/hosts/otherhost
     tags:

@@ -88,6 +88,7 @@ doCompile cpath dests par = do
         , Types._hostId = Nothing
         , Types._hostUrl = Nothing
         , Types._hostTags = []
+        , Types._hostData = Aeson.Null
         }
 
 
