@@ -46,8 +46,10 @@ instance ADC.HasCodec Report where
 data Host = Host
   { _hostName :: !T.Text
   , _hostSsh :: !(Maybe SshConfig)
+  , _hostId :: !(Maybe T.Text)
   , _hostUrl :: !(Maybe T.Text)
   , _hostTags :: ![T.Text]
+  , _hostData :: !Aeson.Value
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Host)
@@ -62,8 +64,10 @@ instance ADC.HasCodec Host where
           Host
             <$> ADC.requiredField "name" "Name of the host." ADC..= _hostName
             <*> ADC.optionalField "ssh" "SSH configuration." ADC..= _hostSsh
+            <*> ADC.optionalField "id" "External identifier of the host." ADC..= _hostId
             <*> ADC.optionalField "url" "URL to external host information." ADC..= _hostUrl
             <*> ADC.optionalFieldWithDefault "tags" [] "Arbitrary tags for the host." ADC..= _hostTags
+            <*> ADC.optionalFieldWithDefault "data" Aeson.Null "Arbitrary data for the host." ADC..= _hostData
 
 
 -- * Host Report

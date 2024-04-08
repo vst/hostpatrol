@@ -17,6 +17,16 @@ export function ShowHostDetails({ host }: { host: LhpHostReport }) {
               🔗
             </Link>
           )}
+          {host.host.id && (
+            <Chip
+              onClick={() => {
+                navigator.clipboard.writeText(host.host.id || '');
+                toast('External host identifier is copied to clipboard.');
+              }}
+            >
+              <span className="cursor-pointer">{host.host.id}</span>
+            </Chip>
+          )}
         </div>
 
         <div className="align-items flex flex-row items-center space-x-4">
@@ -139,6 +149,14 @@ export function ShowHostDetails({ host }: { host: LhpHostReport }) {
 
         <KVBox title="Systemd Timers" kvs={host.systemdTimers.map((x) => ({ key: x, value: '✅' }))} />
       </div>
+
+      <Card radius="sm" shadow="sm">
+        <CardHeader className="text-lg font-bold">Extra Host Data</CardHeader>
+
+        <CardBody>
+          <pre>{host.host.data ? JSON.stringify(host.host.data || '#N/A', null, 2) : '#N/A'}</pre>
+        </CardBody>
+      </Card>
     </div>
   );
 }
