@@ -108,6 +108,8 @@ hosts:
       destination: root@10.10.10.10
       ## SSH options (optional)
       options: ["-i", "/keys/hebele.pri"]
+    ## External identifier of the host (optional)
+    id: 20b88669-743f-4ae5-9823-5aacc2df7086
     ## External URL for the host (optional)
     url: https://internal.documentation/hosts/somehost
     ## List of tags for the host (optional)
