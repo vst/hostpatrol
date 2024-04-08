@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.11](https://github.com/vst/lhp/compare/v0.0.10...v0.0.11) (2024-04-08)
+
+
+### Features
+
+* add optional data to host definition ([141ed01](https://github.com/vst/lhp/commit/141ed01eb96059638d6a782bbff89a216fff26aa))
+* add optional external identifier to host definition ([57bc106](https://github.com/vst/lhp/commit/57bc106a2f96a1526c36dc620cf859de0694f62b))
+* **website:** adopt new host spec field on host details page ([b6996b0](https://github.com/vst/lhp/commit/b6996b07619bb2b4a2bd96722e9e0823bb7076e7))
+
+
+### Bug Fixes
+
+* **release:** build and publish Website on release, not push to main ([67f7133](https://github.com/vst/lhp/commit/67f713356641c45fb348080218c811a27cb9bd4f))
+* **release:** fetch all history for all tags and branches before build ([ae1ce55](https://github.com/vst/lhp/commit/ae1ce556b324c9447d110269e7984a9c9c791e40))
+
 ## [0.0.10](https://github.com/vst/lhp/compare/v0.0.9...v0.0.10) (2024-04-06)
 
 
