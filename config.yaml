@@ -1,9 +1,6 @@
-## List of known SSH public keys to be added to the report.
-##
-## These can be then used by external programs of lhp Web UI to
-## highlight if a host has an unknown authorized SSH public key.
+## List of known SSH public keys for all hosts.
 knownSshKeys:
-  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKq9bpy0IIfDnlgaTCQk0YhKyKFqInRjoqeIPlBuiFwS testing
+  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKq9bpy0IIfDnlgaTCQk0YhKyKFqInRjoqeIPlBuiFwS test-key-admin
 
 ## List of hosts to patrol
 hosts:
@@ -27,6 +24,9 @@ hosts:
     data:
       owner: Client-1
       cost: 50
+    ## List of known SSH public keys for the host (optional)
+    knownSshKeys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmlBxUagOqtWcW6B77TUL8li85ZNYx0tphd3TSx4SEB test-key-tenant
   - name: otherhost
     url: https://internal.documentation/hosts/otherhost
     tags:

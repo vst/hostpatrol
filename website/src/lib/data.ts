@@ -139,6 +139,27 @@ export const LHP_PATROL_REPORT_SCHEMA = {
             properties: {
               data: { $comment: 'Arbitrary data for the host.' },
               id: { $comment: 'External identifier of the host.', type: 'string' },
+              knownSshKeys: {
+                $comment: 'Known SSH public keys for the host.',
+                items: {
+                  $comment: 'SSH Public Key Information\nSshPublicKey',
+                  properties: {
+                    comment: { $comment: 'Comment on the public key.', type: 'string' },
+                    data: { $comment: 'Original information.', type: 'string' },
+                    fingerprint: { $comment: 'Fingerprint of the public key.', type: 'string' },
+                    length: {
+                      $comment: 'Length of the public key.',
+                      maximum: 2147483647,
+                      minimum: -2147483648,
+                      type: 'number',
+                    },
+                    type: { $comment: 'Type of the public key.', type: 'string' },
+                  },
+                  required: ['fingerprint', 'comment', 'length', 'type', 'data'],
+                  type: 'object',
+                },
+                type: 'array',
+              },
               name: { $comment: 'Name of the host.', type: 'string' },
               ssh: {
                 $comment: 'SSH configuration.\nSSH Configuration\nSshConfig',
@@ -283,10 +304,10 @@ export function buildSshKeysTable(data: LhpPatrolReport): SshKeysTable {
   const keys: SshKeysTable = {};
 
   // Lookup table for known SSH public key comments by their fingerprint:
-  const knownComments: Record<string, string> = data.knownSshKeys.reduce(
-    (acc, x) => ({ ...acc, [x.fingerprint]: x.comment || '<NO-COMMENT>' }),
-    {}
-  );
+  const knownComments: Record<string, string> = [
+    ...data.knownSshKeys,
+    ...data.hosts.reduce((acc, x) => [...acc, ...(x.host.knownSshKeys || [])], [] as typeof data.knownSshKeys),
+  ].reduce((acc, x) => ({ ...acc, [x.fingerprint]: x.comment || '<NO-COMMENT>' }), {});
 
   // Iterate over all SSH public keys for all hosts and populate our registry:
   for (const host of data.hosts) {

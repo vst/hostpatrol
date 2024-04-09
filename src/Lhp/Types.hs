@@ -50,6 +50,7 @@ data Host = Host
   , _hostUrl :: !(Maybe T.Text)
   , _hostTags :: ![T.Text]
   , _hostData :: !Aeson.Value
+  , _hostKnownSshKeys :: ![SshPublicKey]
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Host)
@@ -68,6 +69,7 @@ instance ADC.HasCodec Host where
             <*> ADC.optionalField "url" "URL to external host information." ADC..= _hostUrl
             <*> ADC.optionalFieldWithDefault "tags" [] "Arbitrary tags for the host." ADC..= _hostTags
             <*> ADC.optionalFieldWithDefault "data" Aeson.Null "Arbitrary data for the host." ADC..= _hostData
+            <*> ADC.optionalFieldWithDefault "knownSshKeys" [] "Known SSH public keys for the host." ADC..= _hostKnownSshKeys
 
 
 -- * Host Report

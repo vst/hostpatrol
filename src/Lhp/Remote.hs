@@ -48,8 +48,8 @@ compileReport par Config.Config {..} = do
   pure Types.Report {..}
   where
     reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
-    go h@Types.Host {..} = do
-      liftIO (hPutStrLn stderr ("Patrolling " <> T.unpack _hostName))
+    go h@Config.HostSpec {..} = do
+      liftIO (hPutStrLn stderr ("Patrolling " <> T.unpack _hostSpecName))
       res <- runExceptT (compileHostReport h)
       case res of
         Left err -> liftIO (BLC.hPutStrLn stderr (Aeson.encode err) >> pure Nothing)
@@ -61,9 +61,10 @@ compileReport par Config.Config {..} = do
 compileHostReport
   :: MonadIO m
   => MonadError LhpError m
-  => Types.Host
+  => Config.HostSpec
   -> m Types.HostReport
-compileHostReport h@Types.Host {..} = do
+compileHostReport ch = do
+  h@Types.Host {..} <- _makeHostFromConfigHostSpec ch
   kvs <- (++) <$> _fetchHostInfo h <*> _fetchHostCloudInfo h
   let _hostReportHost = h
   _hostReportHostname <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_HOSTNAME" kvs
@@ -77,6 +78,24 @@ compileHostReport h@Types.Host {..} = do
   _hostReportSystemdServices <- _fetchHostSystemdServices h
   _hostReportSystemdTimers <- _fetchHostSystemdTimers h
   pure Types.HostReport {..}
+
+
+-- | Consumes a 'Config.HostSpec' and produces a 'Types.Host'.
+_makeHostFromConfigHostSpec
+  :: MonadError LhpError m
+  => MonadIO m
+  => Config.HostSpec
+  -> m Types.Host
+_makeHostFromConfigHostSpec Config.HostSpec {..} =
+  let _hostName = _hostSpecName
+      _hostSsh = _hostSpecSsh
+      _hostId = _hostSpecId
+      _hostUrl = _hostSpecUrl
+      _hostTags = _hostSpecTags
+      _hostData = _hostSpecData
+   in do
+        _hostKnownSshKeys <- mapM parseSshPublicKey _hostSpecKnownSshKeys
+        pure Types.Host {..}
 
 
 -- * Errors

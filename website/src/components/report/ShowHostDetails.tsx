@@ -1,4 +1,4 @@
-import { LhpHostReport } from '@/lib/data';
+import { LhpHostReport, LhpPatrolReport } from '@/lib/data';
 import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { Chip } from '@nextui-org/chip';
 import { Listbox, ListboxItem } from '@nextui-org/listbox';
@@ -6,7 +6,10 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { KVBox } from '../helpers';
 
-export function ShowHostDetails({ host }: { host: LhpHostReport }) {
+export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: LhpPatrolReport }) {
+  const authorizedKeysPlanned = [...(data.knownSshKeys || []), ...(host.host.knownSshKeys || [])];
+  const authorizedKeysPlannedSet = new Set(authorizedKeysPlanned.map((x) => x.fingerprint));
+
   return (
     <div className="space-y-4 px-4 py-4">
       <h1 className="flex flex-row items-center justify-between text-xl font-bold">
@@ -87,12 +90,39 @@ export function ShowHostDetails({ host }: { host: LhpHostReport }) {
       </div>
 
       <Card radius="sm" shadow="sm">
-        <CardHeader className="text-lg font-bold">Authorized SSH Keys</CardHeader>
+        <CardHeader className="text-lg font-bold">Authorized SSH Keys Found</CardHeader>
 
         <CardBody>
           <Listbox
             items={host.authorizedSshKeys}
             emptyContent={<span className="text-orange-400">No authorized SSH keys are found. Sounds weird?</span>}
+          >
+            {({ length, type, fingerprint, data, comment }) => (
+              <ListboxItem
+                key={data}
+                description={data}
+                startContent={authorizedKeysPlannedSet.has(fingerprint) ? <>🟢</> : <>🔴</>}
+                onPress={() => {
+                  navigator.clipboard.writeText(data);
+                  toast('SSH Key is copied to clipboard.');
+                }}
+              >
+                {`${type} (${length}) - ${fingerprint} - ${comment || ''}`}
+              </ListboxItem>
+            )}
+          </Listbox>
+        </CardBody>
+      </Card>
+
+      <Card radius="sm" shadow="sm">
+        <CardHeader className="text-lg font-bold">Authorized SSH Keys Planned</CardHeader>
+
+        <CardBody>
+          <Listbox
+            items={authorizedKeysPlanned}
+            emptyContent={
+              <span className="text-orange-400">No authorized SSH keys are found as planned. Sounds weird?</span>
+            }
           >
             {({ length, type, fingerprint, data, comment }) => (
               <ListboxItem

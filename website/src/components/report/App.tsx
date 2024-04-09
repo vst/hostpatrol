@@ -84,7 +84,7 @@ export function TabShowHostDetails({
       <div className="col-span-5">
         {host.caseOf({
           Nothing: () => <div className="p-4 text-red-400">Choose a host to view details.</div>,
-          Just: (x) => <ShowHostDetails host={x} />,
+          Just: (x) => <ShowHostDetails data={data} host={x} />,
         })}
       </div>
     </div>
