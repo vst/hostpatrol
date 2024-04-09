@@ -16,7 +16,6 @@ import qualified Lhp.Config as Config
 import qualified Lhp.Meta as Meta
 import Lhp.Remote (compileReport)
 import Lhp.Types (Report)
-import qualified Lhp.Types as Types
 import Options.Applicative ((<|>))
 import qualified Options.Applicative as OA
 import System.Exit (ExitCode (..))
@@ -82,13 +81,14 @@ doCompile cpath dests par = do
     Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
   where
     _mkHost d =
-      Types.Host
-        { Types._hostName = d
-        , Types._hostSsh = Nothing
-        , Types._hostId = Nothing
-        , Types._hostUrl = Nothing
-        , Types._hostTags = []
-        , Types._hostData = Aeson.Null
+      Config.HostSpec
+        { Config._hostSpecName = d
+        , Config._hostSpecSsh = Nothing
+        , Config._hostSpecId = Nothing
+        , Config._hostSpecUrl = Nothing
+        , Config._hostSpecTags = []
+        , Config._hostSpecData = Aeson.Null
+        , Config._hostSpecKnownSshKeys = []
         }
 
 
