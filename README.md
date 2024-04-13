@@ -93,6 +93,7 @@ plain host name. The configuration file looks like as follows:
 ## config.yaml
 ## List of known SSH public keys for all hosts.
 knownSshKeys:
+  - gh:some-github-user
   - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKq9bpy0IIfDnlgaTCQk0YhKyKFqInRjoqeIPlBuiFwS test-key-admin
 
 ## List of hosts to patrol
@@ -119,6 +120,7 @@ hosts:
       cost: 50
     ## List of known SSH public keys for the host (optional)
     knownSshKeys:
+      - gh:another-github-user
       - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmlBxUagOqtWcW6B77TUL8li85ZNYx0tphd3TSx4SEB test-key-tenant
   - name: otherhost
     url: https://internal.documentation/hosts/otherhost

@@ -18,12 +18,14 @@ export function BigSpinner({ label }: { label?: string }) {
 export function KVBox({
   title,
   kvs,
+  ...rest
 }: {
   title: string;
   kvs: { key: string; value: React.ReactNode | string | number | null | undefined }[];
+  [prop: string]: any;
 }) {
   return (
-    <Card radius="sm" shadow="sm">
+    <Card radius="sm" shadow="sm" {...rest}>
       <CardHeader className="text-lg font-bold">{title}</CardHeader>
 
       <CardBody>
