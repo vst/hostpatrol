@@ -47,21 +47,33 @@ export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: Lhp
         </div>
       </h1>
 
-      <KVBox
-        title="Cloud"
-        kvs={[
-          { key: 'Name', value: host.cloud.name },
-          { key: 'ID', value: host.cloud.id },
-          { key: 'Type', value: host.cloud.hostType },
-          { key: 'Region', value: host.cloud.hostRegion },
-          { key: 'Availability Zone', value: host.cloud.hostAvailabilityZone },
-          { key: 'Local Hostname', value: host.cloud.hostLocalHostname },
-          { key: 'Local Address', value: host.cloud.hostLocalAddress },
-          { key: 'Remote Hostname', value: host.cloud.hostRemoteHostname },
-          { key: 'Remote Address', value: host.cloud.hostRemoteAddress },
-          { key: 'Reserved Address', value: host.cloud.hostReservedAddress },
-        ]}
-      />
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <KVBox
+          title="Hardware"
+          kvs={[
+            { key: 'CPU', value: host.hardware.cpuCount },
+            { key: 'Memory', value: host.hardware.ramTotal },
+            { key: 'Disk', value: host.hardware.diskRoot },
+          ]}
+        />
+
+        <KVBox
+          title="Cloud"
+          kvs={[
+            { key: 'Name', value: host.cloud.name },
+            { key: 'ID', value: host.cloud.id },
+            { key: 'Type', value: host.cloud.hostType },
+            { key: 'Region', value: host.cloud.hostRegion },
+            { key: 'Availability Zone', value: host.cloud.hostAvailabilityZone },
+            { key: 'Local Hostname', value: host.cloud.hostLocalHostname },
+            { key: 'Local Address', value: host.cloud.hostLocalAddress },
+            { key: 'Remote Hostname', value: host.cloud.hostRemoteHostname },
+            { key: 'Remote Address', value: host.cloud.hostRemoteAddress },
+            { key: 'Reserved Address', value: host.cloud.hostReservedAddress },
+          ]}
+          className="lg:col-span-2"
+        />
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <KVBox
@@ -146,9 +158,7 @@ export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: Lhp
         <CardBody>
           <Listbox
             items={host.publicSshHostKeys}
-            emptyContent={
-              <span className="text-orange-400">No public SSH host keys are found. Sounds weird?</span>
-            }
+            emptyContent={<span className="text-orange-400">No public SSH host keys are found. Sounds weird?</span>}
           >
             {({ length, type, fingerprint, data, comment }) => (
               <ListboxItem
