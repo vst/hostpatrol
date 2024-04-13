@@ -44,7 +44,7 @@ compileReport
   -> m Types.Report
 compileReport par Config.Config {..} = do
   _reportHosts <- reporter _configHosts
-  _reportKnownSshKeys <- mapM parseSshPublicKey _configKnownSshKeys
+  _reportKnownSshKeys <- concat <$> mapM parseSshPublicKeys _configKnownSshKeys
   pure Types.Report {..}
   where
     reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
@@ -74,7 +74,7 @@ compileHostReport ch = do
   _hostReportKernel <- _mkKernel _hostName kvs
   _hostReportDistribution <- _mkDistribution _hostName kvs
   _hostReportDockerContainers <- _fetchHostDockerContainers h
-  _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys h >>= mapM parseSshPublicKey
+  _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys h >>= fmap concat . mapM parseSshPublicKeys
   _hostReportSystemdServices <- _fetchHostSystemdServices h
   _hostReportSystemdTimers <- _fetchHostSystemdTimers h
   pure Types.HostReport {..}
@@ -94,7 +94,7 @@ _makeHostFromConfigHostSpec Config.HostSpec {..} =
       _hostTags = _hostSpecTags
       _hostData = _hostSpecData
    in do
-        _hostKnownSshKeys <- mapM parseSshPublicKey _hostSpecKnownSshKeys
+        _hostKnownSshKeys <- concat <$> mapM parseSshPublicKeys _hostSpecKnownSshKeys
         pure Types.Host {..}
 
 
@@ -417,16 +417,38 @@ _toSshError h =
   _modifyError (LhpErrorSsh h)
 
 
--- | Creates 'Types.SshPublicKey' from given 'T.Text' using ssh-keygen.
+-- | Creates list of 'Types.SshPublicKey' from given 'T.Text' using @ssh-keygen@.
 --
--- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3"
--- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "no comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
--- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment"
--- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
--- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
--- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
--- >>> runExceptT $ parseSshPublicKey "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
--- Right (SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"})
+-- If the given 'T.Text' is a GitHub username, it will attempt to
+-- fetch keys from GitHub and then parse them using @ssh-keygen@.
+--
+-- >>> runExceptT $ parseSshPublicKeys "gh:vst"
+-- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJIQtEmoHu44pUDwX5GEw20JLmfZaI+xVXin74GI396z", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "gh:vst", _sshPublicKeyFingerprint = "MD5:01:6d:4f:ca:c9:ca:dc:f1:cb:a3:fc:74:8e:34:77:16"},SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "gh:vst", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
+-- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3"
+-- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "no comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
+-- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment"
+-- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
+-- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
+-- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
+parseSshPublicKeys
+  :: MonadError LhpError m
+  => MonadIO m
+  => T.Text
+  -> m [Types.SshPublicKey]
+parseSshPublicKeys s = do
+  let gh = "gh:"
+  if T.isPrefixOf gh s
+    then do
+      let u = T.drop (T.length gh) s
+      ks <- listGitHubSshKeys u
+      fmap (\x -> x {Types._sshPublicKeyComment = s}) <$> mapM parseSshPublicKey ks
+    else List.singleton <$> parseSshPublicKey s
+
+
+-- | Attempts to create 'Types.SshPublicKey' from given SSH public key
+-- represented as 'T.Text' using @ssh-keygen@.
 parseSshPublicKey
   :: MonadError LhpError m
   => MonadIO m
@@ -435,7 +457,7 @@ parseSshPublicKey
 parseSshPublicKey s = do
   (ec, out, err) <- TP.readProcess process
   case ec of
-    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err)
+    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err <> ". Input was: " <> s)
     ExitSuccess -> case T.words (Z.Text.unsafeTextFromBL out) of
       (l : fp : r) ->
         pure $
@@ -451,3 +473,21 @@ parseSshPublicKey s = do
     throwUnknown = throwError . LhpErrorUnknown
     stdin = TP.byteStringInput (Z.Text.blFromText s)
     process = TP.setStdin stdin (TP.proc "ssh-keygen" ["-E", "md5", "-l", "-f", "-"])
+
+
+-- | Attempts to get the list of SSH public keys from GitHub for a
+-- given GitHub username.
+listGitHubSshKeys
+  :: MonadError LhpError m
+  => MonadIO m
+  => T.Text
+  -> m [T.Text]
+listGitHubSshKeys u = do
+  (ec, out, err) <- TP.readProcess process
+  case ec of
+    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err)
+    ExitSuccess -> pure (toKeys out)
+  where
+    throwUnknown = throwError . LhpErrorUnknown
+    process = TP.proc "curl" ["-s", "https://github.com/" <> T.unpack u <> ".keys"]
+    toKeys = filter (not . T.null) . T.lines . Z.Text.unsafeTextFromBL
