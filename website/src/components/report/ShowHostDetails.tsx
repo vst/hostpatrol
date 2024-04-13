@@ -141,6 +141,32 @@ export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: Lhp
       </Card>
 
       <Card radius="sm" shadow="sm">
+        <CardHeader className="text-lg font-bold">Public SSH Host Keys</CardHeader>
+
+        <CardBody>
+          <Listbox
+            items={host.publicSshHostKeys}
+            emptyContent={
+              <span className="text-orange-400">No public SSH host keys are found. Sounds weird?</span>
+            }
+          >
+            {({ length, type, fingerprint, data, comment }) => (
+              <ListboxItem
+                key={data}
+                description={data}
+                onPress={() => {
+                  navigator.clipboard.writeText(data);
+                  toast('SSH Key is copied to clipboard.');
+                }}
+              >
+                {`${type} (${length}) - ${fingerprint} - ${comment || ''}`}
+              </ListboxItem>
+            )}
+          </Listbox>
+        </CardBody>
+      </Card>
+
+      <Card radius="sm" shadow="sm">
         <CardHeader className="text-lg font-bold">Docker Containers</CardHeader>
 
         <CardBody>

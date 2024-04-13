@@ -190,6 +190,27 @@ export const LHP_PATROL_REPORT_SCHEMA = {
             required: ['os', 'machine', 'version', 'release', 'name', 'node'],
             type: 'object',
           },
+          publicSshHostKeys: {
+            $comment: 'List of public SSH host keys found on host.',
+            items: {
+              $comment: 'SSH Public Key Information\nSshPublicKey',
+              properties: {
+                comment: { $comment: 'Comment on the public key.', type: 'string' },
+                data: { $comment: 'Original information.', type: 'string' },
+                fingerprint: { $comment: 'Fingerprint of the public key.', type: 'string' },
+                length: {
+                  $comment: 'Length of the public key.',
+                  maximum: 2147483647,
+                  minimum: -2147483648,
+                  type: 'number',
+                },
+                type: { $comment: 'Type of the public key.', type: 'string' },
+              },
+              required: ['fingerprint', 'comment', 'length', 'type', 'data'],
+              type: 'object',
+            },
+            type: 'array',
+          },
           systemdServices: {
             $comment: 'List of systemd services found on host.',
             items: { type: 'string' },
@@ -206,6 +227,7 @@ export const LHP_PATROL_REPORT_SCHEMA = {
           'systemdTimers',
           'systemdServices',
           'authorizedSshKeys',
+          'publicSshHostKeys',
           'dockerContainers',
           'distribution',
           'kernel',
