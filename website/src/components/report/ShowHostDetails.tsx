@@ -1,15 +1,24 @@
-import { LhpHostReport, LhpPatrolReport } from '@/lib/data';
-import { Card, CardBody, CardHeader } from '@nextui-org/card';
-import { Chip } from '@nextui-org/chip';
-import { Listbox, ListboxItem } from '@nextui-org/listbox';
+import { LhpHostReport, LhpPatrolReport, SshPublicKey } from '@/lib/data';
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Chip,
+  Listbox,
+  ListboxItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from '@nextui-org/react';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { KVBox } from '../helpers';
 
 export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: LhpPatrolReport }) {
-  const authorizedKeysPlanned = [...(data.knownSshKeys || []), ...(host.host.knownSshKeys || [])];
-  const authorizedKeysPlannedSet = new Set(authorizedKeysPlanned.map((x) => x.fingerprint));
-
   return (
     <div className="space-y-4 px-4 py-4">
       <h1 className="flex flex-row items-center justify-between text-xl font-bold">
@@ -102,54 +111,30 @@ export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: Lhp
       </div>
 
       <Card radius="sm" shadow="sm">
-        <CardHeader className="text-lg font-bold">Authorized SSH Keys Found</CardHeader>
+        <CardHeader className="text-lg font-bold">Authorized SSH Public Keys</CardHeader>
 
         <CardBody>
-          <Listbox
-            items={host.authorizedSshKeys}
-            emptyContent={<span className="text-orange-400">No authorized SSH keys are found. Sounds weird?</span>}
-          >
-            {({ length, type, fingerprint, data, comment }) => (
-              <ListboxItem
-                key={data}
-                description={data}
-                startContent={authorizedKeysPlannedSet.has(fingerprint) ? <>🟢</> : <>🔴</>}
-                onPress={() => {
-                  navigator.clipboard.writeText(data);
-                  toast('SSH Key is copied to clipboard.');
-                }}
-              >
-                {`${type} (${length}) - ${fingerprint} - ${comment || ''}`}
-              </ListboxItem>
-            )}
-          </Listbox>
+          <TabulateSshKeys host={host} data={data} />
         </CardBody>
-      </Card>
 
-      <Card radius="sm" shadow="sm">
-        <CardHeader className="text-lg font-bold">Authorized SSH Keys Planned</CardHeader>
+        <CardFooter>
+          <span
+            className="mr-2 cursor-pointer"
+            onClick={() => {
+              const keys = Object.values(
+                [...(host.host.knownSshKeys || []), ...(data.knownSshKeys || [])].reduce(
+                  (acc, x) => ({ ...acc, [`${x.fingerprint}`]: x }),
+                  {} as Record<string, SshPublicKey>
+                )
+              ).sort((a, b) => (a.comment || '').localeCompare(b.comment || ''));
 
-        <CardBody>
-          <Listbox
-            items={authorizedKeysPlanned}
-            emptyContent={
-              <span className="text-orange-400">No authorized SSH keys are found as planned. Sounds weird?</span>
-            }
+              navigator.clipboard.writeText(keys.map((x) => `${x.data} ${x.comment}`).join('\n'));
+              toast('SSH public keys are copied to clipboard.');
+            }}
           >
-            {({ length, type, fingerprint, data, comment }) => (
-              <ListboxItem
-                key={data}
-                description={data}
-                onPress={() => {
-                  navigator.clipboard.writeText(data);
-                  toast('SSH Key is copied to clipboard.');
-                }}
-              >
-                {`${type} (${length}) - ${fingerprint} - ${comment || ''}`}
-              </ListboxItem>
-            )}
-          </Listbox>
-        </CardBody>
+            (copy known keys)
+          </span>
+        </CardFooter>
       </Card>
 
       <Card radius="sm" shadow="sm">
@@ -224,5 +209,86 @@ export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: Lhp
         </CardBody>
       </Card>
     </div>
+  );
+}
+
+export function TabulateSshKeys({ host, data }: { host: LhpHostReport; data: LhpPatrolReport }) {
+  const keysKnownGlobal = (data.knownSshKeys || []).reduce(
+    (acc, x) => ({ ...acc, [`${x.fingerprint}`]: x }),
+    {} as Record<string, SshPublicKey>
+  );
+  const keysKnownHost = (host.host.knownSshKeys || []).reduce(
+    (acc, x) => ({ ...acc, [`${x.fingerprint}`]: x }),
+    {} as Record<string, SshPublicKey>
+  );
+  const keysSeen = (host.authorizedSshKeys || []).reduce(
+    (acc, x) => ({ ...acc, [`${x.fingerprint}`]: x }),
+    {} as Record<string, SshPublicKey>
+  );
+  const keys = Object.values(keysKnownGlobal).concat(Object.values(keysKnownHost), Object.values(keysSeen));
+  const fps = Array.from(new Set(keys.map((x) => x.fingerprint))).map((fingerprint) => ({ fingerprint }));
+
+  return (
+    <Table aria-label="Table of SSH Keys" removeWrapper color="secondary" showSelectionCheckboxes={false}>
+      <TableHeader>
+        <TableColumn key="type">Type</TableColumn>
+        <TableColumn key="length">Length</TableColumn>
+        <TableColumn key="known">Known?</TableColumn>
+        <TableColumn key="fingerprint">Fingerprint</TableColumn>
+        <TableColumn key="seen-comments">Comments</TableColumn>
+      </TableHeader>
+
+      <TableBody items={fps}>
+        {(record) => {
+          const fp = record.fingerprint;
+
+          const keyG = keysKnownGlobal[fp];
+          const keyH = keysKnownHost[fp];
+          const keyS = keysSeen[fp];
+          const key = (keyG || keyH || keyS) as SshPublicKey;
+          const known: 'global' | 'host' | 'unknown' = keyG ? 'global' : keyH ? 'host' : 'unknown';
+          const comments = Array.from(new Set(keys.filter((x) => x.fingerprint === fp).map((x) => x.comment)));
+
+          return (
+            <TableRow key={fp}>
+              <TableCell>{key.type}</TableCell>
+              <TableCell>{key.length}</TableCell>
+              <TableCell>
+                <Chip color={known === 'global' ? 'success' : known === 'host' ? 'primary' : 'danger'}>{known}</Chip>
+              </TableCell>
+              <TableCell>
+                {key.fingerprint}
+                <div>
+                  <span
+                    className="mr-2 cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(key.fingerprint);
+                      toast('SSH public key fingerprint is copied to clipboard.');
+                    }}
+                  >
+                    (copy fingerprint)
+                  </span>
+
+                  <span
+                    className="cursor-pointer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(key.data);
+                      toast('SSH public key is copied to clipboard.');
+                    }}
+                  >
+                    (copy key)
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                {comments.map((c) => (
+                  <Chip key={c}>{c}</Chip>
+                ))}
+              </TableCell>
+            </TableRow>
+          );
+        }}
+      </TableBody>
+    </Table>
   );
 }
