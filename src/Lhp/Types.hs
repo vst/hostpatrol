@@ -85,6 +85,7 @@ data HostReport = HostReport
   , _hostReportKernel :: !Kernel
   , _hostReportDistribution :: !Distribution
   , _hostReportDockerContainers :: !(Maybe [DockerContainer])
+  , _hostReportPublicSshHostKeys :: ![SshPublicKey]
   , _hostReportAuthorizedSshKeys :: ![SshPublicKey]
   , _hostReportSystemdServices :: ![T.Text]
   , _hostReportSystemdTimers :: ![T.Text]
@@ -108,6 +109,7 @@ instance ADC.HasCodec HostReport where
             <*> ADC.requiredField "kernel" "Kernel information." ADC..= _hostReportKernel
             <*> ADC.requiredField "distribution" "Distribution information." ADC..= _hostReportDistribution
             <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _hostReportDockerContainers
+            <*> ADC.requiredField "publicSshHostKeys" "List of public SSH host keys found on host." ADC..= _hostReportPublicSshHostKeys
             <*> ADC.requiredField "authorizedSshKeys" "List of authorized SSH public keys found on host." ADC..= _hostReportAuthorizedSshKeys
             <*> ADC.requiredField "systemdServices" "List of systemd services found on host." ADC..= _hostReportSystemdServices
             <*> ADC.requiredField "systemdTimers" "List of systemd timers found on host." ADC..= _hostReportSystemdTimers

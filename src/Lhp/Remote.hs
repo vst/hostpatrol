@@ -74,6 +74,7 @@ compileHostReport ch = do
   _hostReportKernel <- _mkKernel _hostName kvs
   _hostReportDistribution <- _mkDistribution _hostName kvs
   _hostReportDockerContainers <- _fetchHostDockerContainers h
+  _hostReportPublicSshHostKeys <- _fetchHostPublicSshHostKeys h >>= fmap concat . mapM parseSshPublicKeys
   _hostReportAuthorizedSshKeys <- _fetchHostAuthorizedSshKeys h >>= fmap concat . mapM parseSshPublicKeys
   _hostReportSystemdServices <- _fetchHostSystemdServices h
   _hostReportSystemdTimers <- _fetchHostSystemdTimers h
@@ -167,6 +168,19 @@ _fetchHostDockerContainers h@Types.Host {..} =
       case ACD.eitherDecode (ACD.list _jsonDecoderDockerContainer) b of
         Left err -> throwError (LhpErrorParse _hostName ("Error while parsing containers information: " <> T.pack err))
         Right sv -> pure sv
+
+
+-- | Attempts to find and return all public SSH host keys on the remote
+-- host.
+_fetchHostPublicSshHostKeys
+  :: MonadIO m
+  => MonadError LhpError m
+  => Types.Host
+  -> m [T.Text]
+_fetchHostPublicSshHostKeys h@Types.Host {..} =
+  filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
+  where
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/ssh-host-keys.sh") ["bash"])
 
 
 -- | Attempts to find and return all SSH authorized keys on the remote
