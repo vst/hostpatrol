@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.12](https://github.com/vst/hostpatrol/compare/v0.0.11...v0.0.12) (2024-04-14)
+
+
+### Features
+
+* add host-level known SSH public keys information ([f3b25d4](https://github.com/vst/hostpatrol/commit/f3b25d4b65e15783658a4579f643a9bd46a99ba3))
+* allow GitHub usernames for SSH public keys ([efddad8](https://github.com/vst/hostpatrol/commit/efddad8ec1286bf5257f928efe3b02e855b52ba3))
+* report public SSH host keys on host ([5b543fe](https://github.com/vst/hostpatrol/commit/5b543fe614f86558993969a35f642e8215997559))
+* **website:** add content to landing page ([5556e58](https://github.com/vst/hostpatrol/commit/5556e5884768f9f3b63c082abb07b00af455a5e7))
+* **website:** adopt host-level authorized SSH keys in related views ([394efb6](https://github.com/vst/hostpatrol/commit/394efb61a2a60eff6e12a08a3d19ad00b635019c))
+* **website:** improve SSH public keys section on host details component ([096dda8](https://github.com/vst/hostpatrol/commit/096dda8f89f655c54327c0952cea82ce59d1202a))
+* **website:** show hardware info on host details component ([3ee0c42](https://github.com/vst/hostpatrol/commit/3ee0c42ce1250e2416619ec28c6bd93df61b515a))
+* **website:** tabulate public SSH host keys on host details ([abe163c](https://github.com/vst/hostpatrol/commit/abe163cee7113238f0c91fa0ba92b80889a81961))
+
+
+### Bug Fixes
+
+* **website:** drop base-path ([64dddf1](https://github.com/vst/hostpatrol/commit/64dddf1c448b6dfdccbfebcb5d9a11b82b6496d4))
+
 ## [0.0.11](https://github.com/vst/lhp/compare/v0.0.10...v0.0.11) (2024-04-08)
 
 
