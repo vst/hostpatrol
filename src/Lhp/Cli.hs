@@ -142,7 +142,7 @@ infoModHeader =
 -- | Footer 'OA.InfoMod'.
 infoModFooter :: OA.InfoMod a
 infoModFooter =
-  OA.footer "See <https://github.com/vst/lhp> for help and feedback."
+  OA.footer "See <https://github.com/vst/hostpatrol> for help and feedback."
 
 
 -- | Tests a parser with given arguments.

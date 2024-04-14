@@ -15,24 +15,24 @@ import qualified Data.Time as Time
 import Data.Version (Version, showVersion)
 import qualified GitHash as Githash
 import qualified Language.Haskell.TH as TH
-import qualified Paths_lhp as Paths
+import qualified Paths_hostpatrol as Paths
 import qualified System.Info
 
 
 -- | Application name.
 --
 -- >>> name
--- "lhp"
+-- "hostpatrol"
 name :: T.Text
-name = "lhp"
+name = "hostpatrol"
 
 
 -- | Application title.
 --
 -- >>> title
--- "Lazy Hacker's Linux Host Patrol"
+-- "Lazy Hacker's Host Patrol"
 title :: T.Text
-title = "Lazy Hacker's Linux Host Patrol"
+title = "Lazy Hacker's Host Patrol"
 
 
 -- | Application version.

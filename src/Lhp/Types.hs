@@ -3,7 +3,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | This module defines public data and type definitions to represent
--- a complete lhp report.
+-- a complete Host Patrol report.
 module Lhp.Types where
 
 import qualified Autodocodec as ADC

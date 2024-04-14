@@ -15,7 +15,7 @@ GHC_VERSION="9.4.8"
 DOCKER_IMAGE="quay.io/benz0li/ghc-musl:${GHC_VERSION}"
 
 ## Executable name:
-EXECUTABLE_NAME="lhp"
+EXECUTABLE_NAME="hostpatrol"
 
 ## Final executable name:
 FINAL_EXECUTABLE_NAME="${EXECUTABLE_NAME}-static-$(uname --kernel-name | tr '[:upper:]' '[:lower:]')-$(uname --machine)"

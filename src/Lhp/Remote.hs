@@ -67,8 +67,8 @@ compileHostReport ch = do
   h@Types.Host {..} <- _makeHostFromConfigHostSpec ch
   kvs <- (++) <$> _fetchHostInfo h <*> _fetchHostCloudInfo h
   let _hostReportHost = h
-  _hostReportHostname <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_HOSTNAME" kvs
-  _hostReportTimezone <- _toParseError _hostName $ _getParse pure "LHP_GENERAL_TIMEZONE" kvs
+  _hostReportHostname <- _toParseError _hostName $ _getParse pure "HOSTPATROL_GENERAL_HOSTNAME" kvs
+  _hostReportTimezone <- _toParseError _hostName $ _getParse pure "HOSTPATROL_GENERAL_TIMEZONE" kvs
   _hostReportCloud <- _mkCloud _hostName kvs
   _hostReportHardware <- _mkHardware _hostName kvs
   _hostReportKernel <- _mkKernel _hostName kvs
@@ -230,16 +230,16 @@ _mkCloud
   -> m Types.Cloud
 _mkCloud h kvs =
   _toParseError h $ do
-    _cloudName <- fromMaybe "UNKNOWN" <$> _findParse pure "LHP_CLOUD_NAME" kvs
-    _cloudHostId <- _findParse pure "LHP_CLOUD_ID" kvs
-    _cloudHostType <- _findParse pure "LHP_CLOUD_TYPE" kvs
-    _cloudHostRegion <- _findParse pure "LHP_CLOUD_REGION" kvs
-    _cloudHostAvailabilityZone <- _findParse pure "LHP_CLOUD_AVAILABILITY_ZONE" kvs
-    _cloudHostLocalHostname <- _findParse pure "LHP_CLOUD_LOCAL_HOSTNAME" kvs
-    _cloudHostLocalAddress <- _findParse pure "LHP_CLOUD_LOCAL_ADDRESS" kvs
-    _cloudHostRemoteHostname <- _findParse pure "LHP_CLOUD_PUBLIC_HOSTNAME" kvs
-    _cloudHostRemoteAddress <- _findParse pure "LHP_CLOUD_PUBLIC_ADDRESS" kvs
-    _cloudHostReservedAddress <- _findParse pure "LHP_CLOUD_RESERVED_ADDRESS" kvs
+    _cloudName <- fromMaybe "UNKNOWN" <$> _findParse pure "HOSTPATROL_CLOUD_NAME" kvs
+    _cloudHostId <- _findParse pure "HOSTPATROL_CLOUD_ID" kvs
+    _cloudHostType <- _findParse pure "HOSTPATROL_CLOUD_TYPE" kvs
+    _cloudHostRegion <- _findParse pure "HOSTPATROL_CLOUD_REGION" kvs
+    _cloudHostAvailabilityZone <- _findParse pure "HOSTPATROL_CLOUD_AVAILABILITY_ZONE" kvs
+    _cloudHostLocalHostname <- _findParse pure "HOSTPATROL_CLOUD_LOCAL_HOSTNAME" kvs
+    _cloudHostLocalAddress <- _findParse pure "HOSTPATROL_CLOUD_LOCAL_ADDRESS" kvs
+    _cloudHostRemoteHostname <- _findParse pure "HOSTPATROL_CLOUD_PUBLIC_HOSTNAME" kvs
+    _cloudHostRemoteAddress <- _findParse pure "HOSTPATROL_CLOUD_PUBLIC_ADDRESS" kvs
+    _cloudHostReservedAddress <- _findParse pure "HOSTPATROL_CLOUD_RESERVED_ADDRESS" kvs
     pure Types.Cloud {..}
 
 
@@ -252,9 +252,9 @@ _mkHardware
   -> m Types.Hardware
 _mkHardware h kvs =
   _toParseError h $ do
-    _hardwareCpuCount <- _getParse _parseRead "LHP_HW_CPU" kvs
-    _hardwareRamTotal <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "LHP_HW_RAM" kvs
-    _hardwareDiskRoot <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "LHP_HW_DISK" kvs
+    _hardwareCpuCount <- _getParse _parseRead "HOSTPATROL_HW_CPU" kvs
+    _hardwareRamTotal <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "HOSTPATROL_HW_RAM" kvs
+    _hardwareDiskRoot <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "HOSTPATROL_HW_DISK" kvs
     pure Types.Hardware {..}
 
 
@@ -266,12 +266,12 @@ _mkKernel
   -> m Types.Kernel
 _mkKernel h kvs =
   _toParseError h $ do
-    _kernelNode <- _getParse pure "LHP_KERNEL_NODE" kvs
-    _kernelName <- _getParse pure "LHP_KERNEL_NAME" kvs
-    _kernelRelease <- _getParse pure "LHP_KERNEL_RELEASE" kvs
-    _kernelVersion <- _getParse pure "LHP_KERNEL_VERSION" kvs
-    _kernelMachine <- _getParse pure "LHP_KERNEL_MACHINE" kvs
-    _kernelOs <- _getParse pure "LHP_KERNEL_OS" kvs
+    _kernelNode <- _getParse pure "HOSTPATROL_KERNEL_NODE" kvs
+    _kernelName <- _getParse pure "HOSTPATROL_KERNEL_NAME" kvs
+    _kernelRelease <- _getParse pure "HOSTPATROL_KERNEL_RELEASE" kvs
+    _kernelVersion <- _getParse pure "HOSTPATROL_KERNEL_VERSION" kvs
+    _kernelMachine <- _getParse pure "HOSTPATROL_KERNEL_MACHINE" kvs
+    _kernelOs <- _getParse pure "HOSTPATROL_KERNEL_OS" kvs
     pure Types.Kernel {..}
 
 
@@ -283,12 +283,12 @@ _mkDistribution
   -> m Types.Distribution
 _mkDistribution h kvs =
   _toParseError h $ do
-    _distributionId <- _getParse pure "LHP_DISTRO_ID" kvs
-    _distributionName <- _getParse pure "LHP_DISTRO_NAME" kvs
-    _distributionVersion <- _getParse pure "LHP_DISTRO_VERSION" kvs
-    _distributionRelease <- _getParse pure "LHP_DISTRO_VERSION_ID" kvs
-    _distributionCodename <- _findParse pure "LHP_DISTRO_VERSION_CODENAME" kvs
-    _distributionDescription <- _getParse pure "LHP_DISTRO_PRETTY_NAME" kvs
+    _distributionId <- _getParse pure "HOSTPATROL_DISTRO_ID" kvs
+    _distributionName <- _getParse pure "HOSTPATROL_DISTRO_NAME" kvs
+    _distributionVersion <- _getParse pure "HOSTPATROL_DISTRO_VERSION" kvs
+    _distributionRelease <- _getParse pure "HOSTPATROL_DISTRO_VERSION_ID" kvs
+    _distributionCodename <- _findParse pure "HOSTPATROL_DISTRO_VERSION_CODENAME" kvs
+    _distributionDescription <- _getParse pure "HOSTPATROL_DISTRO_PRETTY_NAME" kvs
     pure Types.Distribution {..}
 
 
