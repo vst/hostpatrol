@@ -40,16 +40,15 @@ The report contains following information for each host:
 
 ## Installation
 
-> [!NOTE]
->
-> A statically compiled executable is planed. See [Issue 32].
-
 Currently, the easiest way to install the command-line application is
 via Nix:
 
 ```sh
 nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz app
 ```
+
+Alternatively, you can use the statically compiled binary distributed
+along with each release (Linux x86_64 only).
 
 ## Usage
 
