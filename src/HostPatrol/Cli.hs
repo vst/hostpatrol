@@ -2,7 +2,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 -- | This module provides top-level definitions for the CLI program.
-module Lhp.Cli where
+module HostPatrol.Cli where
 
 import qualified Autodocodec.Schema as ADC.Schema
 import Control.Applicative ((<**>))
@@ -12,10 +12,10 @@ import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
-import qualified Lhp.Config as Config
-import qualified Lhp.Meta as Meta
-import Lhp.Remote (compileReport)
-import Lhp.Types (Report)
+import qualified HostPatrol.Config as Config
+import qualified HostPatrol.Meta as Meta
+import HostPatrol.Remote (compileReport)
+import HostPatrol.Types (Report)
 import Options.Applicative ((<|>))
 import qualified Options.Applicative as OA
 import System.Exit (ExitCode (..))

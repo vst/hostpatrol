@@ -4,7 +4,7 @@
 
 -- | This module defines public data and type definitions to represent
 -- a complete Host Patrol report.
-module Lhp.Types where
+module HostPatrol.Types where
 
 import qualified Autodocodec as ADC
 import qualified Data.Aeson as Aeson

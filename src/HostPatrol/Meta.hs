@@ -4,7 +4,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | This module provides project metadata information definitions.
-module Lhp.Meta where
+module HostPatrol.Meta where
 
 import Data.Aeson (ToJSON (toEncoding))
 import qualified Data.Aeson as Aeson
