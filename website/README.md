@@ -1,4 +1,4 @@
-# lhpui
+# Host Patrol Website
 
 ## Getting Started
 

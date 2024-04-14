@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: '/lhp',
+  basePath: '/hostpatrol',
   output: 'export',
   images: {
     unoptimized: true,

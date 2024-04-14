@@ -9,8 +9,8 @@ import { Providers } from './providers';
 const font = JetBrains_Mono({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'lhp',
-  description: "Lazy Hacker's Linux Host Patrol",
+  title: 'Host Patrol',
+  description: "Lazy Hacker's Host Patrol",
 };
 
 export default function RootLayout({

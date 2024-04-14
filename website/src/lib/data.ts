@@ -4,7 +4,7 @@ import { FromSchema } from 'json-schema-to-ts';
 import { Either, Left, Right } from 'purify-ts/Either';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 
-export const LHP_PATROL_REPORT_SCHEMA = {
+export const HOSTPATROL_REPORT_SCHEMA = {
   $comment: 'Host Patrol Report\nReport',
   properties: {
     hosts: {
@@ -262,22 +262,22 @@ export const LHP_PATROL_REPORT_SCHEMA = {
   type: 'object',
 } as const satisfies JSONSchema;
 
-export type LhpPatrolReport = FromSchema<typeof LHP_PATROL_REPORT_SCHEMA>;
+export type HostPatrolReport = FromSchema<typeof HOSTPATROL_REPORT_SCHEMA>;
 
 export type ArrayElement<ArrayType extends readonly unknown[]> = ArrayType extends readonly (infer ElementType)[]
   ? ElementType
   : never;
 
-export type LhpHostReport = ArrayElement<LhpPatrolReport['hosts']>;
-export type SshPublicKey = ArrayElement<LhpHostReport['authorizedSshKeys']>;
+export type HostReport = ArrayElement<HostPatrolReport['hosts']>;
+export type SshPublicKey = ArrayElement<HostReport['authorizedSshKeys']>;
 
 const AJV = new Ajv();
 
-const LHP_PATROL_REPORT_VALIDATOR = AJV.compile<LhpPatrolReport>(LHP_PATROL_REPORT_SCHEMA);
+const HOSTPATROL_REPORT_VALIDATOR = AJV.compile<HostPatrolReport>(HOSTPATROL_REPORT_SCHEMA);
 
-const _LOCAL_STORAGE_KEY_DATA = 'LHP_DATA';
+const _LOCAL_STORAGE_KEY_DATA = 'HOSTPATROL_DATA';
 
-export function loadData(): Either<string, Maybe<LhpPatrolReport>> {
+export function loadData(): Either<string, Maybe<HostPatrolReport>> {
   const data = localStorage.getItem(_LOCAL_STORAGE_KEY_DATA);
 
   if (data === null) {
@@ -287,14 +287,14 @@ export function loadData(): Either<string, Maybe<LhpPatrolReport>> {
   return parseData(data).map(Just);
 }
 
-export function parseData(data: string): Either<string, LhpPatrolReport> {
+export function parseData(data: string): Either<string, HostPatrolReport> {
   try {
     const parsed = JSON.parse(data);
-    const result = LHP_PATROL_REPORT_VALIDATOR(parsed);
+    const result = HOSTPATROL_REPORT_VALIDATOR(parsed);
 
     if (!result) {
-      console.error(LHP_PATROL_REPORT_VALIDATOR.errors);
-      return Left('Invalid lhp patrol report object.');
+      console.error(HOSTPATROL_REPORT_VALIDATOR.errors);
+      return Left('Invalid Host Patrol report object.');
     }
 
     return Right(parsed);
@@ -303,7 +303,7 @@ export function parseData(data: string): Either<string, LhpPatrolReport> {
   }
 }
 
-export function saveData(x: LhpPatrolReport): void {
+export function saveData(x: HostPatrolReport): void {
   localStorage.setItem(_LOCAL_STORAGE_KEY_DATA, JSON.stringify(x));
 }
 
@@ -315,13 +315,13 @@ export type SshKeysTable = Record<string, SshKeysTableRecord>;
 
 export interface SshKeysTableRecord {
   key: SshPublicKey;
-  seenHosts: Set<LhpHostReport>;
+  seenHosts: Set<HostReport>;
   seenComments: Set<string>;
   isKnown: boolean;
   knownComment: string;
 }
 
-export function buildSshKeysTable(data: LhpPatrolReport): SshKeysTable {
+export function buildSshKeysTable(data: HostPatrolReport): SshKeysTable {
   // Initialize the return value:
   const keys: SshKeysTable = {};
 

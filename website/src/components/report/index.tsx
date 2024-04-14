@@ -1,6 +1,6 @@
 'use client';
 
-import { LhpPatrolReport, deleteData, loadData } from '@/lib/data';
+import { HostPatrolReport, deleteData, loadData } from '@/lib/data';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
 import { BigSpinner } from '../helpers';
@@ -8,7 +8,7 @@ import { App } from './App';
 import { DataLoader } from './DataLoader';
 
 export function Report() {
-  const [data, setAppData] = useState<Maybe<Maybe<LhpPatrolReport>>>(Nothing);
+  const [data, setAppData] = useState<Maybe<Maybe<HostPatrolReport>>>(Nothing);
 
   useEffect(() => {
     loadData().caseOf({

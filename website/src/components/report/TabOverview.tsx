@@ -1,7 +1,7 @@
-import { LhpPatrolReport, buildSshKeysTable } from '@/lib/data';
+import { HostPatrolReport, buildSshKeysTable } from '@/lib/data';
 import { SimpleBarChart, histogram } from '../helpers';
 
-export function TabOverview({ data }: { data: LhpPatrolReport }) {
+export function TabOverview({ data }: { data: HostPatrolReport }) {
   const sshkeys = Object.values(buildSshKeysTable(data));
 
   return (

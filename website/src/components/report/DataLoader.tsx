@@ -1,10 +1,10 @@
-import { LhpPatrolReport, parseData, saveData } from '@/lib/data';
+import { HostPatrolReport, parseData, saveData } from '@/lib/data';
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
 import { Divider } from '@nextui-org/divider';
 import { ChangeEvent, useState } from 'react';
 import { Centered } from '../helpers';
 
-export function DataLoader({ onLoadData }: { onLoadData: (x: LhpPatrolReport) => void }) {
+export function DataLoader({ onLoadData }: { onLoadData: (x: HostPatrolReport) => void }) {
   const [error, setError] = useState<string>();
 
   const changeHandler = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

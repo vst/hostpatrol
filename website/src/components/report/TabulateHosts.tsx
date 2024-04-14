@@ -1,4 +1,4 @@
-import { LhpHostReport } from '@/lib/data';
+import { HostReport } from '@/lib/data';
 import { Chip } from '@nextui-org/chip';
 import { Radio, RadioGroup, Select, SelectItem, Selection, Slider } from '@nextui-org/react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
@@ -11,11 +11,11 @@ export function TabulateHosts({
   hosts,
   onHostSelect,
 }: {
-  hosts: LhpHostReport[];
-  onHostSelect: (host: LhpHostReport) => void;
+  hosts: HostReport[];
+  onHostSelect: (host: HostReport) => void;
 }) {
-  const [filters, setFilters] = useState<Record<string, (host: LhpHostReport) => boolean>>({});
-  const [filteredHosts, setFilteredHosts] = useState<LhpHostReport[]>(hosts);
+  const [filters, setFilters] = useState<Record<string, (host: HostReport) => boolean>>({});
+  const [filteredHosts, setFilteredHosts] = useState<HostReport[]>(hosts);
 
   useEffect(() => {
     setFilteredHosts(hosts.filter((host) => Object.values(filters).reduce((acc, f) => acc && f(host), true)));
