@@ -1,4 +1,4 @@
-import { LhpHostReport, LhpPatrolReport, buildSshKeysTable } from '@/lib/data';
+import { HostPatrolReport, HostReport, buildSshKeysTable } from '@/lib/data';
 import { Tab, Tabs } from '@nextui-org/react';
 import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 import { useEffect, useState } from 'react';
@@ -8,8 +8,8 @@ import { TabOverview } from './TabOverview';
 import { TabulateHosts } from './TabulateHosts';
 import { TabulateSshKeys } from './TabulateSshKeys';
 
-export function App({ data, onFlushRequest }: { data: LhpPatrolReport; onFlushRequest: () => void }) {
-  const [host, setHost] = useState<Maybe<LhpHostReport>>(Nothing);
+export function App({ data, onFlushRequest }: { data: HostPatrolReport; onFlushRequest: () => void }) {
+  const [host, setHost] = useState<Maybe<HostReport>>(Nothing);
   type TabKey = 'overview' | 'tabulate-hosts' | 'show-host-details' | 'ssh-keys' | 'flush';
   const [tab, setTab] = useState<TabKey>('overview');
 
@@ -60,8 +60,8 @@ export function TabTabulateHosts({
   data,
   setHost,
 }: {
-  data: LhpPatrolReport;
-  setHost: (x: Maybe<LhpHostReport>) => void;
+  data: HostPatrolReport;
+  setHost: (x: Maybe<HostReport>) => void;
 }) {
   return <TabulateHosts hosts={data.hosts} onHostSelect={(x) => setHost(Just(x))} />;
 }
@@ -71,9 +71,9 @@ export function TabShowHostDetails({
   host,
   setHost,
 }: {
-  data: LhpPatrolReport;
-  host: Maybe<LhpHostReport>;
-  setHost: (x: Maybe<LhpHostReport>) => void;
+  data: HostPatrolReport;
+  host: Maybe<HostReport>;
+  setHost: (x: Maybe<HostReport>) => void;
 }) {
   return (
     <div className="grid grid-cols-6">
@@ -91,6 +91,6 @@ export function TabShowHostDetails({
   );
 }
 
-export function TabSshKeys({ data }: { data: LhpPatrolReport }) {
+export function TabSshKeys({ data }: { data: HostPatrolReport }) {
   return <TabulateSshKeys records={Object.values(buildSshKeysTable(data))} />;
 }

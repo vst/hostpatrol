@@ -1,6 +1,6 @@
 module Main where
 
-import qualified Lhp.Cli as Cli
+import qualified HostPatrol.Cli as Cli
 import System.Exit (exitWith)
 
 

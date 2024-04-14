@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: '/lhp',
   output: 'export',
   images: {
     unoptimized: true,

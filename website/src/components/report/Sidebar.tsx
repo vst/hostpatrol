@@ -1,11 +1,11 @@
-import { LhpHostReport } from '@/lib/data';
+import { HostReport } from '@/lib/data';
 import { Listbox, ListboxItem } from '@nextui-org/listbox';
 import Image from 'next/image';
 import { getCloudIconName } from './helpers';
 
 export interface SidebarProps {
-  data: LhpHostReport[];
-  onHostSelect: (host: LhpHostReport) => void;
+  data: HostReport[];
+  onHostSelect: (host: HostReport) => void;
 }
 
 export function Sidebar({ data, onHostSelect }: SidebarProps) {

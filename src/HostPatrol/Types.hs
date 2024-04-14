@@ -3,8 +3,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | This module defines public data and type definitions to represent
--- a complete lhp report.
-module Lhp.Types where
+-- a complete Host Patrol report.
+module HostPatrol.Types where
 
 import qualified Autodocodec as ADC
 import qualified Data.Aeson as Aeson

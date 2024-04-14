@@ -4,7 +4,7 @@
 
 -- | This module defines public data and type definitions to represent
 -- application configuration.
-module Lhp.Config where
+module HostPatrol.Config where
 
 import qualified Autodocodec as ADC
 import qualified Data.Aeson as Aeson

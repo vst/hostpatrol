@@ -1,18 +1,18 @@
 <h1 align="center">
     <div>
-        <img alt="logo" src="https://github.com/vst/lhp/assets/374793/cad6706b-0384-4a71-9ca5-21ade9ce3d1e" />
+        <img alt="logo" src="https://github.com/vst/hostpatrol/assets/374793/cad6706b-0384-4a71-9ca5-21ade9ce3d1e" />
     </div>
     <div>Host Patrol</div>
     <sub>Lazy Hacker's Linux Host Patrol</sub>
     <p></p>
     <div>
-        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/vst/lhp?display_name=tag&style=for-the-badge">
-        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/vst/lhp?style=for-the-badge">
-        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues-pr/vst/lhp?style=for-the-badge">
+        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=for-the-badge">
+        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/vst/hostpatrol?style=for-the-badge">
+        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=for-the-badge">
     </div>
 </h1>
 
-Host Patrol (`lhp`) is a command-line application to retrieve
+Host Patrol (`hostpatrol`) is a command-line application to retrieve
 information from remote hosts. The information is retrieved over SSH
 by executing small [scripts]. Then, the information is compiled into
 JSON to be further analysed or visualised on its [Website].
@@ -40,27 +40,26 @@ The report contains following information for each host:
 
 ## Installation
 
-> [!NOTE]
->
-> A statically compiled executable is planed. See [Issue 32].
-
 Currently, the easiest way to install the command-line application is
 via Nix:
 
 ```sh
-nix profile install --file https://github.com/vst/lhp/archive/v<VERSION>.tar.gz app
+nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz app
 ```
+
+Alternatively, you can use the statically compiled binary distributed
+along with each release (Linux x86_64 only).
 
 ## Usage
 
-`lhp` assumes that you are able to connect to remote hosts via SSH:
+`hostpatrol` assumes that you are able to connect to remote hosts via SSH:
 
 ```sh
 ssh my-host
 ```
 
-Indeed, `lhp` uses `ssh` under the hood. Therefore, if you can `ssh`,
-you can `lhp`!
+Indeed, `hostpatrol` uses `ssh` under the hood. Therefore, if you can `ssh`,
+you can `hostpatrol`!
 
 > [!NOTE]
 >
@@ -71,7 +70,7 @@ you can `lhp`!
 You can pass hosts via CLI arguments:
 
 ```sh
-lhp compile --host my-host-1 --host my-host-2 > /tmp/lhp-report.json
+hostpatrol compile --host my-host-1 --host my-host-2 > /tmp/hostpatrol-report.json
 ```
 
 This command connects to hosts sequentially and ignores problematic
@@ -81,7 +80,7 @@ To use parallel mode, use `--parallel` flag. In this case, if any of
 the hosts cause an error, entire operation will fail:
 
 ```sh
-lhp compile --parallel --host my-host-1 --host my-host-2 > /tmp/lhp-report.json
+hostpatrol compile --parallel --host my-host-1 --host my-host-2 > /tmp/hostpatrol-report.json
 ```
 
 Alternatively, you can use a configuration file which has additional
@@ -133,13 +132,13 @@ Then, you can use this configuration file instead of specifying hosts
 individually on the command-line:
 
 ```sh
-lhp compile --config config.yaml > /tmp/lhp-report.json
+hostpatrol compile --config config.yaml > /tmp/hostpatrol-report.json
 ```
 
 ..., or mix with `--host` option:
 
 ```sh
-lhp compile --config config.yaml --host a-host --host b-host > /tmp/lhp-report.json
+hostpatrol compile --config config.yaml --host a-host --host b-host > /tmp/hostpatrol-report.json
 ```
 
 Users can process/analyse the JSON output themselves or use [Website]
@@ -170,7 +169,7 @@ hpack &&
     find . -iname "*.nix" -not -path "*/nix/sources.nix" -and -not -path "*/website/node_modules/*.nix" -print0 | xargs --null nixpkgs-fmt &&
     hlint app/ src/ test/ &&
     cabal build -O0 &&
-    cabal run -O0 lhp -- --version &&
+    cabal run -O0 hostpatrol -- --version &&
     cabal v1-test &&
     cabal haddock -O0
 ```
@@ -188,8 +187,8 @@ under [MIT License].
 
 <!-- REFERENCES -->
 
-[Issue 32]: https://github.com/vst/lhp/issues/32
-[Website]: https://thenegation.com/lhp
+[Issue 32]: https://github.com/vst/hostpatrol/issues/32
+[Website]: https://thenegation.com/hostpatrol
 [os-release]: https://www.freedesktop.org/software/systemd/man/latest/os-release.html
 [scripts]: ./src/scripts
 [Website source-code]: ./website

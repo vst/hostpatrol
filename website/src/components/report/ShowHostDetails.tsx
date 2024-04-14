@@ -1,4 +1,4 @@
-import { LhpHostReport, LhpPatrolReport, SshPublicKey } from '@/lib/data';
+import { HostPatrolReport, HostReport, SshPublicKey } from '@/lib/data';
 import {
   Card,
   CardBody,
@@ -18,7 +18,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { KVBox } from '../helpers';
 
-export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: LhpPatrolReport }) {
+export function ShowHostDetails({ host, data }: { host: HostReport; data: HostPatrolReport }) {
   return (
     <div className="space-y-4 px-4 py-4">
       <h1 className="flex flex-row items-center justify-between text-xl font-bold">
@@ -212,7 +212,7 @@ export function ShowHostDetails({ host, data }: { host: LhpHostReport; data: Lhp
   );
 }
 
-export function TabulateSshKeys({ host, data }: { host: LhpHostReport; data: LhpPatrolReport }) {
+export function TabulateSshKeys({ host, data }: { host: HostReport; data: HostPatrolReport }) {
   const keysKnownGlobal = (data.knownSshKeys || []).reduce(
     (acc, x) => ({ ...acc, [`${x.fingerprint}`]: x }),
     {} as Record<string, SshPublicKey>

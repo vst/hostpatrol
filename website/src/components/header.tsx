@@ -24,11 +24,14 @@ export default function Header() {
       classNames={{ base: 'z-50 bg-gray-200' }}
     >
       <NavbarBrand>
-        <p className="font-mono text-2xl font-bold tracking-widest text-inherit">lhp</p>
+        <p className="text-2xl tracking-tight text-inherit">
+          <span className="font-medium text-gray-700">HOST</span>
+          <span className="font-black">PATROL</span>
+        </p>
       </NavbarBrand>
 
       <NavbarContent className="hidden md:flex" justify="center">
-        <NavbarItem>Lazy Hacker&apos;s Linux Host Patrol</NavbarItem>
+        <NavbarItem>Lazy Hacker&apos;s Host Patrol</NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end">
@@ -45,7 +48,7 @@ export default function Header() {
         </NavbarItem>
 
         <NavbarItem className="hidden sm:flex">
-          <Link href="https://github.com/vst/lhp" className="w-full">
+          <Link href="https://github.com/vst/hostpatrol" className="w-full">
             GitHub
           </Link>
         </NavbarItem>
@@ -67,7 +70,7 @@ export default function Header() {
         </NavbarMenuItem>
 
         <NavbarMenuItem>
-          <Link href="https://github.com/vst/lhp" className="w-full">
+          <Link href="https://github.com/vst/hostpatrol" className="w-full">
             GitHub
           </Link>
         </NavbarMenuItem>

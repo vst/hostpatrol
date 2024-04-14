@@ -1,6 +1,6 @@
-name: lhp
+name: hostpatrol
 version: 0.0.11
-github: vst/lhp
+github: vst/hostpatrol
 license: MIT
 author: Vehbi Sinan Tunalioglu
 maintainer: vst@vsthost.com
@@ -8,7 +8,7 @@ copyright: Copyright (c) 2024 Vehbi Sinan Tunalioglu
 extra-source-files:
   - README.md
   - CHANGELOG.md
-description: Please see the README on GitHub at <https://github.com/vst/lhp#readme>
+description: Please see the README on GitHub at <https://github.com/vst/hostpatrol#readme>
 dependencies:
   - base >= 4.7 && < 5
 library:
@@ -37,7 +37,7 @@ library:
     - typed-process
     - yaml
 executables:
-  lhp:
+  hostpatrol:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -48,9 +48,9 @@ executables:
       - '-rtsopts'
       - '-with-rtsopts=-N'
     dependencies:
-      - lhp
+      - hostpatrol
 tests:
-  lhp-test:
+  hostpatrol-test:
     main: Spec.hs
     source-dirs: test/spec
     ghc-options:
@@ -61,7 +61,7 @@ tests:
       - '-rtsopts'
       - '-with-rtsopts=-N'
     dependencies: []
-  lhp-doctest:
+  hostpatrol-doctest:
     main: doctest.hs
     source-dirs: test/doctest
     ghc-options:
@@ -69,5 +69,5 @@ tests:
       - '-Werror'
       - '-threaded'
     dependencies:
-      - lhp
+      - hostpatrol
       - doctest
