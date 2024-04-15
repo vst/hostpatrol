@@ -105,7 +105,11 @@ let
       thisHaskell.hlint
       thisHaskell.hpack
 
-      ## Other build inputs for various development requirements:
+      ## Build inputs for testing requirements:
+      pkgs.curl
+      pkgs.openssh
+
+      ## Build inputs for various development requirements:
       pkgs.docker-client
       pkgs.git
       pkgs.nil
@@ -117,6 +121,10 @@ let
       ## Our custom scripts:
       dev-test-build
     ];
+
+    ## Include CA certificates for testing under pure shell:
+    SSL_CERT_FILE = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+    NODE_EXTRA_CA_CERTS = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
   };
 
   #################
@@ -130,6 +138,7 @@ let
       pkgs.bashInteractive ## Added for bash-based CLI option completions
     ];
     nativeBuildInputs = [
+      pkgs.curl ## Required by the application tests
       pkgs.openssh ## Required by the application tests
     ];
   };
