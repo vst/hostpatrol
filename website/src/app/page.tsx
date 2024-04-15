@@ -10,11 +10,14 @@ export default function Page() {
         <Card className="w-full space-y-6 p-6 lg:p-8">
           <CardHeader className="font-semibold">Install via Nix</CardHeader>
 
-          <CardBody>
-            <Code>nix profile install --file https://github.com/vst/lhp/archive/v&lt;VERSION&gt;.tar.gz app</Code>
+          <CardBody className="space-y-6">
+            <p>For the current development version:</p>
+            <Code>{`nix profile install --file https://github.com/vst/hostpatrol/archive/main.tar.gz app`}</Code>
+            <p>For a versioned release:</p>
+            <Code>{`nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz app`}</Code>
           </CardBody>
 
-          <CardHeader className="font-semibold">Install Statically Build Executable (x86_64)</CardHeader>
+          <CardHeader className="font-semibold">Install Statically Build Executable (for Linux on x86_64)</CardHeader>
 
           <CardBody>
             <Code>
@@ -137,18 +140,27 @@ function Points() {
           </p>
 
           <div className="mt-6 flex   space-x-2">
-            <img
-              alt="GitHub Release"
-              src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=for-the-badge"
-            />
-            <img
-              alt="GitHub Issues or Pull Requests"
-              src="https://img.shields.io/github/issues/vst/hostpatrol?style=for-the-badge"
-            />
-            <img
-              alt="GitHub Issues or Pull Requests"
-              src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=for-the-badge"
-            />
+            <a href="https://github.com/vst/hostpatrol/releases/latest">
+              <img
+                alt="GitHub Release"
+                src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=for-the-badge"
+              />
+            </a>
+            <a href="https://github.com/vst/hostpatrol/issues">
+              <img alt="GitHub Issues" src="https://img.shields.io/github/issues/vst/hostpatrol?style=for-the-badge" />
+            </a>
+            <a href="https://github.com/vst/hostpatrol/pulls">
+              <img
+                alt="GitHub Pull Requests"
+                src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=for-the-badge"
+              />
+            </a>
+            <a href="https://github.com/vst/hostpatrol/actions/workflows/check.yaml">
+              <img
+                alt="GitHub Actions Workflow Status"
+                src="https://img.shields.io/github/actions/workflow/status/vst/hostpatrol/check.yaml?style=for-the-badge"
+              />
+            </a>
           </div>
         </div>
 
@@ -170,8 +182,8 @@ const points = [
     name: 'Who is it for?',
     description: (
       <>
-        Host Patrol is for people who (1) manage multiple hosts on the cloud or on their own infrastructure, (2) need to
-        build a registry of such hosts, but (3) want a simple, hackable and free solution.
+        Host Patrol is for sysadmins, devops and hackers who (1) manage multiple hosts on the cloud and/or on their own
+        infrastructure, (2) need to build a registry of such hosts, but (3) want a simple, hackable and free solution.
       </>
     ),
   },
@@ -179,7 +191,8 @@ const points = [
     name: 'What does it do?',
     description: (
       <>
-        It collects information about your hosts through SSH and offers a hosted and privacy-preserving{' '}
+        Host Patrol collects information about your hosts through SSH and compiles it into a JSON file. It also offers a
+        hosted and privacy-preserving{' '}
         <Link href="/report" className="font-semibold text-indigo-500">
           Web application
         </Link>{' '}
@@ -200,11 +213,12 @@ const points = [
     name: 'How does it collect the information?',
     description: (
       <>
-        Assuming that you can SSH to the remote host, Host Patrol issues{' '}
+        Host Patrol issues{' '}
         <a href="https://github.com/vst/hostpatrol/tree/main/src/scripts" className="font-semibold text-indigo-500">
-          simple POSIX-shell commands
+          simple and safe POSIX-shell commands
         </a>{' '}
-        to your remote host and compiles the output into a JSON file.
+        to your remote hosts and compiles the output into a JSON file. To achieve this, it uses your vanilla `ssh`
+        program.
       </>
     ),
   },
@@ -212,12 +226,12 @@ const points = [
     name: 'What is the status of the project?',
     description: (
       <>
-        This project is still in its early stages and currently fulfills the author&apos;s requirements. If you are
-        interested in this or similar solutions, please consider{' '}
+        This project is still in its early stages. It is already helping one team to perform simple audits on their
+        infrastructure. Please consider{' '}
         <a href="https://github.com/vst/hostpatrol" className="font-semibold text-indigo-500">
           starring it on GitHub
-        </a>
-        .
+        </a>{' '}
+        to show your interest.
       </>
     ),
   },
