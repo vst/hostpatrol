@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.13](https://github.com/vst/hostpatrol/compare/v0.0.12...v0.0.13) (2024-04-15)
+
+
+### Bug Fixes
+
+* make tests run under pure Nix shell, fix Nix installation ([955c91b](https://github.com/vst/hostpatrol/commit/955c91b0a773ba581e8761108f74f590234095d6))
+* **website:** make small fixes/adjustments to the landing page content ([b663d71](https://github.com/vst/hostpatrol/commit/b663d71fe562eaf99e037ee3d480858e4e8f66e5))
+
 ## [0.0.12](https://github.com/vst/hostpatrol/compare/v0.0.11...v0.0.12) (2024-04-14)
 
 
