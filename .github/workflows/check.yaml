@@ -22,8 +22,8 @@ jobs:
 
       - name: "Check Application"
         run: |
-          nix-shell --run "dev-test-build"
+          nix-shell --pure --run "dev-test-build"
 
       - name: "Check Website"
         run: |
-          nix-shell --run "cd website && npm install && npm run check"
+          nix-shell --pure --run "cd website && npm install && npm run check"
