@@ -435,15 +435,15 @@ _toSshError h =
 -- If the given 'T.Text' is a GitHub username, it will attempt to
 -- fetch keys from GitHub and then parse them using @ssh-keygen@.
 --
--- >>> runExceptT $ parseSshPublicKeys "gh:vst"
+-- > runExceptT $ parseSshPublicKeys "gh:vst"
 -- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJIQtEmoHu44pUDwX5GEw20JLmfZaI+xVXin74GI396z", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "gh:vst", _sshPublicKeyFingerprint = "MD5:01:6d:4f:ca:c9:ca:dc:f1:cb:a3:fc:74:8e:34:77:16"},SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "gh:vst", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
--- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3"
+-- > runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3"
 -- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "no comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
--- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment"
+-- > runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment"
 -- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
--- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- > runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
 -- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
--- >>> runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
+-- > runExceptT $ parseSshPublicKeys "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment"
 -- Right [SshPublicKey {_sshPublicKeyData = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdd2ubdTn5LPsN0zaxylrpkQTW+1Vr/uWQaEQXoGkd3 some more comment", _sshPublicKeyType = "ED25519", _sshPublicKeyLength = 256, _sshPublicKeyComment = "some more comment", _sshPublicKeyFingerprint = "MD5:ec:4b:ff:8d:c7:43:a9:ab:16:9f:0d:fa:8f:e2:6f:6c"}]
 parseSshPublicKeys
   :: MonadError HostPatrolError m
@@ -512,5 +512,5 @@ listGitHubSshKeys u = do
     ExitSuccess -> pure (toKeys out)
   where
     throwUnknown = throwError . HostPatrolErrorUnknown
-    process = TP.proc "curl" ["-s", "https://github.com/" <> T.unpack u <> ".keys"]
+    process = TP.proc "curl" ["-sS", "https://github.com/" <> T.unpack u <> ".keys"]
     toKeys = filter (not . T.null) . T.lines . Z.Text.unsafeTextFromBL
