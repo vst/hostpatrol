@@ -231,9 +231,11 @@ export function TabulateSshKeys({ host, data }: { host: HostReport; data: HostPa
   return (
     <Table aria-label="Table of SSH Keys" removeWrapper color="secondary" showSelectionCheckboxes={false}>
       <TableHeader>
+        <TableColumn key="problem">Problem?</TableColumn>
         <TableColumn key="type">Type</TableColumn>
         <TableColumn key="length">Length</TableColumn>
         <TableColumn key="known">Known?</TableColumn>
+        <TableColumn key="seen">Seen?</TableColumn>
         <TableColumn key="fingerprint">Fingerprint</TableColumn>
         <TableColumn key="seen-comments">Comments</TableColumn>
       </TableHeader>
@@ -247,14 +249,20 @@ export function TabulateSshKeys({ host, data }: { host: HostReport; data: HostPa
           const keyS = keysSeen[fp];
           const key = (keyG || keyH || keyS) as SshPublicKey;
           const known: 'global' | 'host' | 'unknown' = keyG ? 'global' : keyH ? 'host' : 'unknown';
+          const seen = keyS ? true : false;
+          const problem = (known === 'unknown' && seen) || ((known === 'host' || known === 'global') && !seen);
           const comments = Array.from(new Set(keys.filter((x) => x.fingerprint === fp).map((x) => x.comment)));
 
           return (
             <TableRow key={fp}>
+              <TableCell>{problem ? '🔴' : '🟢'}</TableCell>
               <TableCell>{key.type}</TableCell>
               <TableCell>{key.length}</TableCell>
               <TableCell>
                 <Chip color={known === 'global' ? 'success' : known === 'host' ? 'primary' : 'danger'}>{known}</Chip>
+              </TableCell>
+              <TableCell>
+                <Chip color={seen ? 'success' : 'danger'}>{seen ? 'yes' : 'no'}</Chip>
               </TableCell>
               <TableCell>
                 {key.fingerprint}
