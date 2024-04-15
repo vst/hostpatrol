@@ -498,7 +498,17 @@ listGitHubSshKeys
 listGitHubSshKeys u = do
   (ec, out, err) <- TP.readProcess process
   case ec of
-    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err)
+    ExitFailure _ ->
+      throwUnknown
+        ( "Error while retrieving SSH public keys from GitHub for "
+            <> u
+            <> ". Exit code: "
+            <> Z.Text.tshow ec
+            <> ". STDOUT: "
+            <> Z.Text.unsafeTextFromBL out
+            <> ". STDERR: "
+            <> Z.Text.unsafeTextFromBL err
+        )
     ExitSuccess -> pure (toKeys out)
   where
     throwUnknown = throwError . HostPatrolErrorUnknown
