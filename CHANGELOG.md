@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.14](https://github.com/vst/hostpatrol/compare/v0.0.13...v0.0.14) (2024-04-16)
+
+
+### Features
+
+* add report meta information ([7af041d](https://github.com/vst/hostpatrol/commit/7af041dad543a9ffc4217074f871986ec78afee3))
+* make parallel patrolling the only option ([21d48e8](https://github.com/vst/hostpatrol/commit/21d48e8c6e9ae9e4882557ebd5c3c603500fbe5b))
+* report errors during patrolling ([637a70b](https://github.com/vst/hostpatrol/commit/637a70b536c38fe28b85d8b7e23480a00f123f70))
+* **website:** add report meta to overview component ([01cf995](https://github.com/vst/hostpatrol/commit/01cf9951a3d256435150ff58a904fc644cfa47ca))
+* **website:** report errors on the overview component ([2de9b13](https://github.com/vst/hostpatrol/commit/2de9b13fced7273d1ce4f33f49dca2fe32e2d9f7))
+
+
+### Bug Fixes
+
+* **website:** fix authorized SSH key states shown on host details ([91da467](https://github.com/vst/hostpatrol/commit/91da46730891e1230b7965a5d644d4364c8b68ec))
+
 ## [0.0.13](https://github.com/vst/hostpatrol/compare/v0.0.12...v0.0.13) (2024-04-15)
 
 
