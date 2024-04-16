@@ -23,6 +23,7 @@ import Zamazingo.Ssh (SshConfig)
 data Report = Report
   { _reportHosts :: ![HostReport]
   , _reportKnownSshKeys :: ![SshPublicKey]
+  , _reportMeta :: !ReportMeta
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
@@ -37,6 +38,34 @@ instance ADC.HasCodec Report where
           Report
             <$> ADC.requiredField "hosts" "List of host reports." ADC..= _reportHosts
             <*> ADC.requiredField "knownSshKeys" "List of known SSH public keys." ADC..= _reportKnownSshKeys
+            <*> ADC.requiredField "meta" "Meta information of the report." ADC..= _reportMeta
+
+
+-- * Meta Information
+
+
+-- | Data definition for the meta-information of the report.
+data ReportMeta = ReportMeta
+  { _reportMetaVersion :: !T.Text
+  , _reportMetaBuildTag :: !(Maybe T.Text)
+  , _reportMetaBuildHash :: !(Maybe T.Text)
+  , _reportMetaTimestamp :: !Time.UTCTime
+  }
+  deriving (Eq, Generic, Show)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec ReportMeta)
+
+
+instance ADC.HasCodec ReportMeta where
+  codec =
+    _codec ADC.<?> "Report Meta Information"
+    where
+      _codec =
+        ADC.object "ReportMeta" $
+          ReportMeta
+            <$> ADC.requiredField "version" "Version of the application." ADC..= _reportMetaVersion
+            <*> ADC.optionalField "buildTag" "Build tag of the application." ADC..= _reportMetaBuildTag
+            <*> ADC.optionalField "buildHash" "Build hash of the application." ADC..= _reportMetaBuildHash
+            <*> ADC.requiredField "timestamp" "Timestamp of the report." ADC..= _reportMetaTimestamp
 
 
 -- * Host

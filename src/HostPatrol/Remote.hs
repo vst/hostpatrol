@@ -20,7 +20,9 @@ import qualified Data.List as List
 import Data.Maybe (catMaybes, fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
+import qualified Data.Time as Time
 import qualified HostPatrol.Config as Config
+import qualified HostPatrol.Meta as Meta
 import qualified HostPatrol.Types as Types
 import System.Exit (ExitCode (..))
 import System.IO (hPutStrLn, stderr)
@@ -42,8 +44,16 @@ compileReport
   -> Config.Config
   -> m Types.Report
 compileReport par Config.Config {..} = do
+  now <- liftIO Time.getCurrentTime
   _reportHosts <- reporter _configHosts
   _reportKnownSshKeys <- concat <$> mapM parseSshPublicKeys _configKnownSshKeys
+  let _reportMeta =
+        Types.ReportMeta
+          { _reportMetaVersion = Meta._buildInfoVersion Meta.buildInfo
+          , _reportMetaBuildTag = Meta._buildInfoGitTag Meta.buildInfo
+          , _reportMetaBuildHash = Meta._buildInfoGitHash Meta.buildInfo
+          , _reportMetaTimestamp = now
+          }
   pure Types.Report {..}
   where
     reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
