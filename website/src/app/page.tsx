@@ -86,7 +86,9 @@ hosts:
               <pre>{`hostpatrol compile --host my-host-1 --host my-host-2 > /tmp/hostpatrol-report.json`}</pre>
             </Code>
 
-            <p>This command connects to hosts in parallel and ignores all failed hosts.</p>
+            <p>
+              This command connects to hosts in parallel and ignores all failed hosts by reporting errors in the output.
+            </p>
 
             <p>If you want to change the number of concurrent tasks, do so with `--parallel` option:</p>
 

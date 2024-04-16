@@ -24,6 +24,7 @@ data Report = Report
   { _reportHosts :: ![HostReport]
   , _reportKnownSshKeys :: ![SshPublicKey]
   , _reportMeta :: !ReportMeta
+  , _reportErrors :: ![ReportError]
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Report)
@@ -39,6 +40,7 @@ instance ADC.HasCodec Report where
             <$> ADC.requiredField "hosts" "List of host reports." ADC..= _reportHosts
             <*> ADC.requiredField "knownSshKeys" "List of known SSH public keys." ADC..= _reportKnownSshKeys
             <*> ADC.requiredField "meta" "Meta information of the report." ADC..= _reportMeta
+            <*> ADC.requiredField "errors" "List of errors encountered during the report generation." ADC..= _reportErrors
 
 
 -- * Meta Information
@@ -66,6 +68,29 @@ instance ADC.HasCodec ReportMeta where
             <*> ADC.optionalField "buildTag" "Build tag of the application." ADC..= _reportMetaBuildTag
             <*> ADC.optionalField "buildHash" "Build hash of the application." ADC..= _reportMetaBuildHash
             <*> ADC.requiredField "timestamp" "Timestamp of the report." ADC..= _reportMetaTimestamp
+
+
+-- * Meta Information
+
+
+-- | Data definition for errors.
+data ReportError = ReportError
+  { _reportErrorHost :: !(Maybe T.Text)
+  , _reportErrorMessage :: !T.Text
+  }
+  deriving (Eq, Generic, Show)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec ReportError)
+
+
+instance ADC.HasCodec ReportError where
+  codec =
+    _codec ADC.<?> "Report Error"
+    where
+      _codec =
+        ADC.object "ReportError" $
+          ReportError
+            <$> ADC.optionalField "host" "Host of the error if applicable." ADC..= _reportErrorHost
+            <*> ADC.requiredField "message" "Error message." ADC..= _reportErrorMessage
 
 
 -- * Host

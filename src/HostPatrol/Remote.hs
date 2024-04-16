@@ -23,6 +23,7 @@ import qualified Data.Time as Time
 import qualified HostPatrol.Config as Config
 import qualified HostPatrol.Meta as Meta
 import qualified HostPatrol.Types as Types
+import qualified Path as P
 import System.Exit (ExitCode (..))
 import qualified System.Process.Typed as TP
 import Text.Read (readEither)
@@ -42,7 +43,7 @@ compileReport
   -> m Types.Report
 compileReport par Config.Config {..} = do
   now <- liftIO Time.getCurrentTime
-  (_errs, _reportHosts) <- liftIO (compileHostReportsIO par _configHosts)
+  (errs, _reportHosts) <- liftIO (compileHostReportsIO par _configHosts)
   _reportKnownSshKeys <- concat <$> mapM parseSshPublicKeys _configKnownSshKeys
   let _reportMeta =
         Types.ReportMeta
@@ -51,6 +52,7 @@ compileReport par Config.Config {..} = do
           , _reportMetaBuildHash = Meta._buildInfoGitHash Meta.buildInfo
           , _reportMetaTimestamp = now
           }
+      _reportErrors = fmap toReportError errs
   pure Types.Report {..}
 
 
@@ -127,6 +129,18 @@ instance Aeson.ToJSON HostPatrolError where
   toJSON (HostPatrolErrorSsh h err) = Aeson.object [("type", "ssh"), "host" Aeson..= h, "error" Aeson..= err]
   toJSON (HostPatrolErrorParse h err) = Aeson.object [("type", "parse"), "host" Aeson..= h, "error" Aeson..= err]
   toJSON (HostPatrolErrorUnknown err) = Aeson.object [("type", "unknown"), "error" Aeson..= err]
+
+
+-- | Converts a 'HostPatrolError' to 'Types.ReportError'.
+toReportError :: HostPatrolError -> Types.ReportError
+toReportError (HostPatrolErrorSsh h ssherror) = Types.ReportError (Just h) $ case ssherror of
+  Z.Ssh.SshErrorConnection _ err -> "SSH connection error: " <> err
+  Z.Ssh.SshErrorCommandTimeout _ cmd -> "SSH command timeout: " <> T.unwords cmd
+  Z.Ssh.SshErrorCommand _ cmd -> "SSH command error: " <> T.unwords cmd
+  Z.Ssh.SshErrorFileRead _ p -> "SSH file read error: " <> T.pack (P.toFilePath p)
+  Z.Ssh.SshErrorMissingFile _ p -> "SSH missing file error: " <> T.pack (P.toFilePath p)
+toReportError (HostPatrolErrorParse h err) = Types.ReportError (Just h) err
+toReportError (HostPatrolErrorUnknown err) = Types.ReportError Nothing err
 
 
 -- * Internal
