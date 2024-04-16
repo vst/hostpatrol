@@ -64,11 +64,11 @@ commandCompile = OA.hsubparser (OA.command "compile" (OA.info parser infomod) <>
       doCompile
         <$> OA.optional (OA.strOption (OA.short 'c' <> OA.long "config" <> OA.action "file" <> OA.help "Path to the configuration file."))
         <*> OA.many (OA.strOption (OA.short 'h' <> OA.long "host" <> OA.help "Remote host (in SSH destination format)."))
-        <*> OA.switch (OA.short 'p' <> OA.long "parallel" <> OA.help "Hit remote hosts in parallel.")
+        <*> OA.option OA.auto (OA.short 'p' <> OA.long "parallel" <> OA.value 4 <> OA.showDefault <> OA.help "Number of hosts to hit concurrently.")
 
 
 -- | @compile@ CLI command program.
-doCompile :: Maybe FilePath -> [T.Text] -> Bool -> IO ExitCode
+doCompile :: Maybe FilePath -> [T.Text] -> Int -> IO ExitCode
 doCompile cpath dests par = do
   baseConfig <- maybe (pure (Config.Config [] [])) Config.readConfigFile cpath
   let config =
