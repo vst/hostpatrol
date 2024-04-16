@@ -7,23 +7,24 @@
 -- host information and produce host report.
 module HostPatrol.Remote where
 
+import qualified Control.Concurrent.Async.Pool as Async.Pool
 import Control.Monad.Except (ExceptT, MonadError (..), runExceptT)
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import qualified Control.Monad.Parallel as MP
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Combinators.Decode as ACD
-import Data.Bool (bool)
 import qualified Data.ByteString.Lazy as BL
-import qualified Data.ByteString.Lazy.Char8 as BLC
+import Data.Either (partitionEithers)
 import Data.FileEmbed (embedStringFile)
 import qualified Data.List as List
-import Data.Maybe (catMaybes, fromMaybe)
+import Data.Maybe (fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
+import qualified Data.Time as Time
 import qualified HostPatrol.Config as Config
+import qualified HostPatrol.Meta as Meta
 import qualified HostPatrol.Types as Types
+import qualified Path as P
 import System.Exit (ExitCode (..))
-import System.IO (hPutStrLn, stderr)
 import qualified System.Process.Typed as TP
 import Text.Read (readEither)
 import qualified Zamazingo.Ssh as Z.Ssh
@@ -36,23 +37,37 @@ import qualified Zamazingo.Text as Z.Text
 -- | Attempts to compile host patrol report for a given configuration.
 compileReport
   :: MonadError HostPatrolError m
-  => MP.MonadParallel m
   => MonadIO m
-  => Bool
+  => Int
   -> Config.Config
   -> m Types.Report
 compileReport par Config.Config {..} = do
-  _reportHosts <- reporter _configHosts
+  now <- liftIO Time.getCurrentTime
+  (errs, _reportHosts) <- liftIO (compileHostReportsIO par _configHosts)
   _reportKnownSshKeys <- concat <$> mapM parseSshPublicKeys _configKnownSshKeys
+  let _reportMeta =
+        Types.ReportMeta
+          { _reportMetaVersion = Meta._buildInfoVersion Meta.buildInfo
+          , _reportMetaBuildTag = Meta._buildInfoGitTag Meta.buildInfo
+          , _reportMetaBuildHash = Meta._buildInfoGitHash Meta.buildInfo
+          , _reportMetaTimestamp = now
+          }
+      _reportErrors = fmap toReportError errs
   pure Types.Report {..}
-  where
-    reporter = bool (fmap catMaybes . mapM go) (MP.mapM compileHostReport) par
-    go h@Config.HostSpec {..} = do
-      liftIO (hPutStrLn stderr ("Patrolling " <> T.unpack _hostSpecName))
-      res <- runExceptT (compileHostReport h)
-      case res of
-        Left err -> liftIO (BLC.hPutStrLn stderr (Aeson.encode err) >> pure Nothing)
-        Right sr -> pure (Just sr)
+
+
+-- | Attempts to compile host reports for a given list of host
+-- specifications and parallelism.
+--
+-- If any host report fails to compile, it will be returned in the
+-- error list, otherwise in the host report list.
+compileHostReportsIO
+  :: Int
+  -> [Config.HostSpec]
+  -> IO ([HostPatrolError], [Types.HostReport])
+compileHostReportsIO par hs =
+  Async.Pool.withTaskGroup par $
+    \tg -> partitionEithers <$> Async.Pool.mapConcurrently tg (runExceptT . compileHostReport) hs
 
 
 -- | Attempts to retrieve remote host information and produce a host
@@ -114,6 +129,18 @@ instance Aeson.ToJSON HostPatrolError where
   toJSON (HostPatrolErrorSsh h err) = Aeson.object [("type", "ssh"), "host" Aeson..= h, "error" Aeson..= err]
   toJSON (HostPatrolErrorParse h err) = Aeson.object [("type", "parse"), "host" Aeson..= h, "error" Aeson..= err]
   toJSON (HostPatrolErrorUnknown err) = Aeson.object [("type", "unknown"), "error" Aeson..= err]
+
+
+-- | Converts a 'HostPatrolError' to 'Types.ReportError'.
+toReportError :: HostPatrolError -> Types.ReportError
+toReportError (HostPatrolErrorSsh h ssherror) = Types.ReportError (Just h) $ case ssherror of
+  Z.Ssh.SshErrorConnection _ err -> "SSH connection error: " <> err
+  Z.Ssh.SshErrorCommandTimeout _ cmd -> "SSH command timeout: " <> T.unwords cmd
+  Z.Ssh.SshErrorCommand _ cmd -> "SSH command error: " <> T.unwords cmd
+  Z.Ssh.SshErrorFileRead _ p -> "SSH file read error: " <> T.pack (P.toFilePath p)
+  Z.Ssh.SshErrorMissingFile _ p -> "SSH missing file error: " <> T.pack (P.toFilePath p)
+toReportError (HostPatrolErrorParse h err) = Types.ReportError (Just h) err
+toReportError (HostPatrolErrorUnknown err) = Types.ReportError Nothing err
 
 
 -- * Internal

@@ -20,12 +20,12 @@ library:
   dependencies:
     - aeson
     - aeson-combinators
+    - async-pool
     - autodocodec
     - autodocodec-schema
     - bytestring
     - file-embed
     - githash
-    - monad-parallel
     - mtl
     - optparse-applicative
     - path

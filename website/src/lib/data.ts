@@ -7,6 +7,19 @@ import { Just, Maybe, Nothing } from 'purify-ts/Maybe';
 export const HOSTPATROL_REPORT_SCHEMA = {
   $comment: 'Host Patrol Report\nReport',
   properties: {
+    errors: {
+      $comment: 'List of errors encountered during the report generation.',
+      items: {
+        $comment: 'Report Error\nReportError',
+        properties: {
+          host: { $comment: 'Host of the error if applicable.', type: 'string' },
+          message: { $comment: 'Error message.', type: 'string' },
+        },
+        required: ['message'],
+        type: 'object',
+      },
+      type: 'array',
+    },
     hosts: {
       $comment: 'List of host reports.',
       items: {
@@ -257,8 +270,19 @@ export const HOSTPATROL_REPORT_SCHEMA = {
       },
       type: 'array',
     },
+    meta: {
+      $comment: 'Meta information of the report.\nReport Meta Information\nReportMeta',
+      properties: {
+        buildHash: { $comment: 'Build hash of the application.', type: 'string' },
+        buildTag: { $comment: 'Build tag of the application.', type: 'string' },
+        timestamp: { $comment: 'Timestamp of the report.\nLocalTime', type: 'string' },
+        version: { $comment: 'Version of the application.', type: 'string' },
+      },
+      required: ['timestamp', 'version'],
+      type: 'object',
+    },
   },
-  required: ['knownSshKeys', 'hosts'],
+  required: ['errors', 'meta', 'knownSshKeys', 'hosts'],
   type: 'object',
 } as const satisfies JSONSchema;
 
