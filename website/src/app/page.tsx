@@ -90,10 +90,13 @@ hosts:
               This command connects to hosts in parallel and ignores all failed hosts by reporting errors in the output.
             </p>
 
-            <p>If you want to change the number of concurrent tasks, do so with `--parallel` option:</p>
+            <p>
+              If you want to change the number of maximum number of threads to use for concurrent patrol tasks, do so
+              with `--threads` option that defaults to `4` otherwise:
+            </p>
 
             <Code>
-              <pre>{`hostpatrol compile --parallel 10 --host my-host-1 --host my-host-2 ... > /tmp/hostpatrol-report.json`}</pre>
+              <pre>{`hostpatrol compile --threads 10 --host my-host-1 --host my-host-2 ... > /tmp/hostpatrol-report.json`}</pre>
             </Code>
 
             <p>
