@@ -76,12 +76,13 @@ hostpatrol compile --host my-host-1 --host my-host-2 > /tmp/hostpatrol-report.js
 This command connects to hosts in parallel and ignores all failed
 hosts by reporting errors in the output.
 
-> If you want to change the number of concurrent tasks, do so with
-> `--parallel` option:
+> If you want to change the number of maximum number of threads to use
+> for concurrent patrol tasks, do so with `--threads` option that
+> defaults to `4` otherwise:
 >
 >
 > ```sh
-> hostpatrol compile --parallel 10 --host my-host-1 --host my-host-2 ... > /tmp/hostpatrol-report.json
+> hostpatrol compile --threads 10 --host my-host-1 --host my-host-2 ... > /tmp/hostpatrol-report.json
 > ```
 
 Alternatively, you can use a configuration file which has additional

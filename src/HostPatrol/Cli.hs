@@ -64,18 +64,18 @@ commandCompile = OA.hsubparser (OA.command "compile" (OA.info parser infomod) <>
       doCompile
         <$> OA.optional (OA.strOption (OA.short 'c' <> OA.long "config" <> OA.action "file" <> OA.help "Path to the configuration file."))
         <*> OA.many (OA.strOption (OA.short 'h' <> OA.long "host" <> OA.help "Remote host (in SSH destination format)."))
-        <*> OA.option OA.auto (OA.short 'p' <> OA.long "parallel" <> OA.value 4 <> OA.showDefault <> OA.help "Number of hosts to hit concurrently.")
+        <*> OA.option OA.auto (OA.short 't' <> OA.long "threads" <> OA.value 4 <> OA.showDefault <> OA.help "Maximum number of threads to use for concurrent patrols.")
 
 
 -- | @compile@ CLI command program.
 doCompile :: Maybe FilePath -> [T.Text] -> Int -> IO ExitCode
-doCompile cpath dests par = do
+doCompile cpath dests threads = do
   baseConfig <- maybe (pure (Config.Config [] [])) Config.readConfigFile cpath
   let config =
         baseConfig
           { Config._configHosts = Config._configHosts baseConfig <> fmap _mkHost dests
           }
-  res <- runExceptT (compileReport par config)
+  res <- runExceptT (compileReport threads config)
   case res of
     Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
     Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
