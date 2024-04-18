@@ -19,7 +19,6 @@ import qualified Data.List as List
 import Data.Maybe (fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
-import qualified Data.Time as Time
 import qualified HostPatrol.Config as Config
 import qualified HostPatrol.Meta as Meta
 import qualified HostPatrol.Types as Types
@@ -29,6 +28,7 @@ import qualified System.Process.Typed as TP
 import Text.Read (readEither)
 import qualified Zamazingo.Ssh as Z.Ssh
 import qualified Zamazingo.Text as Z.Text
+import qualified Zamazingo.Time as Z.Time
 
 
 -- * Report
@@ -42,7 +42,7 @@ compileReport
   -> Config.Config
   -> m Types.Report
 compileReport par Config.Config {..} = do
-  now <- liftIO Time.getCurrentTime
+  now <- Z.Time.getNow
   (errs, _reportHosts) <- liftIO (compileHostReportsIO par _configHosts)
   _reportKnownSshKeys <- concat <$> mapM parseSshPublicKeys _configKnownSshKeys
   let _reportMeta =
@@ -367,7 +367,7 @@ _jsonDecoderDockerContainer =
     <$> ACD.key "Id" ACD.text
     <*> (T.dropWhile (== '/') <$> ACD.key "Name" ACD.text)
     <*> ACD.at ["Config", "Image"] ACD.text
-    <*> ACD.key "Created" ACD.utcTime
+    <*> ACD.key "Created" ACD.auto
     <*> ((==) True <$> ACD.at ["State", "Running"] ACD.bool)
 
 

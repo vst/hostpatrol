@@ -119,7 +119,10 @@ export const HOSTPATROL_REPORT_SCHEMA = {
                 items: {
                   $comment: 'Docker Container Information\nDockerContainer',
                   properties: {
-                    created: { $comment: 'Date/time when the container is created at.\nLocalTime', type: 'string' },
+                    created: {
+                      $comment: 'Date/time when the container is created at.\nDate/time in ISO8601 format.',
+                      type: 'string',
+                    },
                     id: { $comment: 'ID of the container..', type: 'string' },
                     image: { $comment: 'Image the container is created from.', type: 'string' },
                     name: { $comment: 'Name of the container.', type: 'string' },
@@ -275,7 +278,7 @@ export const HOSTPATROL_REPORT_SCHEMA = {
       properties: {
         buildHash: { $comment: 'Build hash of the application.', type: 'string' },
         buildTag: { $comment: 'Build tag of the application.', type: 'string' },
-        timestamp: { $comment: 'Timestamp of the report.\nLocalTime', type: 'string' },
+        timestamp: { $comment: 'Timestamp of the report.\nDate/time in ISO8601 format.', type: 'string' },
         version: { $comment: 'Version of the application.', type: 'string' },
       },
       required: ['timestamp', 'version'],

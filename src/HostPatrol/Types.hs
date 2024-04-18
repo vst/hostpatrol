@@ -11,9 +11,9 @@ import qualified Data.Aeson as Aeson
 import Data.Int (Int32)
 import Data.Scientific (Scientific)
 import qualified Data.Text as T
-import qualified Data.Time as Time
 import GHC.Generics (Generic)
 import Zamazingo.Ssh (SshConfig)
+import qualified Zamazingo.Time as Z.Time
 
 
 -- * Report
@@ -51,7 +51,7 @@ data ReportMeta = ReportMeta
   { _reportMetaVersion :: !T.Text
   , _reportMetaBuildTag :: !(Maybe T.Text)
   , _reportMetaBuildHash :: !(Maybe T.Text)
-  , _reportMetaTimestamp :: !Time.UTCTime
+  , _reportMetaTimestamp :: !Z.Time.DateTime
   }
   deriving (Eq, Generic, Show)
   deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec ReportMeta)
@@ -303,7 +303,7 @@ data DockerContainer = DockerContainer
   { _dockerContainerId :: !T.Text
   , _dockerContainerName :: !T.Text
   , _dockerContainerImage :: !T.Text
-  , _dockerContainerCreated :: !Time.UTCTime
+  , _dockerContainerCreated :: !Z.Time.DateTime
   , _dockerContainerRunning :: !Bool
   }
   deriving (Eq, Generic, Show)
