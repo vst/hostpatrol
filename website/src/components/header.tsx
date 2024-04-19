@@ -34,7 +34,9 @@ export default function Header() {
       classNames={{ base: 'z-50 bg-gray-200' }}
     >
       <NavbarBrand>
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
       </NavbarBrand>
 
       <NavbarContent justify="end" className="space-x-4">
@@ -63,8 +65,7 @@ export default function Header() {
 }
 
 const LINKS = [
-  { key: 'getting-started', title: 'Get Started', href: '/#getting-started' },
-  { key: 'learn-more', title: 'Learn More', href: '/#learn-more' },
+  { key: 'quickstart', title: 'Quick Start', href: '/quickstart' },
   { key: 'report', title: 'Render Report', href: '/report' },
   { key: 'github', title: <FaGithub />, href: 'https://github.com/vst/hostpatrol' },
 ];

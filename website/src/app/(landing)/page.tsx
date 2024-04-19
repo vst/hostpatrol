@@ -1,5 +1,4 @@
 import { Logo } from '@/components/header';
-import { Card, CardBody, CardHeader, Code } from '@nextui-org/react';
 import Link from 'next/link';
 
 export default function Page() {
@@ -7,7 +6,6 @@ export default function Page() {
     <div className="flex w-full flex-col items-center justify-center">
       <Hero />
       <LearnMore />
-      <GettingStarted />
     </div>
   );
 }
@@ -45,15 +43,18 @@ function Hero() {
                 src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=for-the-badge"
               />
             </a>
+
             <a href="https://github.com/vst/hostpatrol/issues">
               <img alt="GitHub Issues" src="https://img.shields.io/github/issues/vst/hostpatrol?style=for-the-badge" />
             </a>
+
             <a href="https://github.com/vst/hostpatrol/pulls">
               <img
                 alt="GitHub Pull Requests"
                 src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=for-the-badge"
               />
             </a>
+
             <a href="https://github.com/vst/hostpatrol/actions/workflows/check.yaml">
               <img
                 alt="GitHub Actions Workflow Status"
@@ -73,10 +74,10 @@ function Hero() {
 
           <div className="mt-10 flex items-center gap-x-6">
             <a
-              href="#getting-started"
+              href="/quickstart"
               className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              Get started
+              Quick Start
             </a>
 
             <a href="#learn-more" className="text-sm font-semibold leading-6 text-gray-900">
@@ -105,7 +106,7 @@ function Hero() {
 
 function LearnMore() {
   return (
-    <div id="learn-more" className="py-24 sm:py-32">
+    <div id="learn-more" className="space-y-16 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <dl className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 text-base leading-7 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {POINTS.map((point) => (
@@ -115,6 +116,15 @@ function LearnMore() {
             </div>
           ))}
         </dl>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-2xl justify-center">
+        <Link
+          href="/quickstart"
+          className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        >
+          Proceed to Quick Start
+        </Link>
       </div>
     </div>
   );
@@ -202,127 +212,3 @@ const POINTS = [
     ),
   },
 ];
-
-function GettingStarted() {
-  return (
-    <div id="getting-started" className="mx-auto my-12 max-w-7xl space-y-8">
-      <Card className="w-full space-y-6 p-6 lg:p-8">
-        <CardHeader className="font-semibold">Install via Nix</CardHeader>
-
-        <CardBody className="space-y-6">
-          <p>For the current development version:</p>
-          <Code>{`nix profile install --file https://github.com/vst/hostpatrol/archive/main.tar.gz app`}</Code>
-          <p>For a versioned release:</p>
-          <Code>{`nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz app`}</Code>
-        </CardBody>
-
-        <CardHeader className="font-semibold">Install Statically Build Executable (for Linux on x86_64)</CardHeader>
-
-        <CardBody>
-          <Code>
-            <pre>
-              {`curl -Lo /tmp/hostpatrol https://github.com/vst/hostpatrol/releases/latest/download/hostpatrol-static-linux-x86_64
-sudo install /tmp/hostpatrol /usr/local/bin/hostpatrol`}
-            </pre>
-          </Code>
-        </CardBody>
-      </Card>
-
-      <Card className="w-full space-y-6 p-6 lg:p-8">
-        <CardHeader className="font-semibold">Configuration Example</CardHeader>
-
-        <CardBody>
-          <Code>
-            <pre>
-              {`## List of known SSH public keys for all hosts.
-knownSshKeys:
-  - gh:some-github-user
-  - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKq9bpy0IIfDnlgaTCQk0YhKyKFqInRjoqeIPlBuiFwS test-key-admin
-
-## List of hosts to patrol
-hosts:
-  - ## Name of the host (required)
-    name: somehost
-    ## SSH configuration (optional)
-    ssh:
-      ## SSH destination (required)
-      destination: root@10.10.10.10
-      ## SSH options (optional)
-      options: ["-i", "/keys/hebele.pri"]
-    ## External identifier of the host (optional)
-    id: 20b88669-743f-4ae5-9823-5aacc2df7086
-    ## External URL for the host (optional)
-    url: https://internal.documentation/hosts/somehost
-    ## List of tags for the host (optional)
-    tags:
-      - oranges
-      - strawberries
-    ## Arbitrary JSON data for the host (optional)
-    data:
-      owner: Client-1
-      cost: 50
-    ## List of known SSH public keys for the host (optional)
-    knownSshKeys:
-      - gh:another-github-user
-      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGmlBxUagOqtWcW6B77TUL8li85ZNYx0tphd3TSx4SEB test-key-tenant
-  - name: otherhost
-    url: https://internal.documentation/hosts/otherhost
-    tags:
-      - apples
-      - strawberries`}
-            </pre>
-          </Code>
-        </CardBody>
-      </Card>
-
-      <Card className="w-full space-y-6 p-6 lg:p-8">
-        <CardHeader className="font-semibold">Usage</CardHeader>
-
-        <CardBody className="space-y-8">
-          <p>You can pass hosts via CLI arguments:</p>
-
-          <Code>
-            <pre>{`hostpatrol compile --host my-host-1 --host my-host-2 > /tmp/hostpatrol-report.json`}</pre>
-          </Code>
-
-          <p>
-            This command connects to hosts in parallel and ignores all failed hosts by reporting errors in the output.
-          </p>
-
-          <p>
-            If you want to change the number of maximum number of threads to use for concurrent patrol tasks, do so with
-            `--threads` option that defaults to `4` otherwise:
-          </p>
-
-          <Code>
-            <pre>{`hostpatrol compile --threads 10 --host my-host-1 --host my-host-2 ... > /tmp/hostpatrol-report.json`}</pre>
-          </Code>
-
-          <p>
-            Alternatively, you can use the configuration file which has additional benefit of attaching static
-            information to your hosts such as external documentation URL and/or tags, and using SSH configuration
-            instead of plain host name.
-          </p>
-
-          <Code>
-            <pre>{`hostpatrol compile --config config.yaml > /tmp/hostpatrol-report.json`}</pre>
-          </Code>
-
-          <p>..., or mix with `--host` option:</p>
-
-          <Code>
-            <pre>{`hostpatrol compile --config config.yaml --host a-host --host b-host > /tmp/hostpatrol-report.json`}</pre>
-          </Code>
-
-          <p>
-            You can process/analyse the JSON output itself or use{' '}
-            <Link href="/report" className="font-semibold text-indigo-500">
-              Web application
-            </Link>{' '}
-            to list, tabulate and visualise the information.
-          </p>
-        </CardBody>
-      </Card>
-    </div>
-  );
-}
