@@ -12,6 +12,15 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 
+export function Logo() {
+  return (
+    <p className="text-2xl tracking-tight text-inherit">
+      <span className="font-medium text-gray-700">HOST</span>
+      <span className="font-black">PATROL</span>
+    </p>
+  );
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -24,10 +33,7 @@ export default function Header() {
       classNames={{ base: 'z-50 bg-gray-200' }}
     >
       <NavbarBrand>
-        <p className="text-2xl tracking-tight text-inherit">
-          <span className="font-medium text-gray-700">HOST</span>
-          <span className="font-black">PATROL</span>
-        </p>
+        <Logo />
       </NavbarBrand>
 
       <NavbarContent className="hidden md:flex" justify="center">
