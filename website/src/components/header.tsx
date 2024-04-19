@@ -11,6 +11,7 @@ import {
 } from '@nextui-org/navbar';
 import Link from 'next/link';
 import { useState } from 'react';
+import { FaGithub } from 'react-icons/fa';
 
 export function Logo() {
   return (
@@ -36,51 +37,34 @@ export default function Header() {
         <Logo />
       </NavbarBrand>
 
-      <NavbarContent className="hidden md:flex" justify="center">
-        <NavbarItem>Lazy Hacker&apos;s Host Patrol</NavbarItem>
-      </NavbarContent>
-
-      <NavbarContent justify="end">
-        <NavbarItem className="hidden sm:flex">
-          <Link href="/" className="w-full">
-            Home
-          </Link>
-        </NavbarItem>
-
-        <NavbarItem className="hidden sm:flex">
-          <Link href="/report" className="w-full">
-            Report
-          </Link>
-        </NavbarItem>
-
-        <NavbarItem className="hidden sm:flex">
-          <Link href="https://github.com/vst/hostpatrol" className="w-full">
-            GitHub
-          </Link>
-        </NavbarItem>
+      <NavbarContent justify="end" className="space-x-4">
+        {LINKS.map(({ key, title, href }) => (
+          <NavbarItem key={key} className="hidden sm:flex">
+            <Link href={href} className="w-full">
+              {title}
+            </Link>
+          </NavbarItem>
+        ))}
 
         <NavbarMenuToggle aria-label={isMenuOpen ? 'Close menu' : 'Open menu'} className="sm:hidden" />
       </NavbarContent>
 
       <NavbarMenu>
-        <NavbarMenuItem>
-          <Link href="/" className="w-full">
-            Home
-          </Link>
-        </NavbarMenuItem>
-
-        <NavbarMenuItem>
-          <Link href="/report" className="w-full">
-            Report
-          </Link>
-        </NavbarMenuItem>
-
-        <NavbarMenuItem>
-          <Link href="https://github.com/vst/hostpatrol" className="w-full">
-            GitHub
-          </Link>
-        </NavbarMenuItem>
+        {LINKS.map(({ key, title, href }) => (
+          <NavbarMenuItem key={key}>
+            <Link href={href} className="w-full">
+              {title}
+            </Link>
+          </NavbarMenuItem>
+        ))}
       </NavbarMenu>
     </Navbar>
   );
 }
+
+const LINKS = [
+  { key: 'getting-started', title: 'Get Started', href: '/#getting-started' },
+  { key: 'learn-more', title: 'Learn More', href: '/#learn-more' },
+  { key: 'report', title: 'Render Report', href: '/report' },
+  { key: 'github', title: <FaGithub />, href: 'https://github.com/vst/hostpatrol' },
+];
