@@ -66,9 +66,9 @@ function Hero() {
             <span className="block">Patrol Your Hosts</span>
           </h1>
 
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            Host Patrol is a command-line tool for gathering information about your hosts via SSH. It also offers a Web
-            application for viewing this information in your browser.
+          <p className="mt-6 text-balance text-lg leading-8 text-gray-600">
+            Host Patrol is a command-line tool and a Web interface for collecting and consolidating information about
+            your hosts via SSH.
           </p>
 
           <div className="mt-10 flex items-center gap-x-6">
@@ -125,8 +125,8 @@ const POINTS = [
     name: 'Who is it for?',
     description: (
       <>
-        Host Patrol is for sysadmins, devops and hackers who (1) manage multiple hosts on the cloud and/or on their own
-        infrastructure, (2) need to build a registry of such hosts, but (3) want a simple, hackable and free solution.
+        Host Patrol is for sysadmins and devops who manage hosts on the cloud and/or their own infrastructure to build a
+        registry of such hosts, keep track of server access and services, and yet, need a simple and free solution.
       </>
     ),
   },
@@ -134,12 +134,12 @@ const POINTS = [
     name: 'What does it do?',
     description: (
       <>
-        Host Patrol collects information about your hosts through SSH and compiles it into a JSON file. It also offers a
-        hosted and privacy-preserving{' '}
+        Host Patrol collects information about your hosts through SSH and compiles the report into a JSON file. It also
+        offers a hosted and privacy-preserving{' '}
         <Link href="/report" className="font-semibold text-indigo-500">
-          Web application
+          Web-based tool
         </Link>{' '}
-        for conveniently viewing this data in your browser.
+        for conveniently rendering this report in your browser.
       </>
     ),
   },
@@ -147,8 +147,8 @@ const POINTS = [
     name: 'How does it work?',
     description: (
       <>
-        You install the Host Patrol command-line tool on your local machine, prepare a configuration file, and run the
-        tool with the configuration to generate a JSON file containing information about your hosts.
+        You install the Host Patrol command-line tool on your local machine, (optionally) prepare a configuration file,
+        and run the tool to generate the report as a JSON file containing information about your hosts.
       </>
     ),
   },
@@ -169,12 +169,15 @@ const POINTS = [
     name: 'What is the status of the project?',
     description: (
       <>
-        This project is still in its early stages. It is already helping one team to perform simple audits on their
-        infrastructure. Please consider{' '}
+        This project is still in its early stages. Consider{' '}
         <a href="https://github.com/vst/hostpatrol" className="font-semibold text-indigo-500">
-          starring it on GitHub
+          starring it
         </a>{' '}
-        to show your interest.
+        and{' '}
+        <a href="https://github.com/vst/hostpatrol/issues" className="font-semibold text-indigo-500">
+          creating issues
+        </a>{' '}
+        on GitHub to help support its development. It can get only better with your feedback.
       </>
     ),
   },
@@ -182,7 +185,7 @@ const POINTS = [
     name: 'How can you contribute?',
     description: (
       <>
-        This project contains Haskell, Shell scripts, Nix and Typescript. It is licensed under the{' '}
+        This project is built using Haskell, Shell scripts, Nix and Typescript. It is licensed under the{' '}
         <a href="https://opensource.org/license/mit" className="font-semibold text-indigo-500">
           MIT license
         </a>
