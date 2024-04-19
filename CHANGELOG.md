@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.15](https://github.com/vst/hostpatrol/compare/v0.0.14...v0.0.15) (2024-04-19)
+
+
+### Features
+
+* create "Quick Start" page ([c85687b](https://github.com/vst/hostpatrol/commit/c85687b2c777b18bacf19d26ae38b153a7175d21))
+* **website:** improve landing page hero, add sample screenshot ([d5bc979](https://github.com/vst/hostpatrol/commit/d5bc979f74081be8223f80dc6d93fb343e62f47c))
+* **website:** revisit "Learn More" section ([f60f187](https://github.com/vst/hostpatrol/commit/f60f187e2158169b0e0c406f490b9c2af35e82bf))
+* **website:** revisit navigation menu ([bfe77ad](https://github.com/vst/hostpatrol/commit/bfe77ad893ecfe7d743e1085e1ef1f215c9357db))
+
+
+### Bug Fixes
+
+* rename --parallel option to --threads for clarity ([6373e25](https://github.com/vst/hostpatrol/commit/6373e2580efb9a3c865f57ba70035f39eb8624d1))
+* use Zamazingo.Time.DateTime instead of Data.Time.UTCTime ([002a869](https://github.com/vst/hostpatrol/commit/002a869181eb255a9c1c95e2422df1b1a1d36363))
+
 ## [0.0.14](https://github.com/vst/hostpatrol/compare/v0.0.13...v0.0.14) (2024-04-16)
 
 
