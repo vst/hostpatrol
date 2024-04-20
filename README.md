@@ -12,7 +12,7 @@
     </div>
 </h1>
 
-![Host Patrol Web UI Screenshot](https://github.com/vst/hostpatrol/assets/374793/88e33afd-7b0b-45b6-a542-01c5994af076)
+![Host Patrol Web UI Screenshot](https://github.com/vst/hostpatrol/assets/374793/416e1135-fe9a-4998-8acc-de07dd62c88b)
 
 Host Patrol (`hostpatrol`) is a command-line application to retrieve
 information from remote hosts. The information is retrieved over SSH
