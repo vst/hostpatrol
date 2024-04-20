@@ -92,10 +92,10 @@ function Hero() {
           <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
             <div className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
               <img
-                src="https://github.com/vst/hostpatrol/assets/374793/88e33afd-7b0b-45b6-a542-01c5994af076"
-                alt="App screenshot"
-                width={2432}
-                height={1442}
+                src="https://github.com/vst/hostpatrol/assets/374793/416e1135-fe9a-4998-8acc-de07dd62c88b"
+                alt="Web UI Screenshot (with Mock Data)"
+                width={1634}
+                height={801}
                 className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
               />
             </div>
