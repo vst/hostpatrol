@@ -34,7 +34,9 @@ function Hero() {
 
       <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40">
         <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 lg:pt-8">
-          <Logo />
+          <div className="hidden lg:block">
+            <Logo />
+          </div>
 
           <div className="mt-6 flex space-x-2">
             <a href="https://github.com/vst/hostpatrol/releases/latest">
