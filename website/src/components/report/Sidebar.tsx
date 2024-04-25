@@ -10,7 +10,7 @@ export interface SidebarProps {
 
 export function Sidebar({ data, onHostSelect }: SidebarProps) {
   return (
-    <Listbox aria-label="Sidebar" items={data}>
+    <Listbox aria-label="Sidebar" items={data} classNames={{ base: 'max-h-[80vh] overflow-y-scroll' }}>
       {/*  @ts-ignore */}
       {(host) => (
         <ListboxItem key={host.host.name} onPress={() => onHostSelect(host)}>
