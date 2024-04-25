@@ -40,16 +40,19 @@ export function App({ data, onFlushRequest }: { data: HostPatrolReport; onFlushR
         <Tab key="overview" title="🏖️ Overview" className="py-0">
           <TabOverview data={data} />
         </Tab>
-        1
+
         <Tab key="tabulate-hosts" title="🗒️ Tabulate Hosts" className="py-0">
           <TabTabulateHosts data={data} setHost={setHost} />
         </Tab>
+
         <Tab key="show-host-details" title="🔬 Host Details" className="py-0">
           <TabShowHostDetails data={data} host={host} setHost={setHost} />
         </Tab>
+
         <Tab key="ssh-keys" title="🛂 SSH Keys" className="py-0">
           <TabSshKeys data={data} />
         </Tab>
+
         <Tab key="flush" title="❌ Flush Data" className="py-0"></Tab>
       </Tabs>
     </div>
@@ -76,12 +79,12 @@ export function TabShowHostDetails({
   setHost: (x: Maybe<HostReport>) => void;
 }) {
   return (
-    <div className="grid grid-cols-6">
-      <div className="border-r bg-gray-100 shadow-lg">
+    <div className="flex flex-1 flex-row overflow-y-hidden">
+      <div className="border-r bg-gray-100 shadow-lg sm:w-64">
         <Sidebar data={data.hosts} onHostSelect={(x) => setHost(Just(x))} />
       </div>
 
-      <div className="col-span-5">
+      <div className="max-h-[80vh] flex-1 overflow-y-scroll">
         {host.caseOf({
           Nothing: () => <div className="p-4 text-red-400">Choose a host to view details.</div>,
           Just: (x) => <ShowHostDetails data={data} host={x} />,
