@@ -1,0 +1,12 @@
+roots = [
+  ## Definitions we always need:
+  "^Main.main$",
+  "^Hostpatrol.Cli.*$",
+  "^Paths_hostpatrol.*",
+
+  ## Temporary suspensions:
+  "^Zamazingo.*",
+  "^HostPatrol.Cli.runParserTest$",
+  "^HostPatrol.Cli.runParserTestIO$",
+]
+type-class-roots = true
