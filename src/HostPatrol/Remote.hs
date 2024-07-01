@@ -16,7 +16,7 @@ import qualified Data.ByteString.Lazy as BL
 import Data.Either (partitionEithers)
 import Data.FileEmbed (embedStringFile)
 import qualified Data.List as List
-import Data.Maybe (fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe)
 import qualified Data.Scientific as S
 import qualified Data.Text as T
 import qualified HostPatrol.Config as Config
@@ -483,8 +483,8 @@ parseSshPublicKeys s = do
     then do
       let u = T.drop (T.length gh) s
       ks <- listGitHubSshKeys u
-      fmap (\x -> x {Types._sshPublicKeyComment = s}) <$> mapM parseSshPublicKey ks
-    else List.singleton <$> parseSshPublicKey s
+      fmap (\x -> x {Types._sshPublicKeyComment = s}) . catMaybes <$> mapM parseSshPublicKey ks
+    else foldMap List.singleton <$> parseSshPublicKey s
 
 
 -- | Attempts to create 'Types.SshPublicKey' from given SSH public key
@@ -493,26 +493,31 @@ parseSshPublicKey
   :: MonadError HostPatrolError m
   => MonadIO m
   => T.Text
-  -> m Types.SshPublicKey
+  -> m (Maybe Types.SshPublicKey)
 parseSshPublicKey s = do
   (ec, out, err) <- TP.readProcess process
   case ec of
-    ExitFailure _ -> throwUnknown (Z.Text.unsafeTextFromBL err <> ". Input was: " <> s)
-    ExitSuccess -> case T.words (Z.Text.unsafeTextFromBL out) of
-      (l : fp : r) ->
-        pure $
-          Types.SshPublicKey
-            { _sshPublicKeyData = s
-            , _sshPublicKeyType = T.init . T.tail $ List.last r
-            , _sshPublicKeyLength = read (T.unpack l)
-            , _sshPublicKeyComment = T.unwords (filter (not . T.null) (List.init r))
-            , _sshPublicKeyFingerprint = fp
-            }
-      _ -> throwUnknown "Could not parse ssh-keygen output."
+    ExitFailure _ ->
+      if isDss s
+        then pure Nothing
+        else throwUnknown (Z.Text.unsafeTextFromBL err <> ". Input was: " <> s)
+    ExitSuccess ->
+      case T.words (Z.Text.unsafeTextFromBL out) of
+        (l : fp : r) ->
+          pure . Just $
+            Types.SshPublicKey
+              { _sshPublicKeyData = s
+              , _sshPublicKeyType = T.init . T.tail $ List.last r
+              , _sshPublicKeyLength = read (T.unpack l)
+              , _sshPublicKeyComment = T.unwords (filter (not . T.null) (List.init r))
+              , _sshPublicKeyFingerprint = fp
+              }
+        _ -> throwUnknown "Could not parse ssh-keygen output."
   where
     throwUnknown = throwError . HostPatrolErrorUnknown
     stdin = TP.byteStringInput (Z.Text.blFromText s)
     process = TP.setStdin stdin (TP.proc "ssh-keygen" ["-E", "md5", "-l", "-f", "-"])
+    isDss = T.isPrefixOf "ssh-dss"
 
 
 -- | Attempts to get the list of SSH public keys from GitHub for a
