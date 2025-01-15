@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.0.16](https://github.com/vst/hostpatrol/compare/v0.0.15...v0.0.16) (2025-01-15)
+
+
+### Features
+
+* add NTP and time sync information to host report ([a1de044](https://github.com/vst/hostpatrol/commit/a1de044aca22262575760de708d7ef90eaeacaaa))
+* **website:** add time-sync information to host data tabulation ([caefd22](https://github.com/vst/hostpatrol/commit/caefd22b81140b808fe946a7f9b26ea586076b2e))
+* **website:** add time-sync information to host details ([5f3c0ab](https://github.com/vst/hostpatrol/commit/5f3c0ab654de3021d46e7e6c89389fcb78ac6091))
+* **website:** improve how code-blocks are rendered on pages ([c97c401](https://github.com/vst/hostpatrol/commit/c97c401959bb9efb1f69c141a0ff337e10eee694))
+
+
+### Bug Fixes
+
+* ignore DSA keygen error in case ssh-keygen does not support DSA ([31fe6ca](https://github.com/vst/hostpatrol/commit/31fe6caaaf747faf10cd64b3da5d7d0f58eb47a0))
+* **website:** fix host details panel heights ([755961d](https://github.com/vst/hostpatrol/commit/755961dc0a0a38150fdb21205993db1731392b54))
+* **website:** fix paddings and margins on pages layout ([e8bee74](https://github.com/vst/hostpatrol/commit/e8bee744fa830cb6e1a7f1af435cfc2e90384964))
+* **website:** replace the screenshot with a smaller one ([2fb7123](https://github.com/vst/hostpatrol/commit/2fb7123ae5c3305552122695d2c361f0a98a2f68))
+* **website:** show logo in hero only on large display ([bdaa2e2](https://github.com/vst/hostpatrol/commit/bdaa2e295078d34d49a9130296ecc63129fc47a3))
+
 ## [0.0.15](https://github.com/vst/hostpatrol/compare/v0.0.14...v0.0.15) (2024-04-19)
 
 
