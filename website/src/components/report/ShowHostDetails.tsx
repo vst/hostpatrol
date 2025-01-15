@@ -56,15 +56,25 @@ export function ShowHostDetails({ host, data }: { host: HostReport; data: HostPa
         </div>
       </h1>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <KVBox
-          title="Hardware"
-          kvs={[
-            { key: 'CPU', value: host.hardware.cpuCount },
-            { key: 'Memory', value: host.hardware.ramTotal },
-            { key: 'Disk', value: host.hardware.diskRoot },
-          ]}
-        />
+      <div className="h-100 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="flex flex-col space-y-4">
+          <KVBox
+            title="Hardware"
+            kvs={[
+              { key: 'CPU', value: host.hardware.cpuCount },
+              { key: 'Memory', value: host.hardware.ramTotal },
+              { key: 'Disk', value: host.hardware.diskRoot },
+            ]}
+          />
+
+          <KVBox
+            title="Clock"
+            kvs={[
+              { key: 'NTP', value: host.clock.ntp_availability },
+              { key: 'Time Sync', value: host.clock.time_sync_status },
+            ]}
+          />
+        </div>
 
         <KVBox
           title="Cloud"
