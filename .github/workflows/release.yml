@@ -25,13 +25,16 @@ jobs:
           fetch-depth: 0
 
       - name: "Install Nix"
+        if: "${{ steps.release.outputs.release_created }}"
         uses: "DeterminateSystems/nix-installer-action@v16"
 
       - name: "Use Nix Cache"
+        if: "${{ steps.release.outputs.release_created }}"
         uses: "DeterminateSystems/magic-nix-cache-action@v8"
 
       ## TODO: This should not be necessary, but nixpkgs v24.11 requires it.
       - name: "Update Haskell Package List"
+        if: "${{ steps.release.outputs.release_created }}"
         run: |
           nix-shell --pure --run "cabal update --ignore-project"
 
