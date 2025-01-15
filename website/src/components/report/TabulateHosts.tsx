@@ -1,6 +1,6 @@
 import { HostReport } from '@/lib/data';
 import { Chip } from '@nextui-org/chip';
-import { Radio, RadioGroup, Select, SelectItem, Selection, Slider } from '@nextui-org/react';
+import { Radio, RadioGroup, Select, SelectItem, Selection, Slider, Tooltip } from '@nextui-org/react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -346,6 +346,7 @@ export function TabulateHosts({
           <TableColumn key="systemd" align="end">
             Systemd
           </TableColumn>
+          <TableColumn key="clock-sync">Clock Sync</TableColumn>
           <TableColumn key="tags">Tags</TableColumn>
         </TableHeader>
         <TableBody items={filteredHosts}>
@@ -396,6 +397,15 @@ export function TabulateHosts({
               <TableCell>{host.authorizedSshKeys.length}</TableCell>
               <TableCell>
                 {host.systemdServices.length} / {host.systemdTimers.length}
+              </TableCell>
+              <TableCell>
+                <Tooltip content={host.clock.time_sync_status}>
+                  <span className={host.clock.time_sync_status === 'yes' ? 'text-green-600' : 'text-orange-600'}>
+                    {host.clock.time_sync_status.length > 10
+                      ? host.clock.time_sync_status.slice(0, 8) + '...'
+                      : host.clock.time_sync_status}
+                  </span>
+                </Tooltip>
               </TableCell>
               <TableCell className="space-x-1">
                 {(host.host.tags || []).map((x) => (
