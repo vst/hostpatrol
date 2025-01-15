@@ -136,6 +136,7 @@ data HostReport = HostReport
   , _hostReportTimezone :: !T.Text
   , _hostReportCloud :: !Cloud
   , _hostReportHardware :: !Hardware
+  , _hostReportClock :: !Clock
   , _hostReportKernel :: !Kernel
   , _hostReportDistribution :: !Distribution
   , _hostReportDockerContainers :: !(Maybe [DockerContainer])
@@ -160,6 +161,7 @@ instance ADC.HasCodec HostReport where
             <*> ADC.requiredField "timezone" "Timezone of the host." ADC..= _hostReportTimezone
             <*> ADC.requiredField "cloud" "Cloud information." ADC..= _hostReportCloud
             <*> ADC.requiredField "hardware" "Hardware information." ADC..= _hostReportHardware
+            <*> ADC.requiredField "clock" "Clock information." ADC..= _hostReportClock
             <*> ADC.requiredField "kernel" "Kernel information." ADC..= _hostReportKernel
             <*> ADC.requiredField "distribution" "Distribution information." ADC..= _hostReportDistribution
             <*> ADC.requiredField "dockerContainers" "List of Docker containers if the host is a Docker host." ADC..= _hostReportDockerContainers
@@ -231,6 +233,29 @@ instance ADC.HasCodec Hardware where
             <$> ADC.requiredField "cpuCount" "Number of (v)CPU cores." ADC..= _hardwareCpuCount
             <*> ADC.requiredField "ramTotal" "Total RAM (in GB)." ADC..= _hardwareRamTotal
             <*> ADC.requiredField "diskRoot" "Total disk space of root (`/`) filesystem (in GB)." ADC..= _hardwareDiskRoot
+
+
+-- * Clock Information
+
+
+-- | Data definition for host's clock information.
+data Clock = Clock
+  { _clockNtpAvailability :: !T.Text
+  , _clockTimeSyncStatus :: !T.Text
+  }
+  deriving (Eq, Generic, Show)
+  deriving (Aeson.FromJSON, Aeson.ToJSON) via (ADC.Autodocodec Clock)
+
+
+instance ADC.HasCodec Clock where
+  codec =
+    _codec ADC.<?> "Clock Information"
+    where
+      _codec =
+        ADC.object "Clock" $
+          Clock
+            <$> ADC.requiredField "ntp_availability" "Indicates NTP availability and enablement." ADC..= _clockNtpAvailability
+            <*> ADC.requiredField "time_sync_status" "Indicates time synchronisation status." ADC..= _clockTimeSyncStatus
 
 
 -- * Kernel Information

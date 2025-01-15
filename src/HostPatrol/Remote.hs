@@ -85,6 +85,7 @@ compileHostReport ch = do
   _hostReportTimezone <- _toParseError _hostName $ _getParse pure "HOSTPATROL_GENERAL_TIMEZONE" kvs
   _hostReportCloud <- _mkCloud _hostName kvs
   _hostReportHardware <- _mkHardware _hostName kvs
+  _hostReportClock <- _mkClock _hostName =<< _fetchHostClockInfo h
   _hostReportKernel <- _mkKernel _hostName kvs
   _hostReportDistribution <- _mkDistribution _hostName kvs
   _hostReportDockerContainers <- _fetchHostDockerContainers h
@@ -175,6 +176,17 @@ _fetchHostCloudInfo
   -> m [(T.Text, T.Text)]
 _fetchHostCloudInfo h@Types.Host {..} =
   parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/cloud.sh") ["bash"])
+
+
+-- | Attempts to retrieve remote host clock information and return it
+-- as a list of key/value tuples.
+_fetchHostClockInfo
+  :: MonadIO m
+  => MonadError HostPatrolError m
+  => Types.Host
+  -> m [(T.Text, T.Text)]
+_fetchHostClockInfo h@Types.Host {..} =
+  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/clock.sh") ["bash"])
 
 
 -- | Attempts to retrieve remote host docker containers information and return it.
@@ -282,6 +294,19 @@ _mkHardware h kvs =
     _hardwareRamTotal <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "HOSTPATROL_HW_RAM" kvs
     _hardwareDiskRoot <- _getParse (fmap (_roundS 2 . _toGB) . _parseRead) "HOSTPATROL_HW_DISK" kvs
     pure Types.Hardware {..}
+
+
+-- | Smart constructor for remote host clock information.
+_mkClock
+  :: MonadError HostPatrolError m
+  => Z.Ssh.Destination
+  -> [(T.Text, T.Text)]
+  -> m Types.Clock
+_mkClock h kvs =
+  _toParseError h $ do
+    _clockNtpAvailability <- _getParse pure "HOSTPATROL_CLOCK_NTP" kvs
+    _clockTimeSyncStatus <- _getParse pure "HOSTPATROL_CLOCK_NTP_SYNCHRONIZED" kvs
+    pure Types.Clock {..}
 
 
 -- | Smart constructor for remote host kernel information.
