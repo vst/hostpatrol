@@ -186,7 +186,7 @@ dev-test-build
 
 ## License
 
-Copyright &copy; 2024 Vehbi Sinan Tunalioglu. This work is licensed
+Copyright &copy; 2024-2025 Vehbi Sinan Tunalioglu. This work is licensed
 under [MIT License].
 
 <!-- REFERENCES -->
