@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.17](https://github.com/vst/hostpatrol/compare/v0.0.16...v0.0.17) (2025-10-08)
+
+
+### Features
+
+* **cli:** add progress bar to long-running report compilation command ([b945395](https://github.com/vst/hostpatrol/commit/b9453951d06258bdad441a611219730763da4e57))
+
 ## [0.0.16](https://github.com/vst/hostpatrol/compare/v0.0.15...v0.0.16) (2025-01-15)
 
 
