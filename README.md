@@ -14,10 +14,10 @@
 
 ![Host Patrol Web UI Screenshot](https://github.com/vst/hostpatrol/assets/374793/416e1135-fe9a-4998-8acc-de07dd62c88b)
 
-Host Patrol (`hostpatrol`) is a command-line application to retrieve
-information from remote hosts. The information is retrieved over SSH
-by executing small [scripts]. Then, the information is compiled into
-JSON to be further analysed or visualised on its [Website].
+Host Patrol (`hostpatrol`) is a command-line application to retrieve information
+from remote hosts. The information is retrieved over SSH by executing small
+[scripts]. Then, the information is compiled into JSON to be further analysed or
+visualised on its [Website].
 
 The report contains following information for each host:
 
@@ -27,7 +27,7 @@ The report contains following information for each host:
 1. List of all **Docker containers** (in all states)
 1. List of **systemd services**
 1. List of **systemd timers**
-1. List of **authorised SSH public keys**  found on the host
+1. List of **authorised SSH public keys** found on the host
 1. **Cloud information:** (if any)
    - Cloud provider name
    - Host instance identifier
@@ -42,15 +42,14 @@ The report contains following information for each host:
 
 ## Installation
 
-Currently, the easiest way to install the command-line application is
-via Nix:
+Currently, the easiest way to install the command-line application is via Nix:
 
 ```sh
 nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz
 ```
 
-Alternatively, you can use the statically compiled binary distributed
-along with each release (currently Linux x86_64 only).
+Alternatively, you can use the statically compiled binary distributed along with
+each release (currently Linux x86_64 only).
 
 ## Usage
 
@@ -60,14 +59,14 @@ along with each release (currently Linux x86_64 only).
 ssh my-host
 ```
 
-Indeed, `hostpatrol` uses `ssh` under the hood. Therefore, if you can `ssh`,
-you can `hostpatrol`!
+Indeed, `hostpatrol` uses `ssh` under the hood. Therefore, if you can `ssh`, you
+can `hostpatrol`!
 
 > [!NOTE]
 >
-> If you are using SSH public key authentication to connect to host
-> and your SSH private key is password-protected, use SSH-agent and
-> unlock your private key first.
+> If you are using SSH public key authentication to connect to host and your SSH
+> private key is password-protected, use SSH-agent and unlock your private key
+> first.
 
 You can pass hosts via CLI arguments:
 
@@ -75,23 +74,23 @@ You can pass hosts via CLI arguments:
 hostpatrol compile --host my-host-1 --host my-host-2 > /tmp/hostpatrol-report.json
 ```
 
-This command connects to hosts in parallel and ignores all failed
-hosts by reporting errors in the output.
+This command connects to hosts in parallel and ignores all failed hosts by
+reporting errors in the output.
 
-> If you want to change the number of maximum number of threads to use
-> for concurrent patrol tasks, do so with `--threads` option that
-> defaults to `4` otherwise:
->
+> If you want to change the number of maximum number of threads to use for
+> concurrent patrol tasks, do so with `--threads` option that defaults to `4`
+> otherwise:
 >
 > ```sh
 > hostpatrol compile --threads 10 --host my-host-1 --host my-host-2 ... > /tmp/hostpatrol-report.json
 > ```
 
-Alternatively, you can use a configuration file which has additional
-benefit of attaching static information to your hosts such as external
-documentation URL and/or tags, and using SSH configuration instead of
-plain host name. The configuration file looks like as follows:
+Alternatively, you can use a configuration file which has additional benefit of
+attaching static information to your hosts such as external documentation URL
+and/or tags, and using SSH configuration instead of plain host name. The
+configuration file looks like as follows:
 
+<!-- prettier-ignore-start -->
 ```yaml
 ## config.yaml
 ## List of known SSH public keys for all hosts.
@@ -131,6 +130,7 @@ hosts:
       - apples
       - strawberries
 ```
+<!-- prettier-ignore-end -->
 
 Then, you can use this configuration file instead of specifying hosts
 individually on the command-line:
@@ -145,15 +145,14 @@ hostpatrol compile --config config.yaml > /tmp/hostpatrol-report.json
 hostpatrol compile --config config.yaml --host a-host --host b-host > /tmp/hostpatrol-report.json
 ```
 
-Users can process/analyse the JSON output themselves or use [Website]
-to list, tabulate and visualise the information.
+Users can process/analyse the JSON output themselves or use [Website] to list,
+tabulate and visualise the information.
 
 > [!NOTE]
 >
-> The [Website] stores the report locally in the Web browser using
-> local storage. It is not sent to any third party service. You can
-> study the [Website source-code] that is automatically published to
-> GitHub Pages.
+> The [Website] stores the report locally in the Web browser using local
+> storage. It is not sent to any third party service. You can study the [source]
+> of the Website that is automatically published to GitHub Pages.
 
 ## Development
 
@@ -186,14 +185,15 @@ cabal dev-test-build -c
 
 ## License
 
-Copyright &copy; 2024-2025 Vehbi Sinan Tunalioglu. This work is licensed
-under [MIT License].
+Copyright &copy; 2024-2025 Vehbi Sinan Tunalioglu. This work is licensed under
+[MIT License].
 
 <!-- REFERENCES -->
 
 [Issue 32]: https://github.com/vst/hostpatrol/issues/32
-[Website]: https://thenegation.com/hostpatrol
-[os-release]: https://www.freedesktop.org/software/systemd/man/latest/os-release.html
+[Website]: https://hostpatrol.io
+[os-release]:
+  https://www.freedesktop.org/software/systemd/man/latest/os-release.html
 [scripts]: ./src/scripts
-[Website source-code]: ./website
+[source]: ./website
 [MIT License]: https://opensource.org/license/mit
