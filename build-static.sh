@@ -8,8 +8,11 @@
 ## instead. Finally, `cabal build` does not work with
 ## `--enable-executable-stripping`, hence the `strip` command usage.
 
+## Get extra parameters for docker run:
+docker_run_opts=("$@")
+
 ## GHC version:
-GHC_VERSION="9.6.6"
+GHC_VERSION="9.8.4"
 
 ## Docker image:
 DOCKER_IMAGE="quay.io/benz0li/ghc-musl:${GHC_VERSION}"
@@ -17,14 +20,26 @@ DOCKER_IMAGE="quay.io/benz0li/ghc-musl:${GHC_VERSION}"
 ## Executable name:
 EXECUTABLE_NAME="hostpatrol"
 
+## Get the kernel name:
+FINAL_KERNEL_NAME="$(docker run "${docker_run_opts[@]}" --rm "${DOCKER_IMAGE}" uname --kernel-name | tr '[:upper:]' '[:lower:]')"
+
+## Get the machine architecture:
+FINAL_MACHINE_ARCH="$(docker run "${docker_run_opts[@]}" --rm "${DOCKER_IMAGE}" uname --machine)"
+
 ## Final executable name:
-FINAL_EXECUTABLE_NAME="${EXECUTABLE_NAME}-static-$(uname --kernel-name | tr '[:upper:]' '[:lower:]')-$(uname --machine)"
+FINAL_EXECUTABLE_NAME="${EXECUTABLE_NAME}-static-${FINAL_KERNEL_NAME}-${FINAL_MACHINE_ARCH}"
 
 ## Final executable path:
 FINAL_EXECUTABLE_PATH="/tmp/${FINAL_EXECUTABLE_NAME}"
 
 ## Docker container name:
 CONTAINER_NAME="static-builder-for-${EXECUTABLE_NAME}"
+
+echo "Docker image: ${DOCKER_IMAGE}"
+echo "Docker container name: ${CONTAINER_NAME}"
+echo "Final executable name: ${FINAL_EXECUTABLE_NAME}"
+echo "Final executable path: ${FINAL_EXECUTABLE_PATH}"
+echo "Building static binary for ${FINAL_KERNEL_NAME} on ${FINAL_MACHINE_ARCH} using GHC ${GHC_VERSION}"
 
 ## Create/update .cabal file:
 hpack
@@ -37,7 +52,7 @@ cabal v1-clean
 cabal freeze
 
 ## Run the Docker container:
-docker run -i --detach -v "$(pwd):/app" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}" /bin/bash
+docker run "${docker_run_opts[@]}" -i --detach -v "$(pwd):/app" --name "${CONTAINER_NAME}" "${DOCKER_IMAGE}" /bin/bash
 
 ## Whitelist codebase directory for Git queries:
 docker exec "${CONTAINER_NAME}" git config --global --add safe.directory /app
