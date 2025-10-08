@@ -28,10 +28,10 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Checkout"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v5"
 
       - name: "Setup Node"
-        uses: "actions/setup-node@v4"
+        uses: "actions/setup-node@v5"
         with:
           node-version: "lts/*"
           cache: "npm"
@@ -54,7 +54,7 @@ jobs:
         run: "cd website && npx --no-install next build"
 
       - name: "Upload Built Artifact"
-        uses: "actions/upload-pages-artifact@v3"
+        uses: "actions/upload-pages-artifact@v4"
         with:
           path: "./website/out"
 

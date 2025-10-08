@@ -20,28 +20,18 @@ jobs:
 
       - name: "Checkout Codebase"
         if: "${{ steps.release.outputs.release_created }}"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v5"
         with:
           fetch-depth: 0
 
       - name: "Install Nix"
         if: "${{ steps.release.outputs.release_created }}"
-        uses: "DeterminateSystems/nix-installer-action@v16"
-
-      - name: "Use Nix Cache"
-        if: "${{ steps.release.outputs.release_created }}"
-        uses: "DeterminateSystems/magic-nix-cache-action@v8"
-
-      ## TODO: This should not be necessary, but nixpkgs v24.11 requires it.
-      - name: "Update Haskell Package List"
-        if: "${{ steps.release.outputs.release_created }}"
-        run: |
-          nix-shell --pure --run "cabal update --ignore-project"
+        uses: "DeterminateSystems/nix-installer-action@v20"
 
       - name: "Build Application"
         if: "${{ steps.release.outputs.release_created }}"
         run: |
-          nix-shell --run "bash build-static.sh"
+          nix develop --command bash -c "cabal update --ignore-project && bash build-static.sh"
 
       - name: "Upload Release Artifact"
         if: "${{ steps.release.outputs.release_created }}"

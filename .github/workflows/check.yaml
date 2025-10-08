@@ -10,23 +10,15 @@ jobs:
 
     steps:
       - name: "Checkout Codebase"
-        uses: "actions/checkout@v4"
+        uses: "actions/checkout@v5"
 
       - name: "Install Nix"
-        uses: "DeterminateSystems/nix-installer-action@v16"
+        uses: "DeterminateSystems/nix-installer-action@v20"
 
-      - name: "Use Nix Cache"
-        uses: "DeterminateSystems/magic-nix-cache-action@v8"
-
-      ## TODO: This should not be necessary, but nixpkgs v24.11 requires it.
-      - name: "Update Haskell Package List"
+      - name: "Check, Test and Build Application"
         run: |
-          nix-shell --pure --run "cabal update --ignore-project"
+          nix develop --command bash -c "cabal update --ignore-project && cabal dev-test-build"
 
-      - name: "Check Application"
+      - name: "Check, Test and Build Website"
         run: |
-          nix-shell --pure --run "dev-test-build"
-
-      - name: "Check Website"
-        run: |
-          nix-shell --pure --run "cd website && npm install && npm run check"
+          nix develop --command bash -c "cd website && npm install && npm run check"
