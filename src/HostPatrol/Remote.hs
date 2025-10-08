@@ -164,7 +164,7 @@ _fetchHostInfo
   => Types.Host
   -> m [(T.Text, T.Text)]
 _fetchHostInfo h@Types.Host {..} =
-  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/info.sh") ["bash"])
+  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/info.sh") ["bash"])
 
 
 -- | Attempts to retrieve remote host cloud information and return it
@@ -175,7 +175,7 @@ _fetchHostCloudInfo
   => Types.Host
   -> m [(T.Text, T.Text)]
 _fetchHostCloudInfo h@Types.Host {..} =
-  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/cloud.sh") ["bash"])
+  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/cloud.sh") ["bash"])
 
 
 -- | Attempts to retrieve remote host clock information and return it
@@ -186,7 +186,7 @@ _fetchHostClockInfo
   => Types.Host
   -> m [(T.Text, T.Text)]
 _fetchHostClockInfo h@Types.Host {..} =
-  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/clock.sh") ["bash"])
+  parseKVs <$> _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/clock.sh") ["bash"])
 
 
 -- | Attempts to retrieve remote host docker containers information and return it.
@@ -201,7 +201,7 @@ _fetchHostDockerContainers
 _fetchHostDockerContainers h@Types.Host {..} =
   (Just <$> (prog >>= _parseDockerContainers)) `catchError` const (pure Nothing)
   where
-    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/docker-containers.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/docker-containers.sh") ["bash"])
     _parseDockerContainers b =
       case ACD.eitherDecode (ACD.list _jsonDecoderDockerContainer) b of
         Left err -> throwError (HostPatrolErrorParse _hostName ("Error while parsing containers information: " <> T.pack err))
@@ -218,7 +218,7 @@ _fetchHostPublicSshHostKeys
 _fetchHostPublicSshHostKeys h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/ssh-host-keys.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/ssh-host-keys.sh") ["bash"])
 
 
 -- | Attempts to find and return all SSH authorized keys on the remote
@@ -231,7 +231,7 @@ _fetchHostAuthorizedSshKeys
 _fetchHostAuthorizedSshKeys h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/ssh-keys.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/ssh-keys.sh") ["bash"])
 
 
 -- | Attempts to find and return all systemd services on the remote
@@ -244,7 +244,7 @@ _fetchHostSystemdServices
 _fetchHostSystemdServices h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/systemd-services.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/systemd-services.sh") ["bash"])
 
 
 -- | Attempts to find and return all systemd timers on the remote
@@ -257,7 +257,7 @@ _fetchHostSystemdTimers
 _fetchHostSystemdTimers h@Types.Host {..} =
   filter (not . T.null) . fmap T.strip . T.lines . Z.Text.unsafeTextFromBL <$> prog
   where
-    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "src/scripts/systemd-timers.sh") ["bash"])
+    prog = _toSshError _hostName (Z.Ssh.runScript (getHostSshConfig h) $(embedStringFile "scripts/systemd-timers.sh") ["bash"])
 
 
 -- | Smart constructor for remote host cloud information.
