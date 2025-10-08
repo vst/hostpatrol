@@ -46,11 +46,11 @@ Currently, the easiest way to install the command-line application is
 via Nix:
 
 ```sh
-nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz app
+nix profile install --file https://github.com/vst/hostpatrol/archive/v<VERSION>.tar.gz
 ```
 
 Alternatively, you can use the statically compiled binary distributed
-along with each release (Linux x86_64 only).
+along with each release (currently Linux x86_64 only).
 
 ## Usage
 
@@ -157,31 +157,31 @@ to list, tabulate and visualise the information.
 
 ## Development
 
-The codebase comes with a Nix shell. You can use `direnv` for convenience:
+The codebase comes with a Nix shell powered by Nix Flakes:
 
 ```sh
+nix develop
+```
+
+Alternatively, you can use `direnv`:
+
+```sh
+cp .envrc.tmpl .envrc
 direnv allow
 ```
 
-Big, long format, lint, build and test command for the impatient:
+Run following command to create the git-ignored `.cabal` file, perform checks,
+tests and build the project:
 
 ```sh
-hpack &&
-    direnv reload &&
-    fourmolu -i app/ src/ test/ &&
-    prettier --write . &&
-    find . -iname "*.nix" -not -path "*/nix/sources.nix" -and -not -path "*/website/node_modules/*.nix" -print0 | xargs --null nixpkgs-fmt &&
-    hlint app/ src/ test/ &&
-    cabal build -O0 &&
-    cabal run -O0 hostpatrol -- --version &&
-    cabal v1-test &&
-    cabal haddock -O0
+cabal dev-test-build
 ```
 
-For testing and building:
+Subsequently, you may pass `-c` option to this command to clean up the build
+artifacts first:
 
 ```sh
-dev-test-build
+cabal dev-test-build -c
 ```
 
 ## License

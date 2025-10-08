@@ -44,6 +44,16 @@ fi
 
 _clean=""
 
+## Check if we are an cabal external command:
+CABAL="${CABAL:-}"
+if [ -n "${CABAL}" ]; then
+    _cabal="${CABAL}"
+    shift
+else
+    _cabal="$(command -v cabal)"
+fi
+
+## Parse options:
 while getopts ":c" opt; do
     case ${opt} in
         c)
@@ -80,7 +90,7 @@ _print_success() {
 _clean() {
     _print_header "clean"
     _start=$(_get_now)
-    chronic -- cabal clean && chronic -- cabal v1-clean
+    chronic -- "${_cabal}" clean && chronic -- "${_cabal}" v1-clean
     _print_success "${_start}" "$(_get_now)"
 }
 
@@ -108,7 +118,7 @@ _prettier() {
 _nixpkgs_fmt() {
     _print_header "nixpkgs-fmt (v$(nixpkgs-fmt --version 2>&1 | cut -d' ' -f2))"
     _start=$(_get_now)
-    chronic -- find . -iname "*.nix" -not -path "*/nix/sources.nix" -and -not -path "*/website/node_modules/*.nix" -exec nixpkgs-fmt --check {} \;
+    chronic -- find . -iname "*.nix" -exec nixpkgs-fmt --check {} \;
     _print_success "${_start}" "$(_get_now)"
 }
 
@@ -120,23 +130,23 @@ _hlint() {
 }
 
 _cabal_build() {
-    _print_header "cabal build (v$(cabal --numeric-version))"
+    _print_header "cabal build (v$("${_cabal}" --numeric-version))"
     _start=$(_get_now)
-    chronic -- cabal build -O0
+    chronic -- "${_cabal}" build -O0
     _print_success "${_start}" "$(_get_now)"
 }
 
 _cabal_run() {
-    _print_header "cabal run (v$(cabal --numeric-version))"
+    _print_header "cabal run (v$("${_cabal}" --numeric-version))"
     _start=$(_get_now)
-    chronic -- cabal run -O0 hostpatrol -- --version
+    chronic -- "${_cabal}" run -O0 hostpatrol -- --version
     _print_success "${_start}" "$(_get_now)"
 }
 
 _cabal_test() {
-    _print_header "cabal test (v$(cabal --numeric-version))"
+    _print_header "cabal test (v$("${_cabal}" --numeric-version))"
     _start=$(_get_now)
-    chronic -- cabal v1-test
+    chronic -- "${_cabal}" v1-test
     _print_success "${_start}" "$(_get_now)"
 }
 
@@ -147,10 +157,17 @@ _weeder() {
     _print_success "${_start}" "$(_get_now)"
 }
 
-_cabal_haddock() {
-    _print_header "cabal haddock (v$(cabal --numeric-version))"
+_stan() {
+    _print_header "stan ($(stan --version | head -n 1 | cut -f 2 -d " "))"
     _start=$(_get_now)
-    chronic -- cabal haddock -O0 \
+    chronic -- stan --hiedir ./dist-newstyle
+    _print_success "${_start}" "$(_get_now)"
+}
+
+_cabal_haddock() {
+    _print_header "cabal haddock (v$("${_cabal}" --numeric-version))"
+    _start=$(_get_now)
+    chronic -- "${_cabal}" haddock -O0 \
         --haddock-quickjump \
         --haddock-hyperlink-source \
         --haddock-html-location="https://hackage.haskell.org/package/\$pkg-\$version/docs"
@@ -169,6 +186,7 @@ _hlint
 _cabal_build
 _cabal_run
 _cabal_test
+_stan
 _weeder
 _cabal_haddock
 printf "Finished all in %ss\n" "$(_get_diff "${_scr_start}" "$(_get_now)")"
