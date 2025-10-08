@@ -194,6 +194,6 @@ Copyright &copy; 2024-2025 Vehbi Sinan Tunalioglu. This work is licensed under
 [Website]: https://hostpatrol.io
 [os-release]:
   https://www.freedesktop.org/software/systemd/man/latest/os-release.html
-[scripts]: ./src/scripts
+[scripts]: ./scripts
 [source]: ./website
 [MIT License]: https://opensource.org/license/mit

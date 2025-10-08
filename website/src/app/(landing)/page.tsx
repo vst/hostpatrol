@@ -169,7 +169,7 @@ const POINTS = [
     description: (
       <>
         Host Patrol issues{' '}
-        <a href="https://github.com/vst/hostpatrol/tree/main/src/scripts" className="font-semibold text-indigo-500">
+        <a href="https://github.com/vst/hostpatrol/tree/main/scripts" className="font-semibold text-indigo-500">
           simple and safe POSIX-shell commands
         </a>{' '}
         to your remote hosts and compiles the output into a JSON file. To achieve this, it uses your vanilla `ssh`
