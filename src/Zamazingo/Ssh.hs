@@ -70,6 +70,14 @@ instance Aeson.ToJSON SshError where
     Aeson.object [("type", "missing-file"), "destination" .= d, "path" .= p]
 
 
+sshErrorToText :: SshError -> T.Text
+sshErrorToText (SshErrorConnection _ err) = "SSH connection error: " <> T.strip err
+sshErrorToText (SshErrorCommandTimeout _ cmd) = "SSH command timed out: " <> T.unwords cmd
+sshErrorToText (SshErrorCommand _ cmd) = "SSH command failed: " <> T.unwords cmd
+sshErrorToText (SshErrorFileRead _ p) = "Failed to read remote file: " <> T.pack (P.toFilePath p)
+sshErrorToText (SshErrorMissingFile _ p) = "Remote file does not exist: " <> T.pack (P.toFilePath p)
+
+
 -- | Attempts to run a command on the remote and return its stdout.
 runCommand
   :: MonadIO m

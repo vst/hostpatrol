@@ -41,9 +41,25 @@ compileReport
   => Int
   -> Config.Config
   -> m Types.Report
-compileReport par Config.Config {..} = do
+compileReport = compileReportWith Nothing
+
+
+-- | Type definition for host progress callback function.
+type HostProgressCallback = Config.HostSpec -> Either HostPatrolError Types.HostReport -> IO ()
+
+
+-- | Attempts to compile host patrol report for a given configuration while
+-- allowing optional callbacks for host progress notifications.
+compileReportWith
+  :: MonadError HostPatrolError m
+  => MonadIO m
+  => Maybe HostProgressCallback
+  -> Int
+  -> Config.Config
+  -> m Types.Report
+compileReportWith callback par Config.Config {..} = do
   now <- Z.Time.getNow
-  (errs, _reportHosts) <- liftIO (compileHostReportsIO par _configHosts)
+  (errs, _reportHosts) <- liftIO (compileHostReportsIOWithCallback callback par _configHosts)
   _reportKnownSshKeys <- concat <$> mapM parseSshPublicKeys _configKnownSshKeys
   let _reportMeta =
         Types.ReportMeta
@@ -65,9 +81,25 @@ compileHostReportsIO
   :: Int
   -> [Config.HostSpec]
   -> IO ([HostPatrolError], [Types.HostReport])
-compileHostReportsIO par hs =
-  Async.Pool.withTaskGroup par $
-    \tg -> partitionEithers <$> Async.Pool.mapConcurrently tg (runExceptT . compileHostReport) hs
+compileHostReportsIO =
+  compileHostReportsIOWithCallback Nothing
+
+
+-- | Like 'compileHostReportsIO' but allows optional callbacks for host progress
+-- notifications.
+compileHostReportsIOWithCallback
+  :: Maybe HostProgressCallback
+  -> Int
+  -> [Config.HostSpec]
+  -> IO ([HostPatrolError], [Types.HostReport])
+compileHostReportsIOWithCallback callback par hs =
+  Async.Pool.withTaskGroup par $ \tg ->
+    partitionEithers <$> Async.Pool.mapConcurrently tg (runAndReport callback) hs
+  where
+    runAndReport cb spec = do
+      result <- runExceptT (compileHostReport spec)
+      maybe (pure ()) (\f -> f spec result) cb
+      pure result
 
 
 -- | Attempts to retrieve remote host information and produce a host

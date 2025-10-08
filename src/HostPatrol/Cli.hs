@@ -1,4 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE TypeApplications #-}
 
 -- | This module provides top-level definitions for the CLI program.
@@ -6,20 +8,25 @@ module HostPatrol.Cli where
 
 import qualified Autodocodec.Schema as ADC.Schema
 import Control.Applicative ((<**>))
-import Control.Monad (join)
+import Control.Concurrent.MVar (MVar, modifyMVar_, newMVar)
+import Control.Monad (join, when)
 import Control.Monad.Except (runExceptT)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.Char8 as BLC
+import Data.String.Interpolate (i)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import qualified HostPatrol.Config as Config
 import qualified HostPatrol.Meta as Meta
-import HostPatrol.Remote (compileReport)
+import HostPatrol.Remote (HostPatrolError (..), HostProgressCallback, compileReport, compileReportWith)
 import HostPatrol.Types (Report)
 import Options.Applicative ((<|>))
 import qualified Options.Applicative as OA
 import System.Exit (ExitCode (..))
-import System.IO (stderr)
+import System.IO (BufferMode (NoBuffering), hFlush, hIsTerminalDevice, hPutStr, hSetBuffering, stderr)
+import Text.Printf (printf)
+import qualified Zamazingo.Ssh as Z.Ssh
+import qualified Zamazingo.Text as Z.Text
 
 
 -- * Entrypoint
@@ -75,7 +82,28 @@ doCompile cpath dests threads = do
         baseConfig
           { Config._configHosts = Config._configHosts baseConfig <> fmap _mkHost dests
           }
-  res <- runExceptT (compileReport threads config)
+      hosts = Config._configHosts config
+  isTTY <- hIsTerminalDevice stderr
+  let enableProgress = isTTY && not (null hosts)
+  progressState <-
+    if enableProgress
+      then do
+        hSetBuffering stderr NoBuffering
+        let hostCount = length hosts
+            state0 = newProgressState 20 hostCount
+            initialBar = renderProgressBar state0
+        state <- newMVar state0
+        TIO.hPutStr stderr initialBar
+        hFlush stderr
+        pure (Just state)
+      else pure Nothing
+  res <-
+    runExceptT
+      ( case progressState of
+          Just state -> compileReportWith (Just (mkProgressCallback state)) threads config
+          Nothing -> compileReport threads config
+      )
+  when enableProgress (hPutStr stderr "\n")
   case res of
     Left err -> BLC.hPutStrLn stderr (Aeson.encode err) >> pure (ExitFailure 1)
     Right sr -> BLC.putStrLn (Aeson.encode sr) >> pure ExitSuccess
@@ -90,6 +118,72 @@ doCompile cpath dests threads = do
         , Config._hostSpecData = Aeson.Null
         , Config._hostSpecKnownSshKeys = []
         }
+
+
+-- *** progress
+
+
+data ProgressState = MkProgressState
+  { progressStateWidth :: Int
+  , progressStateTotal :: Int
+  , progressStateCompleted :: Int
+  }
+
+
+newProgressState :: Int -> Int -> ProgressState
+newProgressState width total =
+  MkProgressState
+    { progressStateWidth = width
+    , progressStateTotal = total
+    , progressStateCompleted = 0
+    }
+
+
+incProgressState :: ProgressState -> ProgressState
+incProgressState ps@MkProgressState {..} =
+  ps
+    { progressStateCompleted = progressStateCompleted + 1
+    }
+
+
+mkProgressCallback :: MVar ProgressState -> HostProgressCallback
+mkProgressCallback state spec result =
+  modifyMVar_ state $ \oldState -> do
+    let newState = incProgressState oldState
+        oldText = renderProgressBar oldState
+        newText = renderProgressBar newState
+        clrText = T.singleton '\r' <> T.replicate (T.length oldText) " " <> T.singleton '\r'
+    TIO.hPutStr stderr clrText
+    TIO.hPutStrLn stderr (renderHostLine spec result)
+    TIO.hPutStr stderr newText
+    hFlush stderr
+    pure newState
+
+
+renderHostLine :: Config.HostSpec -> Either HostPatrolError b -> T.Text
+renderHostLine spec result =
+  let hostLabel = Config._hostSpecName spec
+   in case result of
+        Right _ -> "✅ " <> hostLabel
+        Left se ->
+          "❌ " <> hostLabel <> " — " <> case se of
+            HostPatrolErrorSsh dest err -> [i|SSH error on #{dest}: #{Z.Ssh.sshErrorToText err}|]
+            HostPatrolErrorParse dest err -> [i|Parse error on #{dest}: #{err}|]
+            HostPatrolErrorUnknown msg -> [i|Unknown error: #{msg}|]
+
+
+renderProgressBar :: ProgressState -> T.Text
+renderProgressBar MkProgressState {..} =
+  let clampTot = max 1 progressStateTotal
+      clampCom = min progressStateTotal progressStateCompleted
+      unitsCom = min progressStateWidth ((clampCom * progressStateWidth) `div` clampTot)
+      unitsClr = progressStateWidth - unitsCom
+      txtCom = T.replicate unitsCom "█"
+      txtClr = T.replicate unitsClr "░"
+      txtPrc = printf "%3d%%" ((clampCom * 100) `div` clampTot :: Int) :: String
+      fmtVal = [i|%#{T.length (Z.Text.tshow clampTot)}d/%d|]
+      txtVal = printf fmtVal clampCom clampTot :: String
+   in [i|#{txtPrc} #{txtCom}#{txtClr} #{txtVal}|]
 
 
 -- ** schema

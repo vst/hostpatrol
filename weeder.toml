@@ -1,7 +1,7 @@
 roots = [
   ## Definitions we always need:
   "^Main.main$",
-  "^Hostpatrol.Cli.*$",
+  "^HostPatrol.Remote.compileHostReportsIO$",
   "^Paths_hostpatrol.*",
 
   ## Temporary suspensions:
