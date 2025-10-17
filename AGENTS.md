@@ -7,8 +7,7 @@
 - `app/Main.hs` wires the CLI entrypoint; `scripts/` stores POSIX sh snippets
   shipped to hosts, review `scripts/README.md` before changes.
 - Tests live in `test/doctest` and `test/spec`; mirror source structure when
-  adding specs. `nix/` handles tooling, `website/` contains the Next.js-based
-  Website source-code.
+  adding specs. `nix/` handles tooling.
 
 ## Build, Test, and Development Commands
 
@@ -47,7 +46,7 @@
 - Every commit must pass `cabal dev-test-build` and include generated or
   formatted artifacts.
 - Pull requests need a concise summary, validation notes, linked issues (e.g.
-  `Closes #42`), and UI screenshots when touching `website/`.
+  `Closes #42`).
 
 ## Remote Script Safety
 
