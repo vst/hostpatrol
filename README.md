@@ -1,14 +1,22 @@
 <h1 align="center">
     <div>
-        <img alt="logo" src="https://github.com/vst/hostpatrol/assets/374793/cad6706b-0384-4a71-9ca5-21ade9ce3d1e" />
+        <img alt="Host Patrol Icon" src="https://media.hostpatrol.io/site/meta/icon-dark.svg" width="180" />
     </div>
-    <div>Host Patrol</div>
-    <sub>Lazy Hacker's Linux Host Patrol</sub>
-    <p></p>
+    <div>HOST PATROL</div>
     <div>
-        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=for-the-badge">
-        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/vst/hostpatrol?style=for-the-badge">
-        <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=for-the-badge">
+      <sub>Lazy Hacker's Linux Host Patrol</sub>
+    </div>
+    <div>
+        <sub>
+          <a href="https://www.hostpatrol.io">Website</a> •
+          <a href="https://console.hostpatrol.io">Console</a>
+        <sub>
+    </div>
+    <div>
+        <img alt="GitHub Release" src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=flat-square" />
+        <img alt="GitHub Issues" src="https://img.shields.io/github/issues/vst/hostpatrol?style=flat-square" />
+        <img alt="Pull Requests" src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=flat-square" />
+        <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/vst/hostpatrol/check.yaml?style=flat-square" />
     </div>
 </h1>
 
@@ -17,7 +25,7 @@
 Host Patrol (`hostpatrol`) is a command-line application to retrieve information
 from remote hosts. The information is retrieved over SSH by executing small
 [scripts]. Then, the information is compiled into JSON to be further analysed or
-visualised on its [Website].
+visualised on [Host Patrol Console Application][console].
 
 The report contains following information for each host:
 
@@ -145,14 +153,15 @@ hostpatrol compile --config config.yaml > /tmp/hostpatrol-report.json
 hostpatrol compile --config config.yaml --host a-host --host b-host > /tmp/hostpatrol-report.json
 ```
 
-Users can process/analyse the JSON output themselves or use [Website] to list,
-tabulate and visualise the information.
+Users can process/analyse the JSON output themselves or use [Host Patrol Console
+Application][console] to list, tabulate and visualise the information.
 
 > [!NOTE]
 >
-> The [Website] stores the report locally in the Web browser using local
-> storage. It is not sent to any third party service. You can study the [source]
-> of the Website that is automatically published to GitHub Pages.
+> The [console] application stores the report locally in the Web browser using
+> local storage. It is not sent to any third party service. You can study the
+> [source code of the console application][console-source] that is automatically
+> published to GitHub Pages.
 
 ## Development
 
@@ -191,9 +200,10 @@ Copyright &copy; 2024-2025 Vehbi Sinan Tunalioglu. This work is licensed under
 <!-- REFERENCES -->
 
 [Issue 32]: https://github.com/vst/hostpatrol/issues/32
-[Website]: https://hostpatrol.io
+[website]: https://www.hostpatrol.io
+[console]: https://console.hostpatrol.io
+[console-source]: https://github.com/vst/hostpatrol-console
 [os-release]:
   https://www.freedesktop.org/software/systemd/man/latest/os-release.html
 [scripts]: ./scripts
-[source]: ./website
 [MIT License]: https://opensource.org/license/mit

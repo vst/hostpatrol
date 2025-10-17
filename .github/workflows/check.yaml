@@ -18,7 +18,3 @@ jobs:
       - name: "Check, Test and Build Application"
         run: |
           nix develop --command bash -c "cabal update --ignore-project && cabal dev-test-build"
-
-      - name: "Check, Test and Build Website"
-        run: |
-          nix develop --command bash -c "cd website && npm install && npm run check"

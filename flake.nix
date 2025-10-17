@@ -62,7 +62,6 @@
               pkgs.nil
               pkgs.nixpkgs-fmt
               pkgs.nodePackages.prettier
-              pkgs.nodejs_22
               pkgs.upx
 
               ## Our development and testing scripts:
