@@ -2,7 +2,7 @@
   description = "Host Patrol";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
@@ -42,7 +42,8 @@
             ## Build inputs for development shell:
             buildInputs = [
               ## Haskell related build inputs:
-              thisHaskell.apply-refact
+              ## TODO: Once we are on ghc > 9.10, enable apply-refact again.
+              # thisHaskell.apply-refact
               thisHaskell.cabal-fmt
               thisHaskell.cabal-install
               thisHaskell.cabal2nix
