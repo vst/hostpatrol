@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# shellcheck disable=SC2046
 
 ###################
 # SHELL BEHAVIOUR #
