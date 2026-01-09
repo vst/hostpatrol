@@ -1,5 +1,5 @@
 {
-  description = "Host Patrol";
+  description = "Host Patrol - Lazy Hacker's Linux Host Patrol";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
