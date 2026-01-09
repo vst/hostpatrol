@@ -16,7 +16,7 @@
         <img alt="GitHub Release" src="https://img.shields.io/github/v/release/vst/hostpatrol?display_name=tag&style=flat-square" />
         <img alt="GitHub Issues" src="https://img.shields.io/github/issues/vst/hostpatrol?style=flat-square" />
         <img alt="Pull Requests" src="https://img.shields.io/github/issues-pr/vst/hostpatrol?style=flat-square" />
-        <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/vst/hostpatrol/check.yaml?style=flat-square" />
+        <img alt="CI Status" src="https://img.shields.io/github/actions/workflow/status/vst/hostpatrol/check-verify.yaml?style=flat-square" />
     </div>
 </h1>
 
@@ -178,18 +178,10 @@ cp .envrc.tmpl .envrc
 direnv allow
 ```
 
-Run following command to create the git-ignored `.cabal` file, perform checks,
-tests and build the project:
+Check, lint, test and build everything with this:
 
 ```sh
-cabal dev-test-build
-```
-
-Subsequently, you may pass `-c` option to this command to clean up the build
-artifacts first:
-
-```sh
-cabal dev-test-build -c
+cabal verify [-c | --clean]
 ```
 
 ## License

@@ -3,6 +3,6 @@
 # In serveral places Stack uses 4-tuples and in one place Stack uses a
 # 5-tuple.
 [[check]]
-  id = "STAN-0302"
-  scope = "all"
-  type = "Exclude"
+id = "STAN-0302"
+scope = "all"
+type = "Exclude"

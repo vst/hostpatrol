@@ -6,14 +6,26 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
   };
 
-  outputs = inputs@{ self, flake-parts, ... }:
+  outputs =
+    inputs@{ nixpkgs, flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = inputs.nixpkgs.lib.systems.flakeExposed;
-      perSystem = { pkgs, system, ... }:
-        let
-          ## Load readYAML helper:
-          readYAML = pkgs.callPackage ./nix/read-yaml.nix { };
+      imports = [
+        ./nix/flake-modules/read-yaml
+      ];
 
+      systems = nixpkgs.lib.systems.flakeExposed;
+
+      perSystem =
+        {
+          config,
+          self',
+          inputs',
+          pkgs,
+          system,
+          readYAML,
+          ...
+        }:
+        let
           ## Read package information:
           package = readYAML ./package.yaml;
 
@@ -24,50 +36,55 @@
             };
           };
 
-          ## Prepare dev-test-build script:
-          dev-test-build = pkgs.writeShellApplication {
-            name = "cabal-dev-test-build";
-            text = builtins.readFile ./nix/dev-test-build.sh;
-            runtimeInputs = [ pkgs.bash pkgs.bc pkgs.moreutils ];
+          ## Common build inputs for both development and CI environments:
+          buildInputsCommon = [
+            ## Essential Haskell tools:
+            thisHaskell.cabal-install
+            thisHaskell.fourmolu
+            thisHaskell.hlint
+            thisHaskell.hpack
+            thisHaskell.stan
+            thisHaskell.weeder
+
+            ## Other essentials:
+            pkgs.git
+            pkgs.nixfmt-rfc-style
+            pkgs.prettier
+            pkgs.shellcheck
+            pkgs.shfmt
+            pkgs.statix
+            pkgs.taplo
+
+            ## Our development scripts:
+            (pkgs.callPackage ./nix/cabal-verify { })
+          ];
+
+          ## Development-only inputs:
+          buildInputsDevOnly = [
+            ## Haskell development tools:
+            thisHaskell.haskell-language-server
+            thisHaskell.cabal-fmt
+            thisHaskell.cabal2nix
+
+            ## Other development tools:
+            pkgs.docker-client
+            pkgs.nil
+            pkgs.curl
+            pkgs.openssh
+          ];
+
+          ## Development shell:
+          devShell = thisHaskell.shellFor {
+            packages = p: [ p.${package.name} ];
+            withHoogle = false;
+            buildInputs = buildInputsCommon ++ buildInputsDevOnly;
           };
 
-          ## Prepare Nix shell:
-          thisShell = thisHaskell.shellFor {
-            ## Define packages for the shell:
+          ## CI shell (minimal, fast):
+          ciShell = thisHaskell.shellFor {
             packages = p: [ p.${package.name} ];
-
-            ## Enable Hoogle:
             withHoogle = false;
-
-            ## Build inputs for development shell:
-            buildInputs = [
-              ## Haskell related build inputs:
-              ## TODO: Once we are on ghc > 9.10, enable apply-refact again.
-              # thisHaskell.apply-refact
-              thisHaskell.cabal-fmt
-              thisHaskell.cabal-install
-              thisHaskell.cabal2nix
-              thisHaskell.fourmolu
-              thisHaskell.haskell-language-server
-              thisHaskell.hlint
-              thisHaskell.hpack
-              thisHaskell.weeder
-
-              ## Build inputs for testing requirements:
-              pkgs.curl
-              pkgs.openssh
-
-              ## Other build inputs for various development requirements:
-              pkgs.docker-client
-              pkgs.git
-              pkgs.nil
-              pkgs.nixpkgs-fmt
-              pkgs.nodePackages.prettier
-              pkgs.upx
-
-              ## Our development and testing scripts:
-              dev-test-build
-            ];
+            buildInputs = buildInputsCommon;
           };
 
           thisPackage = pkgs.haskell.lib.justStaticExecutables (
@@ -76,13 +93,20 @@
                 pkgs.git
                 pkgs.installShellFiles
                 pkgs.makeWrapper
-                pkgs.ronn
               ];
 
               postFixup = (oldAttrs.postFixup or "") + ''
+                ## Create output directories:
+                mkdir -p $out/{bin}
+
                 ## Wrap program to add PATHs to dependencies:
-                wrapProgram $out/bin/${package.name} \
-                  --prefix PATH : ${pkgs.lib.makeBinPath [pkgs.bashInteractive pkgs.curl pkgs.openssh]}
+                wrapProgram $out/bin/${package.name} --prefix PATH : ${
+                  pkgs.lib.makeBinPath [
+                    pkgs.bashInteractive # Added for bash-based CLI option completions
+                    pkgs.curl
+                    pkgs.openssh
+                  ]
+                }
 
                 ## Install completion scripts:
                 installShellCompletion --bash --name ${package.name}.bash <($out/bin/${package.name} --bash-completion-script "$out/bin/${package.name}")
@@ -122,12 +146,13 @@
           packages = {
             "${package.name}" = thisPackage;
             docker = thisDocker;
-            default = self.packages.${system}.${package.name};
+            default = thisPackage;
           };
 
-          ## Project development shell output:
+          ## Project development shells:
           devShells = {
-            default = thisShell;
+            default = devShell;
+            ci = ciShell;
           };
         };
     };

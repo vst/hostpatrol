@@ -1,0 +1,32 @@
+name: "Check, Lint, Test and Build Codebase"
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - name: "Checkout Codebase"
+        uses: "actions/checkout@v6"
+
+      - name: "Install Nix"
+        uses: "DeterminateSystems/nix-installer-action@v21"
+
+      - name: "Prepare CI devShell"
+        run: |
+          nix develop .#ci --command true
+
+      - name: "Verify Codebase"
+        run: |
+          nix develop .#ci --command cabal verify
+
+      - name: "Build Docker Image"
+        run: |
+          nix build .#docker
+
+      - name: "Load Docker Image"
+        run: |
+          docker load <./result
