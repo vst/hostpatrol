@@ -14,31 +14,31 @@ set -e
 # Checks if a given command exist on the host (is on $PATH), and exits
 # this script with exit code 80 if not.
 _check_command() {
-    if ! which "${1}" >/dev/null; then
-        echo >&2 "Command not found: ${1}"
-        exit 80
-    fi
+  if ! which "${1}" >/dev/null; then
+    echo >&2 "Command not found: ${1}"
+    exit 80
+  fi
 }
 
 # Checks if a given file exist on the host, and exits
 # this script with exit code 81 if not.
 _check_file() {
-    if [ ! -f "${1}" ]; then
-        echo >&2 "File not found: ${1}"
-        exit 81
-    fi
+  if [ ! -f "${1}" ]; then
+    echo >&2 "File not found: ${1}"
+    exit 81
+  fi
 }
 
 # Prints a key/value pair in SHELL variable format. Value is printed
 # within double-quotes, and double-quotes in the variable are escaped.
 _print_var() {
-    printf '%s="%s"\n' "${1}" "$(echo "${2}" | sed 's/"/\\"/g')"
+  printf '%s="%s"\n' "${1}" "$(echo "${2}" | sed 's/"/\\"/g')"
 }
 
 # Prints the name of the given command if it is on the PATH, returns
 # with 1 otherwise.
 _which_command() {
-    which "${1}" >/dev/null 2>&1 && echo "${1}" || return 1
+  which "${1}" >/dev/null 2>&1 && echo "${1}" || return 1
 }
 
 ##########
