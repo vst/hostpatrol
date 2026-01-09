@@ -13,12 +13,12 @@
 
 - `nix develop` provides cabal, formatters, and analyzers; pair with
   `direnv allow` for automatic activation.
-- `cabal verify` is the required pre-push check: it runs formatters,
-  `hlint`, `stan`, `weeder`, builds, smoke-tests the CLI, runs `cabal v1-test`,
-  and generates Haddocks.
-- Use `cabal verify -c` for a clean rebuild, `nix build .#hostpatrol`
-  for release binaries, and `./build-static.sh --platform linux/amd64` when you
-  need a Docker-backed static executable.
+- `cabal verify` is the required pre-push check: it runs formatters, `hlint`,
+  `stan`, `weeder`, builds, smoke-tests the CLI, runs `cabal v1-test`, and
+  generates Haddocks.
+- Use `cabal verify -c` for a clean rebuild, `nix build .#hostpatrol` for
+  release binaries, and `./build-static.sh --platform linux/amd64` when you need
+  a Docker-backed static executable.
 
 ## Coding Style & Naming Conventions
 
@@ -43,8 +43,8 @@
 
 - Follow the conventional commit style from history (`refactor(build): …`);
   scopes should reference directories or modules.
-- Every commit must pass `cabal verify` and include generated or
-  formatted artifacts.
+- Every commit must pass `cabal verify` and include generated or formatted
+  artifacts.
 - Pull requests need a concise summary, validation notes, linked issues (e.g.
   `Closes #42`).
 
