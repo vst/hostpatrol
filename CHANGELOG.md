@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.18](https://github.com/vst/hostpatrol/compare/v0.0.17...v0.0.18) (2026-01-10)
+
+
+### Bug Fixes
+
+* **deps:** upgrade nixpkgs to v25.11, bump flake inputs ([34954af](https://github.com/vst/hostpatrol/commit/34954af1840ab751a587411c15233c8e299c2e15))
+
 ## [0.0.17](https://github.com/vst/hostpatrol/compare/v0.0.16...v0.0.17) (2025-10-08)
 
 
