@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.19](https://github.com/vst/hostpatrol/compare/v0.0.18...v0.0.19) (2026-06-26)
+
+
+### Bug Fixes
+
+* **deps:** bump stackage to LTS 24.46 ([4c1f36d](https://github.com/vst/hostpatrol/commit/4c1f36d34c8beb0e055d94a8ada356a5547842ec))
+* **deps:** upgrade nixpkgs to v26.05 ([d7ef364](https://github.com/vst/hostpatrol/commit/d7ef36402f9edfa43455f11a9eaddda1891ef679))
+
 ## [0.0.18](https://github.com/vst/hostpatrol/compare/v0.0.17...v0.0.18) (2026-01-10)
 
 
