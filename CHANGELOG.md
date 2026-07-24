@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.20](https://github.com/vst/hostpatrol/compare/v0.0.19...v0.0.20) (2026-07-24)
+
+
+### Bug Fixes
+
+* **scripts:** use short-lived AWS IMDSv2 tokens ([930c1a6](https://github.com/vst/hostpatrol/commit/930c1a6462b435ab4d207c6f5e7258e229d49669))
+
 ## [0.0.19](https://github.com/vst/hostpatrol/compare/v0.0.18...v0.0.19) (2026-07-05)
 
 
